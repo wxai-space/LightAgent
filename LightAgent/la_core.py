@@ -199,13 +199,7 @@ class LightAgent:
         self.model = model
         self.memory = memory
         self.tree_of_thought = tree_of_thought
-        if tools is None:
-            self.tools = []
-        if tools:
-            self.tools = tools
-            # 初始化工具列表
-            self.load_tools(tools)
-            # register_tool_manually(tools)
+
         self.debug = debug
         self.log_level = log_level.upper()
         # 确保 log 目录存在
@@ -217,7 +211,13 @@ class LightAgent:
             self.log_file = os.path.join(log_dir, log_file)
             # Set up the logger
             self.logger = self._setup_logger(log_level, self.log_file)
-
+        if tools is None:
+            self.tools = []
+        if tools:
+            self.tools = tools
+            # 初始化工具列表
+            self.load_tools(tools)
+            # register_tool_manually(tools)
         if api_key is None:
             raise ValueError(
                 "The api_key client option must be set either by passing api_key to the client or by setting the OPENAI_API_KEY environment variable"
@@ -338,7 +338,7 @@ class LightAgent:
         :param action: 日志动作（如 chat, call_tool, retrieve_memory）。
         :param data: 日志数据。
         """
-        if self.debug==False:
+        if not self.debug:
             return
         log_message = f"{action}: {data}"
         if level == "DEBUG":
@@ -452,7 +452,7 @@ class LightAgent:
                         for chunk in tool_response:
                             # print("Received chunk:", chunk)  # 打印每个 chunk
                             combined_response += chunk  # 将每个 chunk 叠加
-                        if combined_response is "":
+                        if combined_response == "":
                             combined_response = "".join(tool_response)
                         tool_responses.append(combined_response)  # 将叠加后的完整响应添加到列表
                     else:
