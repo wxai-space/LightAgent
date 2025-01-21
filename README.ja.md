@@ -641,7 +641,7 @@ LightAgentは[Apache 2.0ライセンス](LICENSE)の下で使用されます。�
 
 何か問題や提案がある場合は、いつでもお問い合わせください：
 
-- **メール**：156713035@qq.com  
+- **メール**：service@wanxingai.com  
 - **GitHub Issues**：[https://github.com/wxai-space/lightagent/issues](https://github.com/wxai-space/lightagent/issues)  
 
 あなたのフィードバックをお待ちしております。一緒にLightAgentを強化しましょう！🚀

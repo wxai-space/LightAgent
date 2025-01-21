@@ -648,7 +648,7 @@ LightAgent usa a [Licença Apache 2.0](LICENSE). Você pode usar, modificar e di
 
 Para qualquer dúvida ou sugestão, não hesite em entrar em contato conosco:
 
-- **Email**: 156713035@qq.com  
+- **Email**: service@wanxingai.com  
 - **Issues no GitHub**: [https://github.com/wxai-space/lightagent/issues](https://github.com/wxai-space/lightagent/issues)  
 
 Aguardamos seu feedback para tornar o LightAgent ainda mais poderoso!🚀

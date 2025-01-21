@@ -650,7 +650,7 @@ LightAgent는 [Apache 2.0 라이센스](LICENSE)를 따릅니다. 본 프로젝�
 
 질문이나 제안이 있는 경우 언제든지 문의해 주십시오:
 
-- **이메일**: 156713035@qq.com  
+- **이메일**: service@wanxingai.com  
 - **GitHub Issues**：[https://github.com/wxai-space/lightagent/issues](https://github.com/wxai-space/lightagent/issues)  
 
 우리는 귀하의 피드백을 기대하며 함께 LightAgent를 더 강력하게 만들어 갑시다!🚀

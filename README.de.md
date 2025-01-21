@@ -29,65 +29,64 @@
     <a href="README.ru.md">Русский</a> 
   </p>
 </div>
-
 <div align="center">
-  <h1>LightAgent🚀 (Nächste Generation Agentic KI-Rahmen)</h1>
+  <h1>LightAgent🚀（Nächste Generation des Agentic AI-Frameworks）</h1>
 </div>
 
-**LightAgent** ist ein extrem leichtgewichtiges aktives agentisches Framework mit Gedächtnis (`mem0`), Werkzeugen (`Tools`) und Denkbaum (`ToT`). Es unterstützt die Zusammenarbeit mehrerer Agenten in einer Art Schwarm, die Automatisierung der Werkzeuggenerierung und die Bewertung von Agenten. Die zugrunde liegenden Modelle unterstützen OpenAI, Zhipu ChatGLM, Baichuan große Modelle, DeepSeek, Qwen Serien große Modelle usw. Zudem unterstützt LightAgent den OpenAI Stream-Format API-Dienstausgang und lässt sich nahtlos in alle gängigen Chat-Rahmen integrieren.🌟
+**LightAgent** ist ein extrem leichtgewichtiges, speicherfähiges (`mem0`), werkzeugbasiertes (`Tools`), und denkbaumgestütztes (`ToT`) aktives Agentic Framework. Es unterstützt swarmähnliche Multi-Agenten-Kooperation, automatisierte Werkzeuggenerierung und Agentenbewertung. Die zugrunde liegenden Modelle unterstützen OpenAI, Zhiyu ChatGLM, Baichuan große Modelle, DeepSeek, Qwen-Serie große Modelle und mehr. Gleichzeitig unterstützt LightAgent die Ausgabe von OpenAI Stream-Format-API-Diensten und nahtlose Integration in die gängigsten Chat-Frameworks.🌟
 
 ---
 
 ## ✨ Eigenschaften
 
-- **Leicht und effizient** 🚀：Extrem minimalistisches Design, schnelle Bereitstellung, geeignet für verschiedene Anwendungsszenarien. (Kein LangChain, Kein LlamaIndex) 100 % Python-Implementierung, keine zusätzlichen Abhängigkeiten, der Kerncode umfasst nur 1000 Zeilen und ist vollständig Open Source. 
-- **Gedächtnisunterstützung** 🧠：Unterstützung der benutzerdefinierten Langzeiterinnerungen für jeden Benutzer, native Unterstützung des `mem0` Gedächtnismoduls, das die personalisierten Erinnerungen der Benutzer während des Dialogs automatisch verwaltet und die Intelligenz des Agenten erhöht.
-- **Selbstlernen** 📚️：Jeder Agent verfügt über die Fähigkeit zum Selbstlernen, und Administratoren mit den entsprechenden Berechtigungen können jeden Agenten verwalten.
-- **Werkzeugintegration** 🛠️：Unterstützung für benutzerdefinierte Werkzeuge (`Tools`), automatisierte Werkzeuggenerierung, flexible Erweiterung, um vielfältige Anforderungen zu erfüllen.  
-- **Komplexe Ziele** 🌳：Eingebautes modul mit reflektierender Denkbaumstruktur (ToT), unterstützt die Zerlegung komplexer Aufgaben und Mehrschritt-Inferenz, um die Aufgabenbearbeitungsfähigkeiten zu verbessern.  
-- **Kollaboration mehrerer Agenten** 🤖：Einfachere Umsetzung der Zusammenarbeit mehrerer Agenten als beim Schwarmansatz, mit eingebautem LightSwarm zur Intentionserkennung und Aufgabenübertragungsfunktion, die die Benutzereingaben intelligenter verarbeiten kann und bei Bedarf Aufgaben an andere Agenten überträgt. 
-- **Unabhängige Ausführung** 🤖：Selbstständige Durchführung der Aufgabenwerkzeugaufrufe ohne menschliches Eingreifen.  
-- **Unterstützung mehrerer Modelle** 🔄：Kompatibel mit OpenAI, Zhipu ChatGLM, Baichuan große Modelle, Jieyue Xingchen, DeepSeek, Qwen Serien große Modelle.  
-- **Stream API** 🌊：Unterstützt den OpenAI Stream-Format API-Dienstausgang, nahtlose Integration in gängige Chat-Rahmen, um die Benutzererfahrung zu verbessern.  
-- **Tools Werkzeuggenerator** 🚀：Übergeben Sie einfach Ihre API-Dokumentation an den [Tools Werkzeuggenerator], der Ihnen automatisiert Ihre exklusiven Werkzeuge erstellt und Ihnen hilft, in nur einer Stunde hunderte von personalisierten benutzerdefinierten Werkzeugen schnell zu erstellen, die Effizienz zu steigern und Ihr kreatives Potenzial freizusetzen.
+- **Leicht und effizient** 🚀: Minimalistisches Design, schnelle Bereitstellung, geeignet für verschiedene Anwendungsfälle. (Kein LangChain, Kein LlamaIndex) 100% Python-Implementierung, keine zusätzlichen Abhängigkeiten, der Kerncode umfasst nur 1000 Zeilen und ist vollständig Open Source. 
+- **Speicherunterstützung** 🧠: Unterstützt benutzerdefinierte Langzeitgedächtnisse für jeden Benutzer, native Unterstützung des `mem0`-Speichermoduls, das die personalisierte Erinnerung des Benutzers während des Gesprächs automatisch verwaltet und den Agenten intelligenter macht.
+- **Selbstlernen** 📚️: Jeder Agent hat die Fähigkeit zum selbstständigen Lernen, und berechtigte Administratoren können jeden Agenten verwalten.
+- **Werkzeugintegration** 🛠️: Unterstützt benutzerdefinierte Werkzeuge (`Tools`), automatisierte Werkzeuggenerierung, flexible Erweiterung zur Erfüllung vielfältiger Anforderungen.  
+- **Komplexe Ziele** 🌳: Integriertes, reflektierendes Denkbaum-Modul (ToT), das komplexe Aufgabenzerlegungen und mehrstufiges Denken unterstützt, um die Aufgabenbearbeitungsfähigkeit zu verbessern.  
+- **Multi-Agenten-Kooperation** 🤖: Einfachere Implementierung der Multi-Agenten-Kooperation als Swarm, integrierte LightSwarm-Funktion zur Absichtserkennung und Aufgabenübertragung, die es ermöglicht, Benutzereingaben intelligenter zu verarbeiten und Aufgaben bei Bedarf an andere Agenten zu übertragen. 
+- **Unabhängige Ausführung** 🤖: Selbstständige Durchführung von Aufgaben ohne menschliches Eingreifen.  
+- **Unterstützung mehrerer Modelle** 🔄: Kompatibel mit OpenAI, Zhiyu ChatGLM, Baichuan große Modelle, Step Star, DeepSeek, Qwen-Serie große Modelle.  
+- **Stream-API** 🌊: Unterstützt die Ausgabe von OpenAI Stream-Format-API-Diensten, nahtlose Integration in gängige Chat-Frameworks zur Verbesserung der Benutzererfahrung.  
+- **Werkzeuggenerator** 🚀: Geben Sie einfach Ihre API-Dokumentation an den [Werkzeuggenerator] weiter, und er wird automatisch Ihre maßgeschneiderten Werkzeuge erstellen, sodass Sie in nur einer Stunde Hunderte von personalisierten benutzerdefinierten Werkzeugen schnell erstellen können, um die Effizienz zu steigern und Ihr kreatives Potenzial freizusetzen.
 
 
-## 🚧 Kommende Funktionen
+## 🚧 Bald verfügbar
 
-- **Adaptives Tools-Mechanismus** 🛠️：Unterstützung für die Hinzufügung einer unbegrenzten Anzahl von Werkzeugen, wobei das große Modell zunächst eine Auswahl zusätzlicher Kandidatenwerkzeuge aus Tausenden von Werkzeugen auswählt, nachdem unwichtige Werkzeuge gefiltert wurden, um den Kontext dem großen Modell zu übermitteln, was den Tokenverbrauch erheblich reduziert.
-- **Agentenzusammenarbeit mit Gedächtnis** 🛠️：Agenten können Informationen teilen und Nachrichten übertragen, um komplexe Aufgabenkooperation zu erreichen.
-- **Agent selbst lernen** 🧠️：Jeder Agent hat die Fähigkeit zur Szenario-Gedächtnisbildung und kann aus Gesprächen mit Benutzern lernen.
-- **Agent Bewertung** 📊：Integrierte Agent-Bewertungstools zur einfachen Bewertung und Optimierung des von Ihnen erstellten Agenten, zur Anpassung an Geschäftsszenarien und zur kontinuierlichen Verbesserung des Intelligenzlevels.  
+- **Adaptive Werkzeugmechanismen** 🛠️: Unterstützung für die Hinzufügung unbegrenzter Werkzeuge, Auswahl von Kandidatenwerkzeugen aus Tausenden von Werkzeugen durch das große Modell, Filtern irrelevanter Werkzeuge und anschließende Einreichung des Kontexts an das große Modell, was den Token-Verbrauch erheblich senken kann.
+- **Intelligente Agentenkooperation mit Gedächtnis** 🛠️: Agenten können Informationen teilen und Nachrichten übermitteln, um komplexe Aufgabenkooperation zu realisieren.
+- **Selbstlernender Agent** 🧠️: Jeder Agent hat die Fähigkeit, seine eigene Szenarienerinnerung zu entwickeln und aus den Gesprächen mit Benutzern zu lernen.
+- **Agentenbewertung** 📊: Integriertes Agentenbewertungstool zur einfachen Bewertung und Optimierung Ihrer erstellten Agenten, um sie an Geschäftsszenarien anzupassen und das Intelligenzniveau kontinuierlich zu verbessern.  
 
 
-## Eingebauter "Denkfluss"
-(Methode für den Denkfluss) kann durch systematische, strukturierte und flexible Denkprozesse effektiv auf Herausforderungen in komplexen Szenarien reagieren. 
-Folgend sind die spezifischen Umsetzungsschritte:
+## Integrierte „Denkfluss“-Methode
+Durch systematische, strukturierte und flexible Denkprozesse kann die Methode effektiv auf Herausforderungen in komplexen Szenarien reagieren.
+Hier sind die spezifischen Umsetzungsschritte:
 ```text
 Problemdefinition: Klärung des Kernproblems und der Ziele.
 
 Informationssammlung: Systematische Sammlung relevanter Informationen und Daten.
 
-Problemauslegung: Zerlegung komplexer Probleme in mehrere Unterprobleme oder Module.
+Problemanalyse: Zerlegung komplexer Probleme in mehrere Teilprobleme oder Module.
 
-Multidimensionale Analyse: Analyse jedes Unterproblems aus verschiedenen Perspektiven und Ebenen.
+Multidimensionale Analyse: Analyse jedes Teilproblems aus verschiedenen Perspektiven und Ebenen.
 
-Beziehungsaufbau: Identifizierung der Zusammenhänge und Abhängigkeiten zwischen den Unterproblemen.
+Beziehungen herstellen: Identifizierung der Zusammenhänge und Abhängigkeiten zwischen den Teilproblemen.
 
-Erstellung von Lösungsvorschlägen: Vorschlagen möglicher Lösungen für jedes Unterproblem.
+Lösungen generieren: Vorschlag möglicher Lösungen für jedes Teilproblem.
 
-Bewertung und Auswahl: Bewertung der Durchführbarkeit und Auswirkung der verschiedenen Lösungsansätze, Auswahl der besten Lösung.
+Bewertung und Auswahl: Bewertung der Machbarkeit und Auswirkungen der Lösungen, Auswahl der optimalen Lösung.
 
-Umsetzung und Feedback: Umsetzung des ausgewählten Plans und Anpassung basierend auf dem Feedback.
+Implementierung und Feedback: Umsetzung der ausgewählten Lösung und Anpassung basierend auf dem Feedback.
 ```
 
 ---
 ## 🌟 Warum LightAgent wählen?
 
-- **Open Source und kostenlos** 💖：Vollständig Open Source, von der Community betrieben, kontinuierliche Updates, Beiträge sind willkommen!  
-- **Einfach zu bedienen** 🎯：Detaillierte Dokumentation, umfangreiche Beispiele, schnelle Einarbeitungszeit, einfache Integration in Ihr Projekt.  
-- **Community-Unterstützung** 👥：Aktive Entwickler-Community, die Ihnen jederzeit hilft und Antworten gibt.  
-- **Hohe Leistung** ⚡：Optimiertes Design, effiziente Ausführung, erfüllt die Anforderungen an hochgradige Parallelverarbeitung.  
+- **Open Source und kostenlos** 💖: Vollständig Open Source, gemeinschaftsgetrieben, kontinuierliche Updates, Beiträge sind willkommen!  
+- **Einfach zu bedienen** 🎯: Ausführliche Dokumentation, reichhaltige Beispiele, schnelle Einarbeitung, einfache Integration in Ihr Projekt.  
+- **Gemeinschaftsunterstützung** 👥: Aktive Entwicklergemeinschaft, die Ihnen jederzeit Hilfe und Antworten bietet.  
+- **Hohe Leistung** ⚡: Optimiertes Design, effiziente Ausführung, erfüllt die Anforderungen an hochgradige Parallelität.  
 
 ---
 
@@ -99,13 +98,13 @@ Umsetzung und Feedback: Umsetzung des ausgewählten Plans und Anpassung basieren
 pip install lightagent
 ```
 
-(Optionaler Installationsbefehl) Um das Mem0-Paket über pip zu installieren:
+(Optional) Installieren Sie das Mem0-Paket über pip:
 
 ```bash
 pip install mem0ai
 ```
 
-Oder Sie können Mem0 mit nur einem Klick auf einer gehosteten Plattform verwenden, [klicken Sie hier](https://www.mem0.ai/).
+Oder Sie können Mem0 mit einem Klick auf einer Hosting-Plattform verwenden, [klicken Sie hier](https://www.mem0.ai/).
 
 
 ### Hello World Beispielcode
@@ -113,76 +112,76 @@ Oder Sie können Mem0 mit nur einem Klick auf einer gehosteten Plattform verwend
 ```python
 from LightAgent import LightAgent
 
-# Initialisierung des Agenten
+# Initialisieren des Agenten
 agent = LightAgent(model="gpt-4o-mini", api_key="your_api_key", base_url= "your_base_url")
 
 # Ausführen des Agenten
-response = agent.run("你好，你是谁？")
+response = agent.run("Hallo, wer bist du?")
 print(response)
 ```
 
-### Modell-Selbstwahrnehmung über System-Prompts festlegen
+### Festlegen des Selbstbewusstseins des Modells durch System-Prompt
 
 ```python
 from LightAgent import LightAgent
 
-# Initialisierung des Agenten
+# Initialisieren des Agenten
 agent = LightAgent(
-     role="请记住你是LightAgent，一个可以帮助用户完成多工具使用的有用助手。",  # system角色描述
-     model="deepseek-chat",  # 支持的模型：openai, chatglm, deepseek, qwen 等
-     api_key="your_api_key",  # 替换为你的大模型服务商 API Key
-     base_url="your_base_url",  # 替换为你的大模型服务商 api url
+     role="Bitte erinnere dich, dass du LightAgent bist, ein nützlicher Assistent, der den Benutzern hilft, mehrere Werkzeuge zu verwenden.",  # Systemrollenbeschreibung
+     model="deepseek-chat",  # Unterstützte Modelle: openai, chatglm, deepseek, qwen usw.
+     api_key="your_api_key",  # Ersetzen Sie durch Ihren API-Schlüssel des großen Modells
+     base_url="your_base_url",  # Ersetzen Sie durch die API-URL Ihres großen Modells
  )
 # Ausführen des Agenten
-response = agent.run("请问你是谁？")
+response = agent.run("Darf ich fragen, wer du bist?")
 print(response)
 ```
 
-### Werkzeugbeispielcode
+### Beispielcode zur Verwendung von Werkzeugen
 
 ```python
 from LightAgent import LightAgent
 
 
-# Werkzeug definieren
+# Definieren des Werkzeugs
 def get_weather(city_name: str) -> str:
     """
-    获取城市的当前天气
+    Holen Sie sich das aktuelle Wetter für `city_name`
     """
-    return f"查询结果: {city_name} 天气晴"
-# Werkzeuginformationen innerhalb der Funktion definieren
+    return f"Suchergebnis: {city_name} Wetter ist klar"
+# Definieren Sie die Werkzeuginformationen innerhalb der Funktion
 get_weather.tool_info = {
     "tool_name": "get_weather",
-    "tool_description": "获取指定城市的当前天气信息",
+    "tool_description": "Holen Sie sich die aktuellen Wetterinformationen für die angegebene Stadt",
     "tool_params": [
-        {"name": "city_name", "description": "要查询的城市名称", "type": "string", "required": True},
+        {"name": "city_name", "description": "Der Name der Stadt, die abgefragt werden soll", "type": "string", "required": True},
     ]
 }
 
 tools = [get_weather]
 
-# Initialisierung des Agenten
+# Initialisieren des Agenten
 agent = LightAgent(model="qwen-turbo-2024-11-01", api_key="your_api_key", base_url= "your_base_url", tools=tools)
 
 # Ausführen des Agenten
-response = agent.run("请帮我查询一下上海的天气情况")
+response = agent.run("Bitte helfen Sie mir, das Wetter in Shanghai zu überprüfen")
 print(response)
 ```
-Unterstützung von benutzerdefinierten und unbegrenzten Werkzeugen.
+Unterstützt die benutzerdefinierte Erstellung einer unbegrenzten Anzahl von Werkzeugen.
 
-Beispiel für mehrere Werkzeuge: tools = ["search_news","get_weather","get_stock_realtime_data","get_stock_kline_data"]
+Beispiele für mehrere Werkzeuge: tools = ["search_news","get_weather","get_stock_realtime_data","get_stock_kline_data"]
 
 ---
 
 ## Funktionale Details
 
-### 1. Abnehmbares vollautomatisches Gedächtnismodul (`mem0`)
-LightAgent unterstützt die externe Erweiterung des `mem0` Gedächtnismoduls zur automatischen Verwaltung von Kontextgedächtnis und Historie, ohne dass der Entwickler manuell Erinnerungen hinzufügen oder Abrufen auslösen muss. Über das Gedächtnismodul kann der Agent während mehrerer Dialoge die Konsistenz des Kontextes aufrechterhalten.
+### 1. Abnehmbares, vollautomatisches Gedächtnismodul (`mem0`)
+LightAgent unterstützt die externe Erweiterung des `mem0`-Gedächtnismoduls, das automatisch Kontextgedächtnis und Historienverwaltung durchführt, ohne dass Entwickler manuell Gedächtnis hinzufügen oder abrufen müssen. Durch das Gedächtnismodul kann der Agent die Konsistenz des Kontexts über mehrere Dialoge hinweg aufrechterhalten.
 
 ```python
-# Aktivierung des Gedächtnismoduls
+# Aktivieren des Gedächtnismoduls
 
-# Oder verwenden Sie ein benutzerdefiniertes Gedächtnismodul, hier zum Beispiel mem0 https://github.com/mem0ai/mem0/
+# Oder verwenden Sie ein benutzerdefiniertes Gedächtnismodul, hier als Beispiel mem0 https://github.com/mem0ai/mem0/
 from mem0 import Memory
 from LightAgent import LightAgent
 import os
@@ -193,11 +192,11 @@ class CustomMemory:
         self.memories = []
         os.environ["OPENAI_API_KEY"] = "your_api_key"
         os.environ["OPENAI_API_BASE"] = "your_base_url"
-        # Initialize Mem0
+        # Initialisieren von Mem0
         config = {
             "version": "v1.1"
         }
-        # mem0中 如需使用qdrant作为向量数据库存储记忆，请将config改为下面代码
+        # Wenn Sie qdrant als Vektorspeicher für das Gedächtnis verwenden möchten, ändern Sie die Konfiguration wie folgt
         # config = {
         #     "vector_store": {
         #         "provider": "qdrant",
@@ -211,109 +210,109 @@ class CustomMemory:
         self.m = Memory.from_config(config_dict=config)
 
     def store(self, data: str, user_id):
-        """Speichern von Erinnerungen. Entwickler können die interne Implementierung der Speicherungsmethode nach eigenem Ermessen ändern. Das aktuelle Beispiel verwendet die Methode zum Hinzufügen von Erinnerungen von mem0."""
+        """Speichern von Erinnerungen. Entwickler können die interne Implementierung der Speichermethode anpassen, das aktuelle Beispiel ist die Methode zum Hinzufügen von Erinnerungen von mem0."""
         result = self.m.add(data, user_id=user_id)
         return result
 
     def retrieve(self, query: str, user_id):
-        """Abruf relevanter Erinnerungen. Entwickler können die interne Implementierung der Abrufmethode nach eigenem Ermessen ändern. Das aktuelle Beispiel verwendet die Methode zum Suchen von Erinnerungen von mem0."""
+        """Abrufen relevanter Erinnerungen. Entwickler können die interne Implementierung der Abrufmethode anpassen, das aktuelle Beispiel ist die Methode zum Suchen von Erinnerungen von mem0."""
         result = self.m.search(query, user_id=user_id)
         return result
 
 agent = LightAgent(
-        role="请记住你是LightAgent，一个可以帮助用户完成多工具使用的有用助手。",  # system角色描述
-        model="deepseek-chat",  # 支持的模型：openai, chatglm, deepseek, qwen 等
-        api_key="your_api_key",  # 替换为你的大模型服务商 API Key
-        base_url="your_base_url",  # 替换为你的大模型服务商 api url
-        memory=CustomMemory(),  # 启用记忆功能
-        tree_of_thought=False,  # 启用思维链
+        role="Bitte erinnere dich, dass du LightAgent bist, ein nützlicher Assistent, der den Benutzern hilft, mehrere Werkzeuge zu verwenden.",  # Systemrollenbeschreibung
+        model="deepseek-chat",  # Unterstützte Modelle: openai, chatglm, deepseek, qwen usw.
+        api_key="your_api_key",  # Ersetzen Sie durch Ihren API-Schlüssel des großen Modells
+        base_url="your_base_url",  # Ersetzen Sie durch die API-URL Ihres großen Modells
+        memory=CustomMemory(),  # Aktivieren der Gedächtnisfunktion
+        tree_of_thought=False,  # Aktivieren der Denkbaumfunktion
     )
 
-# Gedächtnis-Test & falls weitere Werkzeuge hinzugefügt werden sollen, können diese selbst zum Agenten hinzugefügt werden, um Werkzeugaufrufe mit Gedächtnis zu realisieren
+# Gedächtnistests & Wenn Werkzeuge hinzugefügt werden müssen, können Sie die Werkzeuge selbst zum Agenten hinzufügen, um die Werkzeugaufrufe mit Gedächtnis zu realisieren
 
 user_id = "user_01"
-logger.info("\n=========== next conversation ===========")
-query = "介绍下三亚的有什么好玩的景点，身边很多朋友都去三亚旅游了，我也想去玩"
+logger.info("\n=========== nächstes Gespräch ===========")
+query = "Erzählen Sie mir von den Sehenswürdigkeiten in Sanya, viele meiner Freunde sind nach Sanya gereist, ich möchte auch dorthin."
 print(agent.run(query, stream=False, user_id=user_id))
-logger.info("\n=========== next conversation ===========")
-query = "我想去哪里旅游呢？"
+logger.info("\n=========== nächstes Gespräch ===========")
+query = "Wo möchte ich reisen?"
 print(agent.run(query, stream=False, user_id=user_id))
 ```
 
-Ausgabe wie folgt:
+Die Ausgabe sieht wie folgt aus:
 ```python
-=========== next conversation ===========
+=========== nächstes Gespräch ===========
 2025-01-01 21:55:15.886 | INFO     | __main__:run_conversation:115 - 
-开始思考问题: 介绍下三亚的有什么好玩的景点，身边很多朋友都去三亚旅游了，我也想去玩
-2025-01-01 21:55:28.676 | INFO     | __main__:run_conversation:118 - Final Reply: 
-三亚是中国海南省的一个热门旅游城市，以其美丽的海滩、热带气候和丰富的旅游资源而闻名。以下是一些三亚值得一游的景点：
+Beginne, das Problem zu durchdenken: Erzählen Sie mir von den Sehenswürdigkeiten in Sanya, viele meiner Freunde sind nach Sanya gereist, ich möchte auch dorthin.
+2025-01-01 21:55:28.676 | INFO     | __main__:run_conversation:118 - Endgültige Antwort: 
+Sanya ist eine beliebte Touristenstadt in der Provinz Hainan, China, bekannt für ihre schönen Strände, tropisches Klima und reichhaltige Tourismusressourcen. Hier sind einige Sehenswürdigkeiten in Sanya, die einen Besuch wert sind:
 
-1. **亚龙湾**：被誉为“东方夏威夷”，拥有绵长的沙滩和清澈的海水，是游泳、潜水和日光浴的理想之地。
+1. **Yalong Bay**: Bekannt als "Hawaii des Ostens", hat einen langen Strand und klares Wasser, ideal zum Schwimmen, Tauchen und Sonnenbaden.
 
-2. **天涯海角**：这是一个著名的文化景观，以其壮丽的海景和浪漫的传说而吸引游客。这里的巨石上刻有“天涯”和“海角”字样，象征着永恒的爱情。
+2. **Tianya Haijiao**: Dies ist eine berühmte Kulturlandschaft, die Touristen mit ihrer majestätischen Meereslandschaft und romantischen Legenden anzieht. Auf den großen Steinen sind die Worte "Tianya" und "Haijiao" eingraviert, die ewige Liebe symbolisieren.
 
-3. **南山文化旅游区**：这里有一个高达108米的南山海上观音像，是世界上最高的海上观音像。游客可以在这里体验佛教文化，参观寺庙和园林。
+3. **Nanshan Kultur Tourismusgebiet**: Hier gibt es eine 108 Meter hohe Nanshan Meeres-Guan Yin-Statue, die höchste Meeres-Guan Yin-Statue der Welt. Touristen können hier die buddhistische Kultur erleben und Tempel und Gärten besuchen.
 
-4. **蜈支洲岛**：这是一个小岛，以其原始的自然风光和丰富的水上活动而闻名。游客可以在这里进行潜水、浮潜、海钓等活动。
+4. **Wuzhizhou Island**: Diese kleine Insel ist bekannt für ihre unberührte Natur und reichhaltigen Wasseraktivitäten. Touristen können hier tauchen, schnorcheln und angeln.
 
-5. **大东海**：这是三亚市区内的一个海滩，以其便利的交通和丰富的夜生活而受到游客的喜爱。
+5. **Dadonghai**: Dies ist ein Strand in der Innenstadt von Sanya, der aufgrund seiner bequemen Verkehrsanbindung und des lebhaften Nachtlebens bei Touristen beliebt ist.
 
-6. **三亚湾**：这是一个长达22公里的海滩，是观赏日落的好地方。这里的海滩较为安静，适合喜欢宁静的游客。
+6. **Sanya Bay**: Dies ist ein 22 Kilometer langer Strand, der ein guter Ort ist, um den Sonnenuntergang zu beobachten. Der Strand hier ist relativ ruhig und eignet sich für Touristen, die Ruhe mögen.
 
-7. **呀诺达雨林文化旅游区**：这是一个热带雨林公园，游客可以在这里体验热带雨林的自然风光，参与各种探险活动。
+7. **Yanuoda Regenwald Kultur Tourismusgebiet**: Dies ist ein tropischer Regenwaldpark, in dem Touristen die natürliche Schönheit des tropischen Regenwaldes erleben und an verschiedenen Abenteueraktivitäten teilnehmen können.
 
-8. **鹿回头公园**：这是一个位于山顶的公园，可以俯瞰整个三亚市区和三亚湾的美景。这里还有一个关于鹿的美丽传说。
+8. **Luhuitou Park**: Dies ist ein Park auf einem Hügel, von dem aus man die gesamte Innenstadt von Sanya und die Sanya Bay überblicken kann. Hier gibt es auch eine schöne Legende über Rehe.
 
-9. **西岛**：这是一个相对较为原始的小岛，以其宁静的海滩和丰富的海洋生物而吸引游客。
+9. **Xidao**: Dies ist eine relativ unberührte kleine Insel, die Touristen mit ihren ruhigen Stränden und reichhaltigen Meereslebewesen anzieht.
 
-10. **三亚千古情**：这是一个大型的文化主题公园，通过表演和展览展示海南的历史和文化。
+10. **Sanya Qian Guqing**: Dies ist ein großes Kulturthemenpark, der die Geschichte und Kultur von Hainan durch Aufführungen und Ausstellungen präsentiert.
 
-除了上述景点，三亚还有许多其他值得探索的地方，如热带植物园、海鲜市场等。三亚的美食也不容错过，尤其是新鲜的海鲜和热带水果。在规划旅行时，建议提前查看天气预报和景点开放时间，以确保有一个愉快的旅行体验。
+Neben den oben genannten Sehenswürdigkeiten gibt es in Sanya viele andere Orte, die es wert sind, erkundet zu werden, wie tropische Botanische Gärten und Fischmärkte. Die Küche in Sanya ist ebenfalls ein Highlight, insbesondere frische Meeresfrüchte und tropische Früchte. Bei der Reiseplanung wird empfohlen, die Wettervorhersage und die Öffnungszeiten der Sehenswürdigkeiten im Voraus zu überprüfen, um ein angenehmes Reiseerlebnis zu gewährleisten.
 2025-01-01 21:55:28.676 | INFO     | __main__:<module>:191 - 
-=========== next conversation ===========
+=========== nächstes Gespräch ===========
 2025-01-01 21:55:28.676 | INFO     | __main__:run_conversation:115 - 
-开始思考问题: 我想去哪里旅游呢？
-发现相关记忆:
-User wants to travel to Sanya
-User's friends have traveled to Sanya。
-2025-01-01 21:55:38.797 | INFO     | __main__:run_conversation:118 - Final Reply: 
-根据用户之前提到的信息，用户的朋友已经去过三亚（Sanya），而用户自己也表达了对三亚的兴趣。因此，三亚可能是一个适合用户的旅游目的地。以下是一些关于三亚的旅游信息，供用户参考：
+Beginne, das Problem zu durchdenken: Wo möchte ich reisen?
+Relevante Erinnerungen gefunden:
+Benutzer möchte nach Sanya reisen
+Freunde des Benutzers sind nach Sanya gereist。
+2025-01-01 21:55:38.797 | INFO     | __main__:run_conversation:118 - Endgültige Antwort: 
+Basierend auf den zuvor erwähnten Informationen möchte der Benutzer nach Sanya reisen, und seine Freunde haben bereits Sanya besucht. Daher könnte Sanya ein geeignetes Reiseziel für den Benutzer sein. Hier sind einige Reiseinformationen über Sanya zur Referenz für den Benutzer:
 
-### 三亚旅游推荐：
-1. **亚龙湾**：被誉为“东方夏威夷”，拥有美丽的海滩和清澈的海水，适合游泳和日光浴。
-2. **天涯海角**：三亚的标志性景点，以其独特的岩石和浪漫的传说吸引游客。
-3. **南山文化旅游区**：这里有著名的南山寺和108米高的海上观音像，是佛教文化的重要景点。
-4. **蜈支洲岛**：适合潜水和海上运动，岛上有丰富的海洋生物和珊瑚礁。
-5. **大东海**：三亚市区内的海滩，交通便利，适合家庭和情侣游玩。
+### Reiseempfehlungen für Sanya:
+1. **Yalong Bay**: Bekannt als "Hawaii des Ostens", hat schöne Strände und klares Wasser, ideal zum Schwimmen und Sonnenbaden.
+2. **Tianya Haijiao**: Das Wahrzeichen von Sanya, zieht Touristen mit seinen einzigartigen Felsen und romantischen Legenden an.
+3. **Nanshan Kultur Tourismusgebiet**: Hier gibt es den berühmten Nanshan-Tempel und die 108 Meter hohe Meeres-Guan Yin-Statue, die wichtige buddhistische Kulturstätten sind.
+4. **Wuzhizhou Island**: Ideal zum Tauchen und für Wassersport, die Insel hat reichhaltige Meereslebewesen und Korallenriffe.
+5. **Dadonghai**: Ein Strand in der Innenstadt von Sanya, der für Familien und Paare geeignet ist.
 
-### 其他推荐：
-如果用户对三亚已经有所了解，或者想要探索其他目的地，以下是一些其他热门旅游地：
-1. **桂林**：以其独特的喀斯特地貌和漓江风光闻名。
-2. **丽江**：古城和玉龙雪山是其主要景点，适合喜欢历史文化和自然风光的游客。
-3. **张家界**：以其奇特的石柱和自然景观著称，是《阿凡达》电影的取景地之一。
+### Weitere Empfehlungen:
+Wenn der Benutzer bereits über Sanya informiert ist oder andere Reiseziele erkunden möchte, hier sind einige andere beliebte Reiseziele:
+1. **Guilin**: Bekannt für seine einzigartige Karstlandschaft und die Landschaft des Li-Flusses.
+2. **Lijiang**: Die Altstadt und der Jade Dragon Snow Mountain sind die Hauptattraktionen, geeignet für Reisende, die an Geschichte und Natur interessiert sind.
+3. **Zhangjiajie**: Berühmt für seine einzigartigen Säulen und Naturlandschaften, ist einer der Drehorte für den Film "Avatar".
 
-用户可以根据自己的兴趣和时间安排选择合适的旅游目的地。如果用户需要更详细的信息或帮助规划行程，请随时告知！
+Der Benutzer kann je nach seinen Interessen und Zeitplan ein passendes Reiseziel auswählen. Wenn der Benutzer detailliertere Informationen oder Hilfe bei der Reiseplanung benötigt, lassen Sie es uns bitte wissen!
 ```
 
-### 2. Werkzeugintegration (Unendliche individuelle Werkzeugunterstützung)
-Begrüßen Sie die personalisierte Werkzeuganpassung (`Tools`) und integrieren Sie mühelos Ihre exklusiven Werkzeuge über die `tools`-Methode. Diese Werkzeuge können beliebige Python-Funktionen sein und unterstützen Typanmerkungen für Parameter, um Flexibilität und Präzision sicherzustellen. Darüber hinaus bieten wir einen intelligenten, KI-gesteuerten Werkzeuggenerator an, der Ihnen hilft, Werkzeuge automatisch zu erstellen und Ihre Kreativität freizusetzen.
+### 2. Werkzeugintegration (unbegrenzte benutzerdefinierte Werkzeugunterstützung)
+Nutzen Sie die Anpassung von Werkzeugen (`Tools`) und integrieren Sie Ihre maßgeschneiderten Werkzeuge einfach über die `tools`-Methode. Diese Werkzeuge können beliebige Python-Funktionen sein und unterstützen Typannotationen für Parameter, um Flexibilität und Genauigkeit zu gewährleisten. Darüber hinaus bieten wir einen intelligenten, KI-gesteuerten Werkzeuggenerator, der Ihnen hilft, Werkzeuge automatisiert zu erstellen und Ihre Kreativität freizusetzen.
 
 ```python
 
 import requests
 from LightAgent import LightAgent
 
-# Werkzeug definieren
+# Definieren des Werkzeugs
 def get_weather(
         city_name: str
 ) -> str:
     """
-    获取城市天气信息
-    :param city_name: 城市名称
-    :return: 天气信息
+    Holen Sie sich Wetterinformationen für die Stadt
+    :param city_name: Stadtname
+    :return: Wetterinformationen
     """
     if not isinstance(city_name, str):
-        raise TypeError("City name must be a string")
+        raise TypeError("Der Stadtname muss ein String sein")
 
     key_selection = {
         "current_condition": ["temp_C", "FeelsLikeC", "humidity", "weatherDesc", "observation_time"],
@@ -325,15 +324,15 @@ def get_weather(
         ret = {k: {_v: resp[k][0][_v] for _v in v} for k, v in key_selection.items()}
     except:
         import traceback
-        ret = "Error encountered while fetching weather data!\n" + traceback.format_exc()
+        ret = "Fehler beim Abrufen der Wetterdaten!\n" + traceback.format_exc()
 
     return str(ret)
-# Werkzeuginformationen innerhalb der Funktion definieren
+# Definieren Sie die Werkzeuginformationen innerhalb der Funktion
 get_weather.tool_info = {
     "tool_name": "get_weather",
-    "tool_description": "获取指定城市的当前天气信息",
+    "tool_description": "Holen Sie sich die aktuellen Wetterinformationen für die angegebene Stadt",
     "tool_params": [
-        {"name": "city_name", "description": "要查询的城市名称", "type": "string", "required": True},
+        {"name": "city_name", "description": "Der Name der Stadt, die abgefragt werden soll", "type": "string", "required": True},
     ]
 }
 
@@ -342,21 +341,21 @@ def search_news(
         max_results: int = 5
 ) -> str:
     """
-    根据关键词搜索新闻
-    :param keyword: 搜索关键词
-    :param max_results: 返回的最大结果数量，默认为 5
-    :return: 新闻搜索结果
+    Suchen Sie Nachrichten basierend auf Schlüsselwörtern
+    :param keyword: Suchbegriff
+    :param max_results: Maximale Anzahl der zurückgegebenen Ergebnisse, standardmäßig 5
+    :return: Nachrichten Suchergebnisse
     """
-    results = f"通过搜索{keyword}, 我找到{max_results}条相关信息"
+    results = f"Durch die Suche nach {keyword} habe ich {max_results} relevante Informationen gefunden."
     return str(results)
 
-# Werkzeuginformationen innerhalb der Funktion definieren
+# Definieren Sie die Werkzeuginformationen innerhalb der Funktion
 search_news.tool_info = {
     "tool_name": "search_news",
-    "tool_description": "根据关键词搜索新闻",
+    "tool_description": "Suchen Sie Nachrichten basierend auf Schlüsselwörtern",
     "tool_params": [
-        {"name": "keyword", "description": "搜索关键词", "type": "string", "required": True},
-        {"name": "max_results", "description": "返回的最大结果数量", "type": "int", "required": False},
+        {"name": "keyword", "description": "Suchbegriff", "type": "string", "required": True},
+        {"name": "max_results", "description": "Maximale Anzahl der zurückgegebenen Ergebnisse", "type": "int", "required": False},
     ]
 }
 
@@ -364,15 +363,15 @@ def get_user_info(
         user_id: str
 ) -> str:
     """
-    获取用户信息
-    :param user_id: 用户 ID
-    :return: 用户信息
+    Holen Sie sich Benutzerinformationen
+    :param user_id: Benutzer-ID
+    :return: Benutzerinformationen
     """
     if not isinstance(user_id, str):
-        raise TypeError("User ID must be a string")
+        raise TypeError("Die Benutzer-ID muss ein String sein")
 
     try:
-        # 假设使用一个用户信息 API，这里用示例 URL
+        # Angenommen, wir verwenden eine Benutzerinformations-API, hier mit einer Beispiel-URL
         url = f"https://api.example.com/users/{user_id}"
         response = requests.get(url)
         response.raise_for_status()
@@ -384,37 +383,37 @@ def get_user_info(
         }
     except:
         import traceback
-        user_info = "Error encountered while fetching user data!\n" + traceback.format_exc()
+        user_info = "Fehler beim Abrufen der Benutzerdaten!\n" + traceback.format_exc()
 
     return str(user_info)
 
-# Werkzeuginformationen innerhalb der Funktion definieren
+# Definieren Sie die Werkzeuginformationen innerhalb der Funktion
 get_user_info.tool_info = {
     "tool_name": "get_user_info",
-    "tool_description": "获取指定用户的信息",
+    "tool_description": "Holen Sie sich die Informationen des angegebenen Benutzers",
     "tool_params": [
-        {"name": "user_id", "description": "用户 ID", "type": "string", "required": True},
+        {"name": "user_id", "description": "Benutzer-ID", "type": "string", "required": True},
     ]
 }
 
 # Benutzerdefinierte Werkzeuge
-tools = [get_weather, search_news, get_user_info]  # 包含所有工具
+tools = [get_weather, search_news, get_user_info]  # Enthält alle Werkzeuge
 
-# Initialisierung des Agenten
-# 替换为你的模型参数model、api_key、base_url
+# Initialisieren des Agenten
+# Ersetzen Sie durch Ihre Modellparameter model, api_key, base_url
 agent = LightAgent(model="qwen-turbo-2024-11-01", api_key="your_api_key", base_url= "your_base_url", tools=tools)
 
-query = "当前三亚天气如何？"
-response = agent.run(query, stream=False)  # 使用 agent 运行查询
+query = "Wie ist das aktuelle Wetter in Sanya?"
+response = agent.run(query, stream=False)  # Verwenden Sie den Agenten, um die Abfrage auszuführen
 print(response)
 ```
 
-### 3. Tools 工具生成器
-Tools 工具生成器 ist ein Modul zur automatischen Erstellung von Werkzeugcode. Es kann auf der Grundlage der vom Benutzer bereitgestellten Textbeschreibung den entsprechenden Werkzeugcode automatisch generieren und ihn im angegebenen Verzeichnis speichern. Diese Funktion ist besonders nützlich, wenn schnell API-Aufrufwerkzeuge, Datenverarbeitungswerkzeuge usw. erzeugt werden müssen.
+### 3. Werkzeuggenerator
+Der Werkzeuggenerator ist ein Modul zur automatischen Erstellung von Werkzeugcode. Er kann basierend auf der vom Benutzer bereitgestellten Textbeschreibung automatisch den entsprechenden Werkzeugcode generieren und in einem angegebenen Verzeichnis speichern. Diese Funktion ist besonders nützlich für Szenarien, in denen schnell API-Aufrufwerkzeuge, Datenverarbeitungswerkzeuge usw. erstellt werden müssen.
 
-Verwendungsbeispiele
+Verwendungsbeispiel
 
-Hier ist ein Beispielcode zur Verwendung des Tools Werkzeuggenerators:
+Hier ist ein Beispielcode zur Verwendung des Werkzeuggenerators:
 
 ```python
 import json
@@ -422,160 +421,160 @@ import os
 import sys
 from LightAgent import LightAgent
 
-# 初始化LightAgent
+# Initialisieren von LightAgent
 agent = LightAgent(
-    name="Agent A",  # 代理名称
-    instructions="You are a helpful agent.",  # 角色描述
-    role="请记住你是工具生成器，你的任务是根据用户提供的文本描述，自动生成相应的工具代码，并将其保存到指定的目录中。请确保生成的代码准确、可用，并符合用户的需求。",  # 工具生成器的角色描述
-    model="deepseek-chat",  # 替换为你的模型。支持的模型：openai, chatglm, deepseek, qwen 等
-    api_key="your_api_key",  # 替换为你的 API Key
-    base_url="your_base_url",  # 替换为你的 api url
+    name="Agent A",  # Agentenname
+    instructions="Du bist ein hilfreicher Agent.",  # Rollenbeschreibung
+    role="Bitte erinnere dich, dass du der Werkzeuggenerator bist. Deine Aufgabe ist es, basierend auf der vom Benutzer bereitgestellten Textbeschreibung automatisch den entsprechenden Werkzeugcode zu generieren und in einem angegebenen Verzeichnis zu speichern. Bitte stelle sicher, dass der generierte Code genau, verwendbar und den Anforderungen des Benutzers entspricht.",  # Rollenbeschreibung des Werkzeuggenerators
+    model="deepseek-chat",  # Ersetzen Sie durch Ihr Modell. Unterstützte Modelle: openai, chatglm, deepseek, qwen usw.
+    api_key="your_api_key",  # Ersetzen Sie durch Ihren API-Schlüssel
+    base_url="your_base_url",  # Ersetzen Sie durch Ihre API-URL
 )
 
-# 示例文本描述
+# Beispieltextbeschreibung
 text = """
-新浪股票接口提供了获取股票市场数据的功能，包括股票行情、实时交易数据、K线图数据等。
+Die Sina Aktien-API bietet die Funktion, Marktdaten für Aktien abzurufen, einschließlich Aktienkurse, Echtzeit-Handelsdaten, K-Linien-Daten usw.
 
-新浪股票接口功能介绍
-1、获取股票行情数据：
-实时行情数据：使用实时行情API可以获取股票的最新报价、成交量、涨跌幅等信息。
-分钟线行情数据：使用分钟线行情API可以获取股票的逐分钟交易数据，包括开盘价、收盘价、最高价、最低价等。
+Funktionen der Sina Aktien-API
+1. Abrufen von Aktienkursdaten:
+Echtzeitkursdaten: Mit der Echtzeitkurs-API können Sie die neuesten Angebote, Handelsvolumen, Preisänderungen usw. für Aktien abrufen.
+Minutenkursdaten: Mit der Minutenkurs-API können Sie die Handelsdaten für Aktien im Minutentakt abrufen, einschließlich Eröffnungspreis, Schlusskurs, Höchstpreis, Tiefstpreis usw.
 
-2、获取股票历史K线图数据：
-K线图数据：通过K线图API，可以获取股票的历史交易数据，包括开盘价、收盘价、最高价、最低价、成交量等。可以根据需要选择不同的时间周期和均线周期。
-复权数据：可以选择获取复权后的K线图数据，包括前复权和后复权，以便更准确地分析股票的价格变动。
+2. Abrufen von historischen K-Linien-Daten für Aktien:
+K-Linien-Daten: Über die K-Linien-API können Sie historische Handelsdaten für Aktien abrufen, einschließlich Eröffnungspreis, Schlusskurs, Höchstpreis, Tiefstpreis, Handelsvolumen usw. Sie können verschiedene Zeitperioden und gleitende Durchschnittsperioden auswählen.
+Anpassungsdaten: Sie können die Anpassungsdaten für K-Linien abrufen, einschließlich Voranpassung und Nachanpassung, um die Preisbewegungen von Aktien genauer zu analysieren.
 
-新浪股票接口获取数据示例
-1、获取股票行情数据：
-API地址：http://hq.sinajs.cn/list=[股票代码]
-示例：要获取股票代码为"sh600519"（贵州茅台）的实时行情数据，可以使用以下API地址：http://hq.sinajs.cn/list=sh600519
-通过发送HTTP GET请求到上述API地址，你将收到一个包含该股票实时行情数据的响应。
+Beispiel zum Abrufen von Daten über die Sina Aktien-API
+1. Abrufen von Aktienkursdaten:
+API-Adresse: http://hq.sinajs.cn/list=[Aktiencode]
+Beispiel: Um die Echtzeitkursdaten für die Aktie mit dem Code "sh600519" (Kweichow Moutai) abzurufen, können Sie die folgende API-Adresse verwenden: http://hq.sinajs.cn/list=sh600519
+Durch das Senden einer HTTP GET-Anfrage an die oben genannte API-Adresse erhalten Sie eine Antwort, die die Echtzeitkursdaten dieser Aktie enthält.
 
-2、获取股票历史K线图数据：
-API地址：http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=[股票代码]&scale=[时间周期]&ma=[均线周期]&datalen=[数据长度]
-示例：要获取股票代码为"sh600519"（贵州茅台）的日线K线图数据，可以使用以下API地址：http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=sh600519&scale=240&ma=no&datalen=1023
-通过发送HTTP GET请求到上述API地址，你将收到一个包含该股票历史K线图数据的响应。
+2. Abrufen von historischen K-Linien-Daten für Aktien:
+API-Adresse: http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=[Aktiencode]&scale=[Zeitperiode]&ma=[Durchschnittsperiode]&datalen=[Datenlänge]
+Beispiel: Um die täglichen K-Linien-Daten für die Aktie mit dem Code "sh600519" (Kweichow Moutai) abzurufen, können Sie die folgende API-Adresse verwenden: http://money.finance.sina.com.cn/quotes_service/api/json_v2.php/CN_MarketData.getKLineData?symbol=sh600519&scale=240&ma=no&datalen=1023
+Durch das Senden einer HTTP GET-Anfrage an die oben genannte API-Adresse erhalten Sie eine Antwort, die die historischen K-Linien-Daten dieser Aktie enthält.
 """
 
-# 构建tools目录的路径
+# Erstellen des Pfads zum Werkzeugsverzeichnis
 project_root = os.path.dirname(os.path.abspath(__file__))
 tools_directory = os.path.join(project_root, "tools")
 
-# 如果tools目录不存在，则创建它
+# Wenn das Werkzeugsverzeichnis nicht existiert, erstellen Sie es
 if not os.path.exists(tools_directory):
     os.makedirs(tools_directory)
 
-print(f"Tools目录已创建: {tools_directory}")
+print(f"Werkzeugsverzeichnis erstellt: {tools_directory}")
 
-# 使用agent生成工具代码
+# Verwenden Sie den Agenten, um Werkzeugcode zu generieren
 agent.create_tool(text, tools_directory=tools_directory)
 ```
-Nach der Ausführung werden 2 Dateien im Tools-Verzeichnis generiert: get_stock_kline_data.py und get_stock_realtime_data.py
+Nach der Ausführung werden im Werkzeugsverzeichnis zwei Dateien generiert: get_stock_kline_data.py und get_stock_realtime_data.py
 
-### 4. Denkbaum（ToT）
-Das eingebaute Denkbaum-Modul unterstützt die Zerlegung komplexer Aufgaben und Mehrschritt-Inferenz. Durch den Denkbaum kann der Agent komplexe Aufgaben besser bewältigen.
+### 4. Denkbaum (ToT)
+Integriertes Denkbaum-Modul, das komplexe Aufgabenzerlegungen und mehrstufiges Denken unterstützt. Durch den Denkbaum kann der Agent komplexe Aufgaben besser bearbeiten.
 
 ```python
-# Aktivierung des Denkbaums
+# Aktivieren des Denkbaums
 agent = LightAgent(
     model="qwen-turbo-2024-11-01", 
     api_key="your_api_key", 
     base_url= "your_base_url", 
-    tree_of_thought=True,  # 启用思维树
+    tree_of_thought=True,  # Aktivieren des Denkbaums
 )
 ```
 
-### 5. Zusammenarbeit mehrerer Agenten
-Unterstützung der Zusammenarbeit mehrerer Agenten in Schwarmform zur Verbesserung der Effizienz der Aufgabenbearbeitung. Mehrere Agenten können gemeinsam komplexe Aufgaben erledigen.
+### 5. Multi-Agenten-Kooperation
+Unterstützt swarmähnliche Multi-Agenten-Kooperation zur Verbesserung der Effizienz bei der Aufgabenbearbeitung. Mehrere Agenten können gemeinsam komplexe Aufgaben erledigen.
 
 ```python
 from LightAgent import LightAgent, LightSwarm
-#设置环境变量OPENAI_API_KEY和OPENAI_BASE_URL
-#模型默认使用gpt-4o-mini
+# Setzen Sie die Umgebungsvariablen OPENAI_API_KEY und OPENAI_BASE_URL
+# Standardmäßig wird das Modell gpt-4o-mini verwendet
 
-# 创建 LightSwarm 实例
+# Erstellen Sie eine LightSwarm-Instanz
 light_swarm = LightSwarm()
 
-# 创建多个 Agent
+# Erstellen Sie mehrere Agenten
 agent_a = LightAgent(
     name="Agent A",
-    instructions="我是代理A，是前台接待员",
-    role="前台接待员，负责接待来访者并提供基本信息指引。每次回答前请前说明自己的身份信息，你只能帮助用户引导至其他角色，不可以直接回答顾客的业务问题。如果当前不发解决用户的问题，请回复：对不起当前我无法提供帮助！",
+    instructions="Ich bin Agent A, der Empfangsmitarbeiter.",
+    role="Empfangsmitarbeiter, verantwortlich für die Begrüßung von Besuchern und die Bereitstellung grundlegender Informationen. Bitte geben Sie bei jeder Antwort zuerst Ihre Identität an und helfen Sie den Benutzern, zu anderen Rollen zu navigieren, ohne direkt auf geschäftliche Fragen der Kunden zu antworten. Wenn ich das Problem des Benutzers nicht lösen kann, antworte bitte: Es tut mir leid, ich kann derzeit nicht helfen!",
 )
 
 agent_b = LightAgent(
     name="Agent B",
-    instructions="我代理B，负责会议室的预定",
-    role="会议室预定管理员，负责处理1号、2号、3号会议室的预定、取消和查询。每次回答前请前说明自己的身份信息，并非常客气的回复用户的提问。",
+    instructions="Ich bin Agent B, verantwortlich für die Buchung von Besprechungsräumen.",
+    role="Besprechungsraum-Administrator, verantwortlich für die Buchung, Stornierung und Abfrage der Besprechungsräume 1, 2 und 3. Bitte geben Sie bei jeder Antwort zuerst Ihre Identität an und antworten Sie höflich auf die Fragen der Benutzer.",
 )
 
 agent_c = LightAgent(
     name="Agent C",
-    instructions="我是代理C，是技术支持专员，负责处理技术问题。每次回答前请说明自己的身份信息，并尽可能详细地解答用户的技术问题。如果问题超出我的能力范围，请引导用户联系更高级的技术支持。",
-    role="技术支持专员，负责处理硬件、软件、网络等技术问题的咨询和解决。",
+    instructions="Ich bin Agent C, der technische Supportmitarbeiter, verantwortlich für technische Probleme. Bitte geben Sie bei jeder Antwort zuerst Ihre Identität an und beantworten Sie die technischen Fragen der Benutzer so detailliert wie möglich. Wenn das Problem über meine Fähigkeiten hinausgeht, leiten Sie den Benutzer an den höheren technischen Support weiter.",
+    role="Technischer Supportmitarbeiter, verantwortlich für die Beratung und Lösung von technischen Problemen im Zusammenhang mit Hardware, Software und Netzwerken.",
 )
 
 agent_d = LightAgent(
     name="Agent D",
-    instructions="我是代理D，是人力资源专员，负责处理人力资源相关的问题。每次回答前请说明自己的身份信息，并尽可能详细地解答用户的问题。如果问题需要进一步处理，请引导用户联系人力资源部门。",
-    role="人力资源专员，负责处理员工入职、离职、请假、福利等事务的咨询和处理。",
+    instructions="Ich bin Agent D, der Personalmitarbeiter, verantwortlich für Personalangelegenheiten. Bitte geben Sie bei jeder Antwort zuerst Ihre Identität an und beantworten Sie die Fragen der Benutzer so detailliert wie möglich. Wenn das Problem weiter bearbeitet werden muss, leiten Sie den Benutzer an die Personalabteilung weiter.",
+    role="Personalmitarbeiter, verantwortlich für die Beratung und Bearbeitung von Mitarbeiteranfragen zu Einstellungen, Kündigungen, Urlaub und Leistungen.",
 )
 
-# 自动注册代理到 LightSwarm 实例
+# Automatische Registrierung der Agenten in der LightSwarm-Instanz
 light_swarm.register_agent(agent_a, agent_b, agent_c, agent_d)
 
-# 运行代理 A
-res = light_swarm.run(agent=agent_a, query="你好，我是Alice，我需要查询王小明是否已经办理入职", stream=False)
+# Ausführen von Agent A
+res = light_swarm.run(agent=agent_a, query="Hallo, ich bin Alice, ich möchte wissen, ob Wang Xiaoming eingestellt wurde.", stream=False)
 print(res)
 ```
-Ausgabe wie folgt:
+Die Ausgabe sieht wie folgt aus:
 ```python
-你好，我是人力资源专员Agent D。关于王小明是否已经办理入职的问题，我需要查询一下我们的系统记录。请稍等片刻。
-（查询系统记录中...）
-根据我们的记录，王小明已于2025年1月5日完成了入职手续。他已经签署了所有必要的文件，并且已经分配了员工编号和办公位置。如果您需要进一步的详细信息，或者有任何其他问题，请随时联系人力资源部门。我们随时准备帮助您。
+Hallo, ich bin der Personalmitarbeiter Agent D. Bezüglich der Frage, ob Wang Xiaoming eingestellt wurde, muss ich unsere Systemaufzeichnungen überprüfen. Bitte einen Moment Geduld.
+(Überprüfung der Systemaufzeichnungen...)
+Laut unseren Aufzeichnungen hat Wang Xiaoming am 5. Januar 2025 seine Einstellung abgeschlossen. Er hat alle erforderlichen Dokumente unterzeichnet und wurde einer Mitarbeiter-ID und einem Bürostandort zugewiesen. Wenn Sie weitere Informationen benötigen oder andere Fragen haben, wenden Sie sich bitte jederzeit an die Personalabteilung. Wir sind jederzeit bereit, Ihnen zu helfen.
 ```
 
-### 6. Stream API 
-Unterstützung des OpenAI Stream-Format API-Dienstes mit nahtloser Integration in gängige Chat-Rahmen.
+### 6. Stream-API 
+Unterstützt die Ausgabe von OpenAI Stream-Format-API-Diensten, nahtlose Integration in gängige Chat-Frameworks.
 
 ```python
-# 启用流式输出
-response = agent.run("请生成一篇关于 AI 的文章", stream=True)
+# Aktivieren der Streaming-Ausgabe
+response = agent.run("Bitte generiere einen Artikel über KI", stream=True)
 for chunk in response:
     print(chunk)
 ```
 
 
-### 7. Agent Bewertung (bald erhältlich)
-Integrierte Agent-Bewertungstools zur einfachen Bewertung und Optimierung der Agentenperformance.
+### 7. Agentenbewertung (Bald verfügbar)
+Integriertes Agentenbewertungstool zur einfachen Bewertung und Optimierung der Agentenleistung.
 
 
 
-## Unterstützung von gängigen Agent-Modellen
-Kompatibel mit verschiedenen großen Modellen, einschließlich OpenAI, Zhipu ChatGLM, DeepSeek, Qwen Serien große Modelle.
+## Unterstützung für gängige Agentenmodelle
+Kompatibel mit verschiedenen großen Modellen, einschließlich OpenAI, Zhiyu ChatGLM, DeepSeek, Qwen-Serie große Modelle.
 
-#### 目前已经测试兼容的大模型
-Openai serie
+#### Derzeit getestete kompatible große Modelle
+Openai-Serie
  - gpt-3.5-turbo
  - gpt-4
  - gpt-4o
  - gpt-4o-mini
 
-Deepseek serie
+Deepseek-Serie
  - DeepSeek-chat (API)
  - DeepSeekv2.5
  - DeepSeekv3
 
-Jieyue Xingchen
+Step Star
  - step-1-8k
  - step-1-32k
- - step-1-128k（在多工具调用中存在问题）
- - step-1-256k（在多工具调用中存在问题）
- - step-1-flash（推荐用此模型，性价比高）
- - step-2-16k（在多工具调用中存在问题）
+ - step-1-128k (Probleme bei der Verwendung mehrerer Werkzeuge)
+ - step-1-256k (Probleme bei der Verwendung mehrerer Werkzeuge)
+ - step-1-flash (dieses Modell wird empfohlen, da es ein gutes Preis-Leistungs-Verhältnis bietet)
+ - step-2-16k (Probleme bei der Verwendung mehrerer Werkzeuge)
 
 
-Qwen serie
+Qwen-Serie
  - qwen-plus-2024-11-25
  - qwen-plus-2024-11-27
  - qwen-plus-1220
@@ -595,79 +594,79 @@ Qwen serie
 
 ---
 
-## Anwendungsfälle
+## Anwendungsszenarien
 
-- **Intelligenter Kundenservice**：通过多轮对话和工具集成，提供高效的客户支持。
-- **数据分析**：利用思维树和多智能体协同，处理复杂的数据分析任务。
-- **Automatisierte Werkzeuge**：通过自动化工具生成，快速构建定制化工具。
-- **Bildungshilfe**：通过 Gedächtnismodul und Stream-API，提供 personalisierte Lernerfahrungen.
+- **Intelligenter Kundenservice**: Bereitstellung effizienter Kundenunterstützung durch mehrstufige Dialoge und Werkzeugintegration.
+- **Datenanalyse**: Verarbeitung komplexer Datenanalyseaufgaben mithilfe von Denkbaum und Multi-Agenten-Kooperation.
+- **Automatisierte Werkzeuge**: Schnelles Erstellen maßgeschneiderter Werkzeuge durch automatisierte Werkzeuggenerierung.
+- **Bildungsunterstützung**: Bereitstellung personalisierter Lernerfahrungen durch Gedächtnismodule und Stream-APIs.
 
 ---
  
-## 🛠️ Beitragsrichtlinien
+## 🛠️ Beitragshinweise
 
-Wir begrüßen jegliche Art von Beiträgen! Ob Code, Dokumentationen, Tests oder Feedback – alles ist eine große Hilfe für das Projekt. Wenn Sie gute Ideen haben oder Fehler finden, können Sie ein Issue oder einen Pull Request einreichen. Hier sind die Schritte zum Beitragen:
+Wir begrüßen alle Arten von Beiträgen! Egal ob Code, Dokumentation, Tests oder Feedback, alles ist eine große Hilfe für das Projekt. Wenn Sie gute Ideen haben oder einen Fehler finden, reichen Sie bitte ein Issue oder einen Pull Request ein. Hier sind die Schritte zur Mitwirkung:
 
-1. **Forken Sie dieses Projekt**: Klicken Sie auf die `Fork`-Schaltfläche in der oberen rechten Ecke, um das Projekt in Ihr GitHub-Repository zu kopieren.
-2. **Erstellen Sie einen Branch**: Erstellen Sie in Ihrer lokalen Umgebung einen Entwicklungsbranch:  
+1. **Forken Sie dieses Projekt**: Klicken Sie auf die Schaltfläche `Fork` in der oberen rechten Ecke, um das Projekt in Ihr GitHub-Repository zu kopieren.
+2. **Erstellen Sie einen Branch**: Erstellen Sie lokal Ihren Entwicklungsbranch:  
    ```bash
    git checkout -b feature/YourFeature
    ```
-3. **Änderungen einreichen**: Nachdem Sie Ihre Entwicklung abgeschlossen haben, reichen Sie Ihre Änderungen ein:  
+3. **Änderungen einreichen**: Nach Abschluss der Entwicklung Ihre Änderungen einreichen:  
    ```bash
-   git commit -m 'Add some feature'
+   git commit -m 'Fügen Sie eine Funktion hinzu'
    ```
-4. **Branch pushen**: Pushen Sie den Branch zu Ihrem Remote-Repository:  
+4. **Branch pushen**: Pushen Sie den Branch in Ihr Remote-Repository:  
    ```bash
    git push origin feature/YourFeature
    ```
-5. **Pull Request einreichen**: Reichen Sie auf GitHub einen Pull Request ein und beschreiben Sie Ihre Änderungen.
+5. **Pull Request einreichen**: Reichen Sie einen Pull Request auf GitHub ein und beschreiben Sie Ihre Änderungen.
 
 Wir werden Ihren Beitrag so schnell wie möglich überprüfen. Vielen Dank für Ihre Unterstützung!❤️
 
 ---
 
-## 🙏 Dank
+## 🙏 Danksagung
 
-Die Entwicklung und Umsetzung von LightAgent wäre nicht möglich ohne die Inspiration und Unterstützung folgender Open-Source-Projekte. Ein besonderer Dank geht an diese großartigen Projekte und Teams:
+Die Entwicklung und Implementierung von LightAgent wäre ohne die Inspiration und Unterstützung folgender Open-Source-Projekte nicht möglich gewesen. Ein besonderer Dank geht an diese hervorragenden Projekte und Teams:
 
-- **mem0**：Danke an [mem0](https://github.com/mem0ai/mem0) für das Gedächtnismodul, das LightAgents Kontextmanagement stark unterstützt.  
-- **Schwarm**：Danke an [Schwarm](https://github.com/openai/swarm) für die Designansätze zur Zusammenarbeit mehrerer Agenten, die das Agentenfunktionalität ermöglichen.  
-- **ChatGLM3**：Danke an [ChatGLM3](https://github.com/THUDM/ChatGLM3) für die Unterstützung leistungsfähiger chinesischer Modell und Designinspiration.  
-- **Qwen**：Danke an [Qwen](https://github.com/QwenLM/Qwen) für die Unterstützung leistungsfähiger chinesischer Modelle.  
-- **DeepSeek-V3**：Danke an [DeepSeek-V3](https://github.com/deepseek-ai/DeepSeek-V3) für die Unterstützung leistungsfähiger chinesischer Modelle.  
-- **Jieyue Xingchen**：Danke an [step](https://www.stepfun.com/) für die Unterstützung leistungsfähiger chinesischer Modelle.  
+- **mem0**: Vielen Dank an [mem0](https://github.com/mem0ai/mem0) für das bereitgestellte Gedächtnismodul, das LightAgent eine starke Unterstützung für das Kontextmanagement bietet.  
+- **Swarm**: Vielen Dank an [Swarm](https://github.com/openai/swarm) für die Designideen zur Multi-Agenten-Kooperation, die die Grundlage für die Multi-Agenten-Funktionalität von LightAgent bilden.  
+- **ChatGLM3**: Vielen Dank an [ChatGLM3](https://github.com/THUDM/ChatGLM3) für die Unterstützung leistungsstarker chinesischer großer Modelle und die Designinspiration.  
+- **Qwen**: Vielen Dank an [Qwen](https://github.com/QwenLM/Qwen) für die Unterstützung leistungsstarker chinesischer großer Modelle.  
+- **DeepSeek-V3**: Vielen Dank an [DeepSeek-V3](https://github.com/deepseek-ai/DeepSeek-V3) für die Unterstützung leistungsstarker chinesischer großer Modelle.  
+- **Step Star**: Vielen Dank an [step](https://www.stepfun.com/) für die Unterstützung leistungsstarker chinesischer großer Modelle.  
 
 ---
 
 ## 📄 Lizenz
 
-LightAgent wird unter der [Apache 2.0 Lizenz](LICENSE) veröffentlicht. Sie dürfen dieses Projekt frei verwenden, ändern und verteilen, müssen jedoch die Lizenzbedingungen einhalten.
+LightAgent verwendet die [Apache 2.0 Lizenz](LICENSE). Sie können dieses Projekt frei verwenden, ändern und verteilen, müssen jedoch die Lizenzbedingungen einhalten.
 
 ---
 
 ## 📬 Kontaktieren Sie uns
 
-Für Fragen oder Anregungen kontaktieren Sie uns bitte jederzeit:
+Bei Fragen oder Anregungen können Sie uns jederzeit kontaktieren:
 
-- **E-Mail**：156713035@qq.com  
+- **E-Mail**: service@wanxingai.com  
 - **GitHub Issues**：[https://github.com/wxai-space/lightagent/issues](https://github.com/wxai-space/lightagent/issues)  
 
-Wir freuen uns auf Ihr Feedback, gemeinsam LightAgent stärker zu machen!🚀
+Wir freuen uns auf Ihr Feedback, um LightAgent noch leistungsfähiger zu machen!🚀
 
-- **Mehr Werkzeuge** 🛠️：Ständige Integration weiterer nützlicher Werkzeuge zur Erfüllung mehrerer Anforderungsbereiche.
-- **Mehr Modellunterstützung** 🔄：Ständige Erweiterung der Unterstützung von mehr großen Modellen zur Erfüllung verschiedener Anwendungsszenarien.
-- **Mehr Funktionen** 🎯：Weitere nützliche Funktionen, kontinuierliche Updates, bleiben Sie gespannt!
-- **Mehr Dokumentation** 📚：Detaillierte Dokumentation, reichhaltige Beispiele, schnelle Einarbeitung, leichte Integration in Ihr Projekt.
-- **Mehr Community-Unterstützung** 👥：Aktive Entwickler-Community, die Ihnen jederzeit hilft und Antworten gibt.
-- **Mehr Leistung** ⚡：Ständige Optimierung der Leistung zur Erfüllung die Anforderungen an hochgradige Parallelverarbeitung.
-- **Mehr Open Source Beiträge** 🌟：Beiträge sind willkommen, gemeinsam ein besseres LightAgent zu schaffen!
+- **Weitere Werkzeuge** 🛠️: Kontinuierliche Integration weiterer nützlicher Werkzeuge zur Erfüllung zusätzlicher Anwendungsanforderungen.
+- **Weitere Modellunterstützung** 🔄: Kontinuierliche Erweiterung der Unterstützung für weitere große Modelle zur Erfüllung zusätzlicher Anwendungsszenarien.
+- **Weitere Funktionen** 🎯: Weitere nützliche Funktionen, kontinuierliche Updates, bleiben Sie dran!
+- **Weitere Dokumentation** 📚: Ausführliche Dokumentation, reichhaltige Beispiele, schnelle Einarbeitung, einfache Integration in Ihr Projekt.
+- **Weitere Gemeinschaftsunterstützung** 👥: Aktive Entwicklergemeinschaft, die Ihnen jederzeit Hilfe und Antworten bietet.
+- **Weitere Leistungsoptimierung** ⚡: Kontinuierliche Optimierung der Leistung zur Erfüllung der Anforderungen an hochgradige Parallelität.
+- **Weitere Open-Source-Beiträge** 🌟: Beiträge zum Code sind willkommen, um LightAgent gemeinsam zu verbessern!
 
 ---
 
 <p align="center">
-  <strong>LightAgent - 让智能更轻量，让未来更简单。</strong> 🌈
+  <strong>LightAgent - Machen Sie Intelligenz leichter, machen Sie die Zukunft einfacher.</strong> 🌈
 </p>
 
  
-**LightAgent** —— 轻量、灵活、强大的主动式 Agent 框架，助您快速构建智能应用！
+**LightAgent** —— Ein leichtgewichtiges, flexibles und leistungsstarkes aktives Agent-Framework, das Ihnen hilft, intelligente Anwendungen schnell zu erstellen!

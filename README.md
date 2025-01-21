@@ -1,5 +1,5 @@
 
-![LightAgent Banner](docs/images/lightagent-banner.jpg)
+![LightAgent Banner](https://raw.githubusercontent.com/wxai-space/LightAgent/refs/heads/main/docs/images/lightagent-banner.jpg)
 <div align="center">
   <p>
     <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
@@ -636,7 +636,7 @@ LightAgent is licensed under the [Apache 2.0 License](LICENSE). You can freely u
 
 If you have any questions or suggestions, feel free to contact us:
 
-- **Email**: 156713035@qq.com  
+- **Email**: service@wanxingai.com  
 - **GitHub Issues**: [https://github.com/wxai-space/lightagent/issues](https://github.com/wxai-space/lightagent/issues)  
 
 We look forward to your feedback and work together to make LightAgent even stronger! 🚀

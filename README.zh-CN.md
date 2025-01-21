@@ -650,7 +650,7 @@ LightAgent 采用 [Apache 2.0 许可证](LICENSE)。您可以自由使用、修�
 
 如有任何问题或建议，欢迎随时联系我们：
 
-- **邮箱**：156713035@qq.com  
+- **邮箱**：service@wanxingai.com  
 - **GitHub Issues**：[https://github.com/wxai-space/lightagent/issues](https://github.com/wxai-space/lightagent/issues)  
 
 我们期待您的反馈，一起让 LightAgent 变得更强大！🚀
