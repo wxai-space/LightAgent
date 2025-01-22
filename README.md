@@ -551,12 +551,23 @@ OpenAI Series
  - gpt-4o
  - gpt-4o-mini
 
+ChatGLM
+ - GLM-4-Plus
+ - GLM-4-Air-0111
+ - GLM-4-Flash
+ - GLM-4-FlashX
+ - GLM-4-alltools
+ - GLM-4
+ - GLM-3-Turbo
+ - ChatGLM3-6B
+ - GLM-4-9B-Chat
+
 DeepSeek Series
  - DeepSeek-chat (API)
  - DeepSeekv2.5
  - DeepSeekv3
 
-Step Star
+stepfun
  - step-1-8k
  - step-1-32k
  - step-1-128k (issues with multi-tool calls)
@@ -615,7 +626,7 @@ We will review your contributions promptly. Thank you for your support! ❤️
 
 ## 🙏 Acknowledgments
 
-The development and implementation of LightAgent owe much to the inspiration and support from the following open-source projects, especially the outstanding projects and teams:
+Shanghai Wanxing AI and Professor Zhang Liwen's research group from the School of Statistics and Data Science at Shanghai University of Finance and Economics have jointly open-sourced a new generation intelligent agent framework called LightAgent.The development and implementation of LightAgent owe much to the inspiration and support from the following open-source projects, especially the outstanding projects and teams:
 
 - **mem0**: Thanks to [mem0](https://github.com/mem0ai/mem0) for providing the memory module, which offers strong support for LightAgent's context management.  
 - **Swarm**: Thanks to [Swarm](https://github.com/openai/swarm) for designing ideas for multi-agent collaboration, laying the groundwork for LightAgent's multi-agent features.  
@@ -634,9 +645,10 @@ LightAgent is licensed under the [Apache 2.0 License](LICENSE). You can freely u
 
 ## 📬 Contact Us
 
-If you have any questions or suggestions, feel free to contact us:
+If you have any questions or suggestions, please feel free to contact Wanxing AI or Professor Zhang Liwen from the School of Statistics and Data Science at Shanghai University of Finance and Economics:
 
-- **Email**: service@wanxingai.com  
+- **Wanxing AI Email**: service@wanxingai.com 
+- **Professor Zhang Liwen Email**: zhang.liwen@shufe.edu.cn
 - **GitHub Issues**: [https://github.com/wxai-space/lightagent/issues](https://github.com/wxai-space/lightagent/issues)  
 
 We look forward to your feedback and work together to make LightAgent even stronger! 🚀
