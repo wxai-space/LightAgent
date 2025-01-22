@@ -561,6 +561,17 @@ Openai系列
  - gpt-4o
  - gpt-4o-mini
 
+ChatGLM
+ - GLM-4-Plus
+ - GLM-4-Air-0111
+ - GLM-4-Flash
+ - GLM-4-FlashX
+ - GLM-4-alltools
+ - GLM-4
+ - GLM-3-Turbo
+ - ChatGLM3-6B
+ - GLM-4-9B-Chat
+
 Deepseek系列
  - DeepSeek-chat (API)
  - DeepSeekv2.5
@@ -629,7 +640,7 @@ Qwen系列
 
 ## 🙏 致谢
 
-LightAgent 的开发和实现离不开以下开源项目的启发和支持，特别感谢这些优秀的项目和团队：
+上海万行AI与上海财经大学统计与数据科学学院张立文教授课题组联合开源了新一代智能体框架 LightAgent。LightAgent 的开发和实现离不开以下开源项目的启发和支持，特别感谢这些优秀的项目和团队：
 
 - **mem0**：感谢 [mem0](https://github.com/mem0ai/mem0) 提供的记忆模块，为 LightAgent 的上下文管理提供了强大支持。  
 - **Swarm**：感谢 [Swarm](https://github.com/openai/swarm) 提供的多智能体协同设计思路，为 LightAgent 的多智能体功能奠定了基础。  
@@ -648,9 +659,10 @@ LightAgent 采用 [Apache 2.0 许可证](LICENSE)。您可以自由使用、修�
 
 ## 📬 联系我们
 
-如有任何问题或建议，欢迎随时联系我们：
+如有任何问题或建议，欢迎随时联系万行AI或上海财经大学统计与数据科学学院张立文教授联系：
 
-- **邮箱**：service@wanxingai.com  
+- **万行AI邮箱**：service@wanxingai.com 
+- **张立文教授邮箱**：zhang.liwen@shufe.edu.cn
 - **GitHub Issues**：[https://github.com/wxai-space/lightagent/issues](https://github.com/wxai-space/lightagent/issues)  
 
 我们期待您的反馈，一起让 LightAgent 变得更强大！🚀
