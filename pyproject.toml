@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "LightAgent"
-version = "0.1.8"
-description = "A lightweight agent for Python"
+version = "0.2.5"
+description = "**LightAgent** is an extremely lightweight active Agentic Framework with memory (`mem0`), tools (`Tools`), and a Tree of Thought (`ToT`). It supports swarm-like multi-agent collaboration, automated tool generation, and agent assessment, with underlying model support for OpenAI, Zhipu ChatGLM, Baichuan Large Model, DeepSeek, Qwen series large models, and more. At the same time, LightAgent supports OpenAI streaming format API service output, seamlessly integrating with major mainstream chat frameworks. 🌟"
 authors = ["caiweige <caiweige@qq.com>"]
 license = "Apache 2.0"
 readme = [
@@ -20,6 +20,7 @@ repository = "https://github.com/wxai-space/LightAgent"
 packages = [
     { include = "LightAgent" },
 ]
+
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.12,!=3.9.7"

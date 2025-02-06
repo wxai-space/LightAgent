@@ -166,7 +166,7 @@ print(response)
 ```
 Supports custom tools in unlimited quantities.
 
-Multiple tool examples: tools = ["search_news","get_weather","get_stock_realtime_data","get_stock_kline_data"]
+Multiple tool examples: tools = [search_news,get_weather,get_stock_realtime_data,get_stock_kline_data]
 
 ---
 

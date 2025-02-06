@@ -169,7 +169,7 @@ print(response)
 ```
 Suporte a um número ilimitado de ferramentas personalizadas.
 
-Exemplos de múltiplas ferramentas: tools = ["search_news","get_weather","get_stock_realtime_data","get_stock_kline_data"]
+Exemplos de múltiplas ferramentas: tools = [search_news,get_weather,get_stock_realtime_data,get_stock_kline_data]
 
 ---
 

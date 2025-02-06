@@ -170,7 +170,7 @@ print(response)
 ```
 支持自定義無限數量的工具。
 
-多個工具示例： tools = ["search_news","get_weather","get_stock_realtime_data","get_stock_kline_data"]
+多個工具示例： tools = [search_news,get_weather,get_stock_realtime_data,get_stock_kline_data]
 
 ---
 

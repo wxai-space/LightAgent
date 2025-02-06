@@ -167,7 +167,7 @@ print(response)
 ```
 Soporta una cantidad ilimitada de herramientas personalizadas.
 
-Ejemplo de múltiples herramientas: tools = ["search_news","get_weather","get_stock_realtime_data","get_stock_kline_data"]
+Ejemplo de múltiples herramientas: tools = [search_news,get_weather,get_stock_realtime_data,get_stock_kline_data]
 
 ---
 

@@ -163,7 +163,7 @@ print(response)
 ```
 Поддерживает настройку неограниченного количества инструментов.
 
-Примеры нескольких инструментов: tools = ["search_news","get_weather","get_stock_realtime_data","get_stock_kline_data"]
+Примеры нескольких инструментов: tools = [search_news,get_weather,get_stock_realtime_data,get_stock_kline_data]
 
 ---
 

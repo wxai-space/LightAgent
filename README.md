@@ -1,5 +1,5 @@
 
-![LightAgent Banner](https://raw.githubusercontent.com/wxai-space/LightAgent/refs/heads/main/docs/images/lightagent-banner.jpg)
+![LightAgent Banner](docs/images/lightagent-banner.jpg)
 <div align="center">
   <p>
     <a href="https://opensource.org/licenses/Apache-2.0"><img src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" alt="License"></a>
@@ -49,12 +49,12 @@
 - **Multi-Model Support** 🔄: Compatible with OpenAI, Zhipu ChatGLM, Baichuan Large Model, Step Star, DeepSeek, Qwen series large models.  
 - **Streaming API** 🌊: Supports OpenAI streaming format API service output, seamlessly integrates with mainstream chat frameworks, enhancing user experience.  
 - **Tool Generator** 🚀: Just provide your API documentation to the [Tool Generator], which will automatically create exclusive tools for you, allowing you to quickly build hundreds of personalized custom tools in just 1 hour to improve efficiency and unleash your creative potential.
+- **Agent Self-Learning** 🧠️: Each agent has its own scene memory capabilities and the ability to self-learn from user conversations.
 
 ## 🚧 Coming Soon
 
 - **Adaptive Tool Mechanism** 🛠️: Supports adding an unlimited number of tools, allowing the large model to first select a candidate tool set from thousands of tools, filtering irrelevant tools before submitting context to the large model, significantly reducing token consumption.
 - **Memory-Enabled Agent Collaboration** 🛠️: Agents can share information and pass messages among themselves for complex task collaboration.
-- **Agent Self-Learning** 🧠️: Each agent has its own scene memory capabilities and the ability to self-learn from user conversations.
 - **Agent Assessment** 📊: Built-in agent assessment tool for conveniently evaluating and optimizing the agents you build, aligning with business scenarios, and continuously improving intelligence levels.  
 
 ## Built-in "Thought Flow"
@@ -164,7 +164,7 @@ print(response)
 ```
 Supports an unlimited number of customizable tools.
 
-Multiple tool examples: tools = ["search_news", "get_weather", "get_stock_realtime_data", "get_stock_kline_data"]
+Multiple tool examples: tools = [search_news, get_weather, get_stock_realtime_data, get_stock_kline_data]
 
 ---
 
@@ -538,7 +538,36 @@ for chunk in response:
     print(chunk)
 ```
 
-### 7. Agent Assessment (Coming Soon)
+### 7. Agent Self-Learning
+The Agent possesses a unique scene memory capability, allowing it to accurately retain key information from interactions with users. At the same time, it has a powerful ability to extract knowledge from user dialogues and engage in self-learning, continuously optimizing its understanding and response strategies for various scenarios with each conversation, thereby achieving a continuous improvement in intelligence levels to better meet the diverse needs of users. Through this self-learning mechanism, the Agent can continuously adapt to complex and changing task scenarios, providing users with higher quality, more efficient, and personalized services.
+```python
+agent = LightAgent(
+        name="Agent A",  # Agent name
+        instructions="You are a helpful agent.",  # Role description
+        role="Please remember that you are LightAgent, a useful assistant to help users use multiple tools.",  # system role description
+        model="gpt-4o-mini",  # Supported models: openai, chatglm, deepseek, qwen, etc. qwen-turbo-2024-11-01 \ step-1-flash
+        api_key="your_api_key",  # Replace with your API Key
+        base_url="http://your_base_url/v1",  # API URL
+        memory=CustomMemory(),  # Enable memory function
+        self_learning=True,  # Enable agent self-learning
+        debug=True,
+        log_level="DEBUG",
+        log_file="example.log"
+    )
+
+user_id = "test_user_1"
+query = "I now have a procurement payment that needs to be transferred. What is my approval process?"
+agent.run(query, stream=False, user_id=user_id)
+query = "Please remember: According to the new company regulations, starting from January 2025, all procurement payments must first be signed by Manager Ding, who is responsible for procurement, then submitted to the finance manager for approval. After the finance manager's approval, the general manager of the company must also approve before the cashier can make the payment."
+agent.run(query, stream=False, user_id=user_id)
+
+user_id = "test_user_2"
+query = "Hello, I have a procurement payment to transfer to the other party. How do I apply for the transfer?"
+agent.run(query, stream=False, user_id=user_id)
+
+```
+
+### 8. Agent Assessment (Coming Soon)
 Built-in agent assessment tool for conveniently evaluating and optimizing agent performance.
 
 ## Mainstream Agent Model Support
@@ -668,3 +697,7 @@ We look forward to your feedback and work together to make LightAgent even stron
 </p>
 
 **LightAgent** —— A lightweight, flexible, and powerful active Agent framework that assists you in quickly building intelligent applications!
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=wxai-space/LightAgent&type=Date)](https://star-history.com/#wxai-space/LightAgent&Date)

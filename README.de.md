@@ -169,7 +169,7 @@ print(response)
 ```
 Unterstützt die benutzerdefinierte Erstellung einer unbegrenzten Anzahl von Werkzeugen.
 
-Beispiele für mehrere Werkzeuge: tools = ["search_news","get_weather","get_stock_realtime_data","get_stock_kline_data"]
+Beispiele für mehrere Werkzeuge: tools = [search_news,get_weather,get_stock_realtime_data,get_stock_kline_data]
 
 ---
 
