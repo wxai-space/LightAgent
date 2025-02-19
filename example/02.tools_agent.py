@@ -18,7 +18,7 @@ get_weather.tool_info = {
 tools = [get_weather]
 
 # Initialize Agent
-agent = LightAgent(model="qwen-turbo-2024-11-01", api_key="sk-uXx0H0BalESvcmO97b9a797dBe09400e91565999F17778F0", base_url="http://oneapi.wanxingai.com/v1", tools=tools)
+agent = LightAgent(model="qwen-turbo-2024-11-01", api_key="sk-uXx0H0BalE****999F17778F0", base_url="http://url/v1", tools=tools)
 
 # Run Agent
 response = agent.run("Please check the weather in Shanghai.")

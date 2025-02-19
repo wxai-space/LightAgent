@@ -17,8 +17,8 @@ agent = LightAgent(
 
 # 模拟历史对话
 history = [
-    {"role": "user", "input": "今天天气怎么样？"},
-    {"role": "assistant", "input": "今天天气晴朗，温度在25度左右。"},
+    {"role": "user", "content": "今天天气怎么样？"},
+    {"role": "assistant", "content": "今天天气晴朗，温度在25度左右。"},
 ]
 
 

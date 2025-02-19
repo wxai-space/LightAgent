@@ -9,8 +9,8 @@ from mem0 import Memory
 class CustomMemory:
     def __init__(self):
         self.memories = []
-        os.environ["OPENAI_API_KEY"] = "sk-uXx0H0BalESvcmO97b9a797dBe09400e91565999F17778F0"
-        os.environ["OPENAI_API_BASE"] = "http://oneapi.wanxingai.com/v1"
+        os.environ["OPENAI_API_KEY"] = "your_api_key"
+        os.environ["OPENAI_API_BASE"] = "your_base_url"
         # Initialize Mem0
         config = {
             "version": "v1.1"
