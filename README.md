@@ -53,7 +53,7 @@
 
 ---
 ## News
-- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-02-19]** LightAgent supports deepseek-r1 model for tot now.Significantly enhances the multi-tool planning capability for complex tasks.
+- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-02-19]** LightAgent v0.2.7  supports deepseek-r1 model for tot now.Significantly enhances the multi-tool planning capability for complex tasks.
 - **[2025-02-06]** LightAgent version 0.2.5 is released now.
 - **[2025-01-20]** LightAgent version 0.2.0 is released now.
 - **[2025-01-05]** LightAgent version 0.1.0 is released now.
