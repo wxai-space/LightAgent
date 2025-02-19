@@ -33,7 +33,7 @@
   <h1>LightAgent🚀 (Next Generation Agentic AI Framework)</h1>
 </div>
 
-**LightAgent** is an extremely lightweight active Agentic Framework with memory (`mem0`), tools (`Tools`), and a Tree of Thought (`ToT`). It supports swarm-like multi-agent collaboration, automated tool generation, and agent assessment, with underlying model support for OpenAI, Zhipu ChatGLM, Baichuan Large Model, DeepSeek, Qwen series large models, and more. At the same time, LightAgent supports OpenAI streaming format API service output, seamlessly integrating with major mainstream chat frameworks. 🌟
+**LightAgent** is an extremely lightweight active Agentic Framework with memory (`mem0`), tools (`Tools`), and a Tree of Thought (`ToT`). It supports swarm-like multi-agent collaboration, automated tool generation, and agent assessment, with underlying model support for OpenAI, Zhipu ChatGLM, Baichuan Large Model, DeepSeek, Qwen, stepfun and more. At the same time, LightAgent supports OpenAI streaming format API service output, seamlessly integrating with major mainstream chat frameworks. 🌟
 
 ---
 
@@ -51,6 +51,15 @@
 - **Tool Generator** 🚀: Just provide your API documentation to the [Tool Generator], which will automatically create exclusive tools for you, allowing you to quickly build hundreds of personalized custom tools in just 1 hour to improve efficiency and unleash your creative potential.
 - **Agent Self-Learning** 🧠️: Each agent has its own scene memory capabilities and the ability to self-learn from user conversations.
 
+---
+## News
+- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-02-19]** LightAgent supports deepseek-r1 model for tot now.Significantly enhances the multi-tool planning capability for complex tasks.
+- **[2025-02-06]** LightAgent version 0.2.5 is released now.
+- **[2025-01-20]** LightAgent version 0.2.0 is released now.
+- **[2025-01-05]** LightAgent version 0.1.0 is released now.
+
+---
+
 ## 🚧 Coming Soon
 
 - **Adaptive Tool Mechanism** 🛠️: Supports adding an unlimited number of tools, allowing the large model to first select a candidate tool set from thousands of tools, filtering irrelevant tools before submitting context to the large model, significantly reducing token consumption.
@@ -58,6 +67,7 @@
 - **Agent Assessment** 📊: Built-in agent assessment tool for conveniently evaluating and optimizing the agents you build, aligning with business scenarios, and continuously improving intelligence levels.  
 
 ## Built-in "Thought Flow"
+### ToT now supports DeepSeek-R1.
 The Thought Flow method effectively addresses challenges in complex scenarios through systematic, structured, and flexible thinking processes. Here are the specific implementation steps:
 ```text
 Problem Definition: Clarify the core problems and objectives.
@@ -467,7 +477,7 @@ agent.create_tool(text, tools_directory=tools_directory)
 After execution, two files will be generated in the tools directory: get_stock_kline_data.py and get_stock_realtime_data.py.
 
 ### 4. Tree of Thought (ToT)
-The built-in Tree of Thought module supports complex task decomposition and multi-step reasoning. Through the Tree of Thought, the agent can better handle complex tasks.
+Currently, it is already supported to independently customize the use of the deepseek-r1 model for planning and thinking.The built-in Tree of Thought module supports complex task decomposition and multi-step reasoning. Through the Tree of Thought, the agent can better handle complex tasks.
 
 ```python
 # Enable Tree of Thought
@@ -476,6 +486,9 @@ agent = LightAgent(
     api_key="your_api_key", 
     base_url="your_base_url", 
     tree_of_thought=True,  # Enable Tree of Thought
+    tot_model="deepseek-r1", 
+    tot_api_key="sk-uXx0H0B***17778F1",  # your deepseek r1 API Key
+    tot_base_url="https://api.deepseek.com/v1",  # api url
 )
 ```
 

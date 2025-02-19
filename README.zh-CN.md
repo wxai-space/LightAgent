@@ -33,7 +33,7 @@
   <h1>LightAgent🚀（下一代Agentic AI框架）</h1>
 </div>
 
-**LightAgent** 是一个极其轻量的带记忆（`mem0`）、工具（`Tools`）、思维树（`ToT`）的主动式 Agentic Framework（自主性框架）。它支持类 Swarm 的多智能体协同、自动化工具生成、Agent 测评，底层模型支持 OpenAI、智谱 ChatGLM、百川大模型、DeepSeek、Qwen 系列大模型等。同时，LightAgent 支持 OpenAI 流格式 API 服务输出，无缝接入各大主流 Chat 框架。🌟
+**LightAgent** 是一个极其轻量的带记忆（`mem0`）、工具（`Tools`）、思维树（`ToT`）的主动式 Agentic Framework（自主性框架）。它支持比Openai Swarm更简单的多智能体协同，构建具备自我学习能力的agent，并支持Agent测评，底层模型支持 OpenAI、智谱 ChatGLM、DeepSeek、阶跃星辰、Qwen通义千问大模型等。同时，LightAgent 支持 OpenAI 流格式 API 服务输出，无缝接入各大主流 Chat 框架。🌟
 
 ---
 
@@ -44,22 +44,31 @@
 - **自主学习** 📚️：每个agent拥有自主学习能力，并且拥有权限的管理员可以管理每个agent。
 - **工具集成** 🛠️：支持自定义工具（`Tools`），自动化工具生成，灵活扩展，满足多样化需求。  
 - **复杂目标** 🌳：内置带反思的思维树（ToT）模块，支持复杂任务分解和多步推理，提升任务处理能力。  
-- **多智能体协同** 🤖：比Swarm更简单实现的多智能体协同工作，内置LightSwarm实现意图判断和任务转移功能，能够更智能地处理用户输入，并根据需要将任务转移给其他代理。 
+- **多智能体协同** 🤖：比Swarm更简单的多智能体协同，内置的LightSwarm实现意图判断和任务转移功能，能够更智能地处理用户输入，并根据需要将任务转移给其他代理。 
 - **独立执行** 🤖：无人为干预自主完成任务工具调用。  
 - **多模型支持** 🔄：兼容 OpenAI、智谱 ChatGLM、百川大模型、阶跃星辰、DeepSeek、Qwen 系列大模型。  
-- **流式 API** 🌊：支持 OpenAI 流格式 API 服务输出，无缝接入主流 Chat 框架，提升用户体验。  
+- **流式 API输出** 🌊：支持 OpenAI 流格式 API 服务输出，无缝接入主流 Chat 框架，提升用户体验。  
 - **Tools工具生成器** 🚀：只需将您的API文档交给[Tools工具生成器]，它将自动化地为您打造专属的tools，助您在短短1小时内快速构建数百个个性化的自定义工具，提升效率，释放您的创新潜能。
 - **agent自我学习** 🧠️：每个agent拥有自己的场景记忆能力，拥有从用户的对话中进行自我学习能力。
 
+---
+## 新闻
+- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-02-19]** LightAgent v0.2.7 支持单独采用 deepseek-r1 作为的agent推理规划ToT引擎，大幅度提升复杂任务的多工具Plan能力.
+- **[2025-02-06]** LightAgent version 0.2.5 is released now.
+- **[2025-01-20]** LightAgent version 0.2.0 is released now.
+- **[2025-01-05]** LightAgent version 0.1.0 is released now.
+
+---
 
 ## 🚧 即将推出
 
-- **自适应tools机制** 🛠️：支持添加无限量tools，在上万个工具中让大模型先选取候选工具集合，过滤无关工具后再提交上下文给大模型，可大幅度降低Token消耗。
+- **自适应tools机制** 🛠️：支持添加无限量tools，在上万个工具中让大模型过滤无关工具后再发送给大模型，可大幅度降低Token消耗。
 - **带记忆的智能体协同** 🛠️：智能体之间还可以共享信息和传递消息，实现复杂的任务协同。
 - **Agent 测评** 📊：内置 Agent 测评工具，方便评估和优化你构建的Agent，对齐业务场景，持续提升智能水平。  
 
 
-## 内置 “思考流”
+## 🔥内置 “思考流”
+### ToT现已支持DeepSeek-R1
 （Thought Flow）方法通过系统性、结构化和灵活的思维过程，能够有效应对复杂场景中的挑战。
  以下是具体实施步骤：
 ```text
@@ -472,7 +481,7 @@ agent.create_tool(text, tools_directory=tools_directory)
 执行后将在tools目录中生成2个文件：get_stock_kline_data.py和get_stock_realtime_data.py
 
 ### 4. 思维树（ToT）
-内置思维树模块，支持复杂任务分解和多步推理。通过思维树，Agent 可以更好地处理复杂任务。
+当前已经支持单独自定义使用deepseek-r1模型来做规划思考。内置思维树模块，支持复杂任务分解和多步推理。通过思维树，Agent 可以更好地处理复杂任务。
 
 ```python
 # 启用思维树
@@ -481,6 +490,9 @@ agent = LightAgent(
     api_key="your_api_key", 
     base_url= "your_base_url", 
     tree_of_thought=True,  # 启用思维树
+    tot_model="deepseek-r1", 
+    tot_api_key="sk-uXx0H0B***17778F1",  # 替换为你的 deepseek r1 API Key
+    tot_base_url="https://api.deepseek.com/v1",  # api url
 )
 ```
 
@@ -535,7 +547,7 @@ print(res)
 ```
 
 ### 6. 流式 API 
-支持 OpenAI 流格式 API 服务输出，无缝接入主流 Chat 框架。
+支持 OpenAI 对话流格式 API 服务输出，可无缝接入主流 Chat 框架。
 
 ```python
 # 启用流式输出
@@ -578,16 +590,15 @@ agent.run(query, stream=False, user_id=user_id)
 内置 Agent 测评工具，方便评估和优化 Agent 性能。
 
 
-
 ## 主流Agent模型支持
 兼容多种大模型，包括 OpenAI、智谱ChatGLM、DeepSeek、Qwen系列大模型。
 
 #### 目前已经测试兼容的大模型
 Openai系列
- - gpt-3.5-turbo
- - gpt-4
- - gpt-4o
- - gpt-4o-mini
+ - GPT-3.5-turbo
+ - GPT-4
+ - GPT-4o
+ - GPT-4o-mini
 
 ChatGLM
  - GLM-4-Plus

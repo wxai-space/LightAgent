@@ -10,13 +10,15 @@ from openai import OpenAI
 import logging
 import os
 import httpx
+import importlib
 
 # 全局工具注册表
 _FUNCTION_MAPPINGS = {}  # 工具名称 -> 工具函数
+_FUNCTION_INFO = {}   # 工具名称 -> 工具info信息
 _OPENAI_FUNCTION_SCHEMAS = []  # OpenAI 格式的工具描述
 _PROMPT_FUNCTION_SCHEMAS = []  # prompt 格式的工具描述
 
-import importlib
+__version__ = "0.2.7"  # 你可以根据需要设置版本号
 
 
 def register_tool_manually(tools: List[Union[str, Callable]]) -> bool:
@@ -31,6 +33,9 @@ def register_tool_manually(tools: List[Union[str, Callable]]) -> bool:
 
         tool_info = func.tool_info
         tool_name = tool_info["tool_name"]
+
+        # 注册到全局字典
+        _FUNCTION_INFO[tool_name] = tool_info
         _FUNCTION_MAPPINGS[tool_name] = func  # 注册工具
 
         # 构建 OpenAI 格式的工具描述
@@ -113,6 +118,7 @@ def stream_generator(result):
     for chunk in result:
         yield chunk
 
+
 def dispatch_tool_old(tool_name: str, tool_params: Dict[str, Any]) -> str:
     """
     调用工具执行
@@ -146,7 +152,10 @@ def get_tools_str() -> str:
     tools_str = json.dumps(_OPENAI_FUNCTION_SCHEMAS, indent=4, ensure_ascii=False)
     return tools_str
 
+
 class LightAgent:
+    __version__ = "0.2.1"  # 将版本号放在类中
+
     def __init__(
             self,
             *,
@@ -159,6 +168,10 @@ class LightAgent:
             websocket_base_url: str | httpx.URL | None = None,
             memory=None,  # 支持外部传入记忆模块
             tree_of_thought: bool = False,  # 是否启用链式思考
+            tot_model: str,
+            tot_api_key: str,
+            tot_base_url: str | httpx.URL | None = None,
+            self_learning: bool = False,  # 是否启用agent自我学习
             tools: List[Union[str, Callable]] = None,  # 支持混合输入
             debug: bool = False,  # 是否启用调试模式
             log_level: str = "INFO",  # 日志级别（INFO, DEBUG, ERROR）
@@ -176,6 +189,9 @@ class LightAgent:
         :param websocket_base_url: WebSocket 的基础 URL。
         :param memory: 外部传入的记忆模块，需实现 `retrieve` 和 `store` 方法。
         :param tree_of_thought: 是否启用思维链功能。
+        :param tot_model: 使用的模型名称。
+        :param tot_api_key: API 密钥。
+        :param tot_base_url: API 的基础 URL。
         :param tools: 工具列表，支持函数名称（字符串）或函数对象。
         :param debug: 是否启用调试模式。
         :param log_level: 日志级别（INFO, DEBUG, ERROR）。
@@ -199,6 +215,7 @@ class LightAgent:
         self.model = model
         self.memory = memory
         self.tree_of_thought = tree_of_thought
+        self.self_learning = self_learning
 
         self.debug = debug
         self.log_level = log_level.upper()
@@ -229,11 +246,21 @@ class LightAgent:
             base_url = f"https://api.openai.com/v1"
 
         self.client = OpenAI(
-            base_url=base_url,
-            api_key=self.api_key
+            base_url = base_url,
+            api_key = self.api_key
         )
-
-
+        if self.tree_of_thought:
+            if tot_api_key is None:
+                tot_api_key = api_key
+            if tot_base_url is None:
+                tot_base_url = base_url
+            if not tot_model:
+                tot_model = "deepseek-r1"  # 默认思维推理模型为deepseek-r1
+            self.tot_model = tot_model
+            self.tot_client = OpenAI(
+                base_url = tot_base_url,
+                api_key = tot_api_key
+            )
 
     def get_tool(self, tool_name: str) -> Callable:
         """
@@ -267,6 +294,7 @@ class LightAgent:
                 # 注册工具函数
                 if hasattr(tool_func, "tool_info"):
                     tool_info = tool_func.tool_info
+                    _FUNCTION_INFO[tool_name] = tool_info  # 注册工具info信息
                     _FUNCTION_MAPPINGS[tool_name] = tool_func
 
                     # 构建 OpenAI 格式的工具描述
@@ -355,6 +383,7 @@ class LightAgent:
             stream: bool = False,
             max_retry: int = 5,
             user_id: str = "default_user",
+            history: list = None,
             metadata: Optional[Dict] = None,
     ) -> Union[Generator[str, None, None], str]:
         """
@@ -365,10 +394,15 @@ class LightAgent:
         :param stream: 是否启用流式输出。
         :param max_retry: 最大重试次数。
         :param user_id: 用户 ID。
+        :param history: 历史对话 。
         :param metadata: 元数据。
         :return: 代理的回复。
         """
         self.log("INFO", "run", {"query": query, "user_id": user_id, "light_swarm": light_swarm, "stream": stream})
+        if history is None:
+            history = []
+        # 构建消息列表，先添加系统提示信息
+        params = {}
 
         # 1. 判断是否需要转移任务
         # if light_swarm:
@@ -387,20 +421,24 @@ class LightAgent:
                 return result
 
         # 2. 正常处理任务
-
         now = datetime.now()
         current_date = now.strftime("%Y-%m-%d")
         current_time = now.strftime("%H:%M:%S")
         system_prompt = f"##代理名称：{self.name} ##代理指令 /n{self.instructions}  ##身份 /n {self.role} /n 请一步一步思考来完成用户的要求。尽可能完成用户的回答，如果有补充信息，请参考补充信息来调用工具，直到获取所有满足用户的提问所需的答案。 /n 今日的日期: {current_date} 当前时间: {current_time}"
         params = dict(model=self.model, stream=stream)
-
-        # 3. 从记忆中检索相关内容
+        memory = ''
+        # 3. 从记忆中检索相关内容&保存记忆
         if self.memory:
             related_memories = self.memory.retrieve(query=query, user_id=user_id)
-            query = self._build_context(query, related_memories)
+            memory = memory + self._build_context(related_memories)
             self.memory.store(data=query, user_id=user_id)
-        else:
-            query = query
+            if self.self_learning:
+                agent_memories = self.memory.retrieve(query=query, user_id=self.name)
+                memory = memory + self._build_agent_memory(agent_memories)
+                self.memory.store(data=query, user_id=self.name)
+
+        query = f"{memory}\n##用户提问：\n{query}"
+        # print(query)
 
         # 4. 拼接tools工具
         if self.tools:
@@ -415,10 +453,15 @@ class LightAgent:
             system_prompt = system_prompt + f" /n ##以下是问题的补充说明 /n {tot_response}"
             self.log("DEBUG", "tree_of_thought", {"response": tot_response})
 
-        params["messages"] = [{"role": "system", "content": system_prompt}, {"role": "user", "content": query}]
+        # 6. 调用核心运行逻辑
+        params["messages"] = [{"role": "system", "content": system_prompt}]
+        # 将历史对话添加到消息列表中
+        for item in history:
+            params["messages"].append({"role": item["role"], "content": item["content"]})
+        # 最后添加当前用户的查询信息
+        params["messages"].append({"role": "user", "content": query})
         response = self.client.chat.completions.create(**params)
 
-        # 6. 调用核心运行逻辑
         result = self._core_run_logic(response, params, stream, max_retry)
 
         return result
@@ -431,6 +474,9 @@ class LightAgent:
             if response.choices[0].message.tool_calls:
                 # 初始化一个列表，用于存储所有工具调用的结果
                 tool_responses = []
+                # 初始化变量
+                output = ""
+                function_call_name = ""
                 tool_calls = response.choices[0].message.tool_calls
                 self.log("DEBUG", "tool_calls", {"tool_calls": tool_calls})
 
@@ -444,6 +490,7 @@ class LightAgent:
 
                     # 调用工具并获取响应
                     tool_response = dispatch_tool(function_call.name, function_args)
+                    function_call_name = function_call.name
                     combined_response = ""
 
                     # 如果工具返回的是生成器（流式输出），则将所有 chunk 叠加
@@ -451,7 +498,11 @@ class LightAgent:
                         # print(f"Streaming response from tool: {function_call.name}")
                         for chunk in tool_response:
                             # print("Received chunk:", chunk)  # 打印每个 chunk
-                            combined_response += chunk  # 将每个 chunk 叠加
+                            if function_call_name == 'finish':
+                                content = chunk.choices[0].delta.content or ""
+                                combined_response += content  # 将每个 chunk 叠加
+                            else:
+                                combined_response += chunk  # 将每个 chunk 叠加
                         if combined_response == "":
                             combined_response = "".join(tool_response)
                         tool_responses.append(combined_response)  # 将叠加后的完整响应添加到列表
@@ -489,6 +540,9 @@ class LightAgent:
                 return reply
 
             # 更新响应
+            if function_call_name == 'finish':
+                return  # 如果最后调用了finish工具，则结束生成器
+            # print(params)
             response = self.client.chat.completions.create(**params)
 
         # 重试次数用尽
@@ -509,8 +563,9 @@ class LightAgent:
 
             for chunk in response:
                 content = chunk.choices[0].delta.content or ""
-                yield chunk  # 流式返回内容
-                output += content
+                if content:
+                    yield chunk  # 流式返回内容
+                    output += content
 
                 try:
                     # 检查是否有工具调用
@@ -551,9 +606,12 @@ class LightAgent:
                         if tool_call["name"]:  # 确保工具调用有名称
                             function_call = {
                                 "name": tool_call["name"],
+                                "title": _FUNCTION_INFO.get(tool_call["name"], {}).get('tool_title') or '',
                                 "arguments": tool_call["arguments"],
                             }
                             self.log("INFO", "tool_call", {"function_call": function_call})
+                            # 将工具的调用信息推送给开发者
+                            yield function_call
 
                             # 解析参数并调用工具
                             try:
@@ -569,14 +627,19 @@ class LightAgent:
                                 for json_obj in json_objects:
                                     function_args = json.loads(json_obj)
                                     tool_response = dispatch_tool(function_call["name"], function_args)
+                                    function_call_name = function_call["name"]
 
                                     # 如果工具返回的是生成器（流式输出），则将所有 chunk 叠加
                                     if isinstance(tool_response, Generator):
                                         # print(f"Streaming response from tool: {function_call['name']}")
                                         combined_response = ""
                                         for chunk in tool_response:
-                                            # yield chunk
-                                            combined_response += chunk  # 将每个 chunk 叠加
+                                            yield chunk
+                                            if function_call_name == 'finish':
+                                                content = chunk.choices[0].delta.content or ""
+                                                combined_response += content  # 将每个 chunk 叠加
+                                            else:
+                                                combined_response += chunk  # 将每个 chunk 叠加
                                         tool_responses.append(combined_response)  # 将叠加后的完整响应添加到列表
                                     else:
                                         # print(f"Non-streaming response from tool: {function_call['name']}")
@@ -610,6 +673,8 @@ class LightAgent:
                     break
 
             # 更新响应
+            if function_call_name == 'finish':
+                return  # 如果最后调用了finish工具，则结束生成器
             response = self.client.chat.completions.create(**params)
 
         # 重试次数用尽
@@ -710,39 +775,58 @@ class LightAgent:
             self.log("ERROR", "run_failed", {"error": str(e)})
             raise  # 重新抛出异常以便调试
 
-    def _build_context(self, user_input, related_memories):
+    def _build_context(self, related_memories):
         """
         构建上下文，将用户输入和记忆内容结合。
-
-        :param user_input: 用户输入的问题或内容。
         :param related_memories: 从记忆中检索到的相关内容。
         :return: 结合记忆后的上下文。
         """
         if not related_memories or not related_memories["memories"]:
-            return user_input
+            return ""
 
         memory_context = "\n".join([m["memory"] for m in related_memories["memories"]])
         if not memory_context:
-            return user_input
+            return ""
 
-        prompt = f"\n用户之前提到了\n{memory_context}。\n现在用户问\n{user_input}"
+        prompt = f"\n##用户偏好 \n用户之前提到了\n{memory_context}。"
         self.log("DEBUG", "related_memories", {"memory_context": memory_context})
+        return prompt
+
+    def _build_agent_memory(self, agent_memories):
+        """
+        构建上下文，将用户输入和记忆内容结合。
+
+        :param agent_memories: 从记忆中检索到的相关内容。
+        :return: 结合记忆后的上下文。
+        """
+        if not agent_memories or not agent_memories["memories"]:
+            return ""
+
+        memory_context = "\n".join([m["memory"] for m in agent_memories["memories"]])
+        if not memory_context:
+            return ""
+
+        prompt = f"\n##以下是解决该问题的相关补充信息：\n{memory_context}。"
+        self.log("DEBUG", "agent_memories", {"memory_context": memory_context})
         return prompt
 
     def run_thought(self, query: str, stream=False, tools=None):
         """使用思维树的方式 让大模型先根据get_tools_str生成一个解答用户query的工具使用计划"""
-        tot_model = "deepseek-chat"  # self.model
+        tot_model = self.tot_model  # self.model
         tools = get_tools_str()
         if not isinstance(tools, str):
             tools = str(tools)  # 确保 tools 是字符串
-        system_prompt = f"""你是一个智能助手，请根据用户输入的问题，结合工具使用计划，生成一个思维树，并按照思维树依次调用工具步骤，最终生成一个最终回答。/n 工具列表: {tools}"""
+        now = datetime.now()
+        current_date = now.strftime("%Y-%m-%d")
+        current_time = now.strftime("%H:%M:%S")
+        system_prompt = f"""你是一个智能助手，请根据用户输入的问题，结合工具使用计划，生成一个思维树，并按照思维树依次调用工具步骤，最终生成一个最终回答。/n 今日的日期: {current_date} 当前时间: {current_time} /n 工具列表: {tools}"""
         self.log("DEBUG", "run_thought", {"system_prompt": system_prompt})
 
         # 第一次请求，生成初始的工具使用计划
         params = dict(model=tot_model,
                       messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": query}],
                       stream=False)
-        response = self.client.chat.completions.create(**params)
+        response = self.tot_client.chat.completions.create(**params)
         initial_content = response.choices[0].message.content
         self.log("DEBUG", "initial_response", {"response": initial_content})
 
@@ -755,7 +839,7 @@ class LightAgent:
         ], stream=False)
         self.log("DEBUG", "reflection_params", {"params": reflection_params})
 
-        reflection_response = self.client.chat.completions.create(**reflection_params)
+        reflection_response = self.tot_client.chat.completions.create(**reflection_params)
         refined_content = reflection_response.choices[0].message.content
         self.log("DEBUG", "refined_response", {"response": refined_content})
         return refined_content
