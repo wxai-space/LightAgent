@@ -339,6 +339,7 @@ def get_weather(
 # 在函数内部定义工具信息
 get_weather.tool_info = {
     "tool_name": "get_weather",
+    "tool_name": "获取天气",
     "tool_description": "获取指定城市的当前天气信息",
     "tool_params": [
         {"name": "city_name", "description": "要查询的城市名称", "type": "string", "required": True},
@@ -361,6 +362,7 @@ def search_news(
 # 在函数内部定义工具信息
 search_news.tool_info = {
     "tool_name": "search_news",
+    "tool_name": "联网搜索",
     "tool_description": "根据关键词搜索新闻",
     "tool_params": [
         {"name": "keyword", "description": "搜索关键词", "type": "string", "required": True},

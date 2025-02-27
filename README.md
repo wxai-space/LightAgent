@@ -335,6 +335,7 @@ def get_weather(
 # Define tool information inside the function
 get_weather.tool_info = {
     "tool_name": "get_weather",
+    "tool_title": "get weather",
     "tool_description": "Get current weather information for the specified city.",
     "tool_params": [
         {"name": "city_name", "description": "The name of the city to query", "type": "string", "required": True},
@@ -357,6 +358,7 @@ def search_news(
 # Define tool information inside the function
 search_news.tool_info = {
     "tool_name": "search_news",
+    "tool_title": "search news",
     "tool_description": "Search news based on keywords.",
     "tool_params": [
         {"name": "keyword", "description": "Search keyword", "type": "string", "required": True},

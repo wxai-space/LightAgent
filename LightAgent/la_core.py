@@ -11,6 +11,7 @@ import logging
 import os
 import httpx
 import importlib
+from openai.types.chat import ChatCompletionChunk
 
 # 全局工具注册表
 _FUNCTION_MAPPINGS = {}  # 工具名称 -> 工具函数
@@ -18,7 +19,7 @@ _FUNCTION_INFO = {}   # 工具名称 -> 工具info信息
 _OPENAI_FUNCTION_SCHEMAS = []  # OpenAI 格式的工具描述
 _PROMPT_FUNCTION_SCHEMAS = []  # prompt 格式的工具描述
 
-__version__ = "0.2.7"  # 你可以根据需要设置版本号
+__version__ = "0.2.8"  # 你可以根据需要设置版本号
 
 
 def register_tool_manually(tools: List[Union[str, Callable]]) -> bool:
@@ -163,13 +164,13 @@ class LightAgent:
             instructions: Optional[str] = None,  # 代理指令
             role: Optional[str] = None,
             model: str,
-            api_key: str,
+            api_key: str | None = None,
             base_url: str | httpx.URL | None = None,
             websocket_base_url: str | httpx.URL | None = None,
             memory=None,  # 支持外部传入记忆模块
             tree_of_thought: bool = False,  # 是否启用链式思考
-            tot_model: str,
-            tot_api_key: str,
+            tot_model: str | None = None,
+            tot_api_key: str | None = None,
             tot_base_url: str | httpx.URL | None = None,
             self_learning: bool = False,  # 是否启用agent自我学习
             tools: List[Union[str, Callable]] = None,  # 支持混合输入
@@ -381,7 +382,7 @@ class LightAgent:
             query: str,
             light_swarm=None,
             stream: bool = False,
-            max_retry: int = 5,
+            max_retry: int = 10,
             user_id: str = "default_user",
             history: list = None,
             metadata: Optional[Dict] = None,
@@ -505,10 +506,28 @@ class LightAgent:
                                 combined_response += chunk  # 将每个 chunk 叠加
                         if combined_response == "":
                             combined_response = "".join(tool_response)
+
+                        # 将 combined_response 解析为 JSON 对象（如果它是 JSON 字符串）
+                        try:
+                            combined_response = json.loads(combined_response)  # 解析 JSON
+                        except json.JSONDecodeError:
+                            pass  # 如果不是 JSON 字符串，保持原样
+
+                        # 将 JSON 对象中的 Unicode 编码转换为中文字符
+                        if isinstance(combined_response, dict):
+                            combined_response = json.dumps(combined_response, ensure_ascii=False)  # 确保中文字符不转义
+
                         tool_responses.append(combined_response)  # 将叠加后的完整响应添加到列表
                     else:
                         # print(f"Non-streaming response from tool: {function_call.name}")
                         combined_response = tool_response
+                        # 如果是 JSON 字符串，解析并转换为中文
+                        if isinstance(combined_response, str):
+                            try:
+                                combined_response = json.loads(combined_response)  # 解析 JSON
+                                combined_response = json.dumps(combined_response, ensure_ascii=False)  # 转换为中文
+                            except json.JSONDecodeError:
+                                pass  # 如果不是 JSON 字符串，保持原样
                         tool_responses.append(combined_response)  # 直接添加普通响应
 
                     self.log("INFO", "tool_response", {"tool_response": combined_response})
@@ -634,7 +653,19 @@ class LightAgent:
                                         # print(f"Streaming response from tool: {function_call['name']}")
                                         combined_response = ""
                                         for chunk in tool_response:
-                                            yield chunk
+                                            # 将工具返回的数据继续流出
+                                            if isinstance(chunk, ChatCompletionChunk):
+                                                yield chunk
+                                            else:
+                                                tool_output = {
+                                                    "name": tool_call["name"],
+                                                    "title": _FUNCTION_INFO.get(tool_call["name"], {}).get(
+                                                        'tool_title') or '',
+                                                    "output": chunk,
+                                                }
+                                                self.log("INFO", "tool_call", {"tool_output": tool_output})
+                                                yield tool_output
+                                            # 将工具的调用信息推送给开发者
                                             if function_call_name == 'finish':
                                                 content = chunk.choices[0].delta.content or ""
                                                 combined_response += content  # 将每个 chunk 叠加
