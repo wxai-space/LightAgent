@@ -11,6 +11,7 @@ import logging
 import os
 import httpx
 import importlib
+from openai.types.chat import ChatCompletionChunk
 
 # 全局工具注册表
 _FUNCTION_MAPPINGS = {}  # 工具名称 -> 工具函数
@@ -653,14 +654,17 @@ class LightAgent:
                                         combined_response = ""
                                         for chunk in tool_response:
                                             # 将工具返回的数据继续流出
-                                            tool_output = {
-                                                "name": tool_call["name"],
-                                                "title": _FUNCTION_INFO.get(tool_call["name"], {}).get(
-                                                    'tool_title') or '',
-                                                "output": chunk,
-                                            }
-                                            self.log("INFO", "tool_call", {"tool_output": tool_output})
-                                            yield tool_output
+                                            if isinstance(chunk, ChatCompletionChunk):
+                                                yield chunk
+                                            else:
+                                                tool_output = {
+                                                    "name": tool_call["name"],
+                                                    "title": _FUNCTION_INFO.get(tool_call["name"], {}).get(
+                                                        'tool_title') or '',
+                                                    "output": chunk,
+                                                }
+                                                self.log("INFO", "tool_call", {"tool_output": tool_output})
+                                                yield tool_output
                                             # 将工具的调用信息推送给开发者
                                             if function_call_name == 'finish':
                                                 content = chunk.choices[0].delta.content or ""
