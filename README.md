@@ -37,6 +37,8 @@
 
 ---
 
+![lightswarm_demo_en.png](docs%2Fimages%2Flightswarm_demo_en.png)
+
 ## ✨ Features
 
 - **Lightweight and Efficient** 🚀: Minimalist design, quick deployment, suitable for various application scenarios. (No LangChain, No LlamaIndex) 100% Python implementation, no additional dependencies, core code is only 1000 lines, fully open source. 

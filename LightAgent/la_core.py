@@ -19,7 +19,7 @@ _FUNCTION_INFO = {}   # 工具名称 -> 工具info信息
 _OPENAI_FUNCTION_SCHEMAS = []  # OpenAI 格式的工具描述
 _PROMPT_FUNCTION_SCHEMAS = []  # prompt 格式的工具描述
 
-__version__ = "0.2.8"  # 你可以根据需要设置版本号
+__version__ = "0.2.85"  # 你可以根据需要设置版本号
 
 
 def register_tool_manually(tools: List[Union[str, Callable]]) -> bool:
@@ -155,7 +155,7 @@ def get_tools_str() -> str:
 
 
 class LightAgent:
-    __version__ = "0.2.1"  # 将版本号放在类中
+    __version__ = "0.2.85"  # 将版本号放在类中
 
     def __init__(
             self,
@@ -479,15 +479,19 @@ class LightAgent:
                 output = ""
                 function_call_name = ""
                 tool_calls = response.choices[0].message.tool_calls
-                self.log("DEBUG", "tool_calls", {"tool_calls": tool_calls})
+                self.log("DEBUG", "non_stream tool_calls", {"tool_calls": tool_calls})
 
                 # 遍历所有工具调用
                 for tool_call in tool_calls:
                     function_call = tool_call.function
-                    self.log("DEBUG", "function_call", {"function_call": function_call.model_dump()})
 
+                    # 尝试自动修复常见转义问题
+                    fixed_args = function_call.arguments.replace('\\"', '"').replace('\\\\', '\\')
+                    self.log("DEBUG", "non_stream function_call", {"function_call": fixed_args})
+
+                    function_args = json.loads(fixed_args)
                     # 解析函数参数
-                    function_args = json.loads(function_call.arguments)
+                    # function_args = json.loads(function_call.arguments)
 
                     # 调用工具并获取响应
                     tool_response = dispatch_tool(function_call.name, function_args)
@@ -496,7 +500,7 @@ class LightAgent:
 
                     # 如果工具返回的是生成器（流式输出），则将所有 chunk 叠加
                     if isinstance(tool_response, Generator):
-                        # print(f"Streaming response from tool: {function_call.name}")
+                        print(f"Streaming response from tool: {function_call.name}")
                         for chunk in tool_response:
                             # print("Received chunk:", chunk)  # 打印每个 chunk
                             if function_call_name == 'finish':
@@ -521,16 +525,18 @@ class LightAgent:
                     else:
                         # print(f"Non-streaming response from tool: {function_call.name}")
                         combined_response = tool_response
+                        # print("tool_response type:",type(combined_response))
                         # 如果是 JSON 字符串，解析并转换为中文
                         if isinstance(combined_response, str):
                             try:
                                 combined_response = json.loads(combined_response)  # 解析 JSON
                                 combined_response = json.dumps(combined_response, ensure_ascii=False)  # 转换为中文
                             except json.JSONDecodeError:
+                                combined_response = tool_response
                                 pass  # 如果不是 JSON 字符串，保持原样
                         tool_responses.append(combined_response)  # 直接添加普通响应
 
-                    self.log("INFO", "tool_response", {"tool_response": combined_response})
+                    self.log("INFO", "non_stream tool_response", {"tool_response": combined_response})
 
                     # 将工具调用的结果添加到列表中
                     tool_responses.append(combined_response)
@@ -561,8 +567,13 @@ class LightAgent:
             # 更新响应
             if function_call_name == 'finish':
                 return  # 如果最后调用了finish工具，则结束生成器
-            # print(params)
-            response = self.client.chat.completions.create(**params)
+            # print("params:",params)
+            self.log("DEBUG", "chat-completions params", {"params": params})
+
+            try:
+                response = self.client.chat.completions.create(**params)
+            except Exception as e:
+                print(f"An error occurred: {e}")
 
         # 重试次数用尽
         self.log("ERROR", "max_retry_reached", {"message": "Failed to generate a valid response."})
@@ -673,8 +684,11 @@ class LightAgent:
                                                 combined_response += chunk  # 将每个 chunk 叠加
                                         tool_responses.append(combined_response)  # 将叠加后的完整响应添加到列表
                                     else:
-                                        # print(f"Non-streaming response from tool: {function_call['name']}")
-                                        tool_responses.append(tool_response)  # 直接添加普通响应
+                                        # print(f"Non-streaming response from tool: {tool_response}")
+                                        combined_response = tool_response
+                                        tool_responses.append(combined_response)  # 直接添加普通响应
+                                    self.log("INFO", "stream tool_response", {"tool_response": combined_response})
+
 
                             except json.JSONDecodeError as e:
                                 self.log("ERROR", "json_decode_error",
@@ -706,6 +720,7 @@ class LightAgent:
             # 更新响应
             if function_call_name == 'finish':
                 return  # 如果最后调用了finish工具，则结束生成器
+            self.log("DEBUG", "chat-completions params", {"params": params})
             response = self.client.chat.completions.create(**params)
 
         # 重试次数用尽

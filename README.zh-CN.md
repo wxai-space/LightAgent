@@ -36,7 +36,7 @@
 **LightAgent** 是一个极其轻量的带记忆（`mem0`）、工具（`Tools`）、思维树（`ToT`）的主动式 Agentic Framework（自主性框架）。它支持比Openai Swarm更简单的多智能体协同，构建具备自我学习能力的agent，并支持Agent测评，底层模型支持 OpenAI、智谱 ChatGLM、DeepSeek、阶跃星辰、Qwen通义千问大模型等。同时，LightAgent 支持 OpenAI 流格式 API 服务输出，无缝接入各大主流 Chat 框架。🌟
 
 ---
-
+![lightswarm_demo_cn.png](docs%2Fimages%2Flightswarm_demo_cn.png)
 ## ✨ 特性
 
 - **轻量高效** 🚀：极简设计，快速部署，适合各种规模的应用场景。（No LangChain, No LlamaIndex）100% Python 实现，无需额外依赖，核心代码仅1000行，完全开源。 
