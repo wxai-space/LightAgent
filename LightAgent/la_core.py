@@ -12,6 +12,7 @@ import os
 import httpx
 import importlib
 from openai.types.chat import ChatCompletionChunk
+import asyncio
 
 # 全局工具注册表
 _FUNCTION_MAPPINGS = {}  # 工具名称 -> 工具函数
@@ -19,7 +20,7 @@ _FUNCTION_INFO = {}   # 工具名称 -> 工具info信息
 _OPENAI_FUNCTION_SCHEMAS = []  # OpenAI 格式的工具描述
 _PROMPT_FUNCTION_SCHEMAS = []  # prompt 格式的工具描述
 
-__version__ = "0.2.85"  # 你可以根据需要设置版本号
+__version__ = "0.2.9"  # 你可以根据需要设置版本号
 
 
 def register_tool_manually(tools: List[Union[str, Callable]]) -> bool:
@@ -87,36 +88,41 @@ def load_tool(tool_name: str, tools_directory: str = "tools"):
             return tool_func
     raise AttributeError(f"Tool '{tool_name}' is not properly defined in {tool_path}")
 
+from typing import Dict, Any, Union, Generator, AsyncGenerator
+import inspect
+import traceback
 
-def dispatch_tool(tool_name: str, tool_params: Dict[str, Any]) -> Union[str, Generator[str, None, None]]:
+async def dispatch_tool(tool_name: str, tool_params: Dict[str, Any]) -> Union[str, Generator[str, None, None], AsyncGenerator[str, None]]:
     """
-    调用工具执行，支持流式输出。
-
-    :param tool_name: 工具名称
-    :param tool_params: 工具参数
-    :return: 如果工具是流式输出，返回生成器；否则返回字符串结果。
+    调用工具执行，支持同步/异步工具及流式输出。
     """
     if tool_name not in _FUNCTION_MAPPINGS:
         return f"Tool `{tool_name}` not found."
 
     tool_call = _FUNCTION_MAPPINGS[tool_name]
     try:
-        # print(f"Calling tool: {tool_name} with params: {tool_params}")  # 调试信息
-        result = tool_call(**tool_params)
+        # 区分同步/异步工具
+        if inspect.iscoroutinefunction(tool_call):
+            result = await tool_call(**tool_params)
+        else:
+            result = tool_call(**tool_params)
 
-        # 如果工具返回的是可迭代对象（如生成器），则逐块处理并返回生成器
-        if isinstance(result, Iterable) and not isinstance(result, (str, bytes)):
+        # 处理不同类型的流式输出
+        if inspect.isasyncgen(result):
+            return async_stream_generator(result)
+        elif inspect.isgenerator(result):
             return stream_generator(result)
-        # 否则，返回字符串结果
         else:
             return str(result)
     except Exception as e:
-        # print(f"Tool call failed: {e}")  # 调试信息
         return traceback.format_exc()
 
+async def async_stream_generator(async_gen: AsyncGenerator) -> AsyncGenerator[str, None]:
+    async for chunk in async_gen:
+        yield chunk
 
-def stream_generator(result):
-    for chunk in result:
+def stream_generator(sync_gen: Generator) -> Generator[str, None, None]:
+    for chunk in sync_gen:
         yield chunk
 
 
@@ -155,7 +161,7 @@ def get_tools_str() -> str:
 
 
 class LightAgent:
-    __version__ = "0.2.85"  # 将版本号放在类中
+    __version__ = "0.2.9"  # 将版本号放在类中
 
     def __init__(
             self,
@@ -494,13 +500,14 @@ class LightAgent:
                     # function_args = json.loads(function_call.arguments)
 
                     # 调用工具并获取响应
-                    tool_response = dispatch_tool(function_call.name, function_args)
+                    tool_response = asyncio.run(dispatch_tool(function_call.name, function_args))
                     function_call_name = function_call.name
                     combined_response = ""
+                    single_tool_response = ""
 
                     # 如果工具返回的是生成器（流式输出），则将所有 chunk 叠加
                     if isinstance(tool_response, Generator):
-                        print(f"Streaming response from tool: {function_call.name}")
+                        # print(f"Streaming response from tool: {function_call.name}")
                         for chunk in tool_response:
                             # print("Received chunk:", chunk)  # 打印每个 chunk
                             if function_call_name == 'finish':
@@ -520,8 +527,8 @@ class LightAgent:
                         # 将 JSON 对象中的 Unicode 编码转换为中文字符
                         if isinstance(combined_response, dict):
                             combined_response = json.dumps(combined_response, ensure_ascii=False)  # 确保中文字符不转义
+                        single_tool_response = combined_response  # 处理单个工具的方法
 
-                        tool_responses.append(combined_response)  # 将叠加后的完整响应添加到列表
                     else:
                         # print(f"Non-streaming response from tool: {function_call.name}")
                         combined_response = tool_response
@@ -534,22 +541,24 @@ class LightAgent:
                             except json.JSONDecodeError:
                                 combined_response = tool_response
                                 pass  # 如果不是 JSON 字符串，保持原样
-                        tool_responses.append(combined_response)  # 直接添加普通响应
+                        single_tool_response = combined_response  # 处理单个工具的方法
 
-                    self.log("INFO", "non_stream tool_response", {"tool_response": combined_response})
 
-                    # 将工具调用的结果添加到列表中
-                    tool_responses.append(combined_response)
+                    self.log("DEBUG", "non_stream single_tool_response", {"single_tool_response": single_tool_response})
+
+                    # 将单个工具的响应结果添加到列表中
+                    tool_responses.append(single_tool_response)
 
                 # 将所有工具调用的结果合并为一个字符串
+                self.log("DEBUG", "non_stream tool_responses", {"tool_responses": tool_responses})
+
                 combined_tool_response = "\n".join(tool_responses)
 
                 # 将工具调用和响应添加到消息列表中
                 params["messages"].append(
                     {
                         "role": "assistant",
-                        "content": json.dumps(
-                            [tool_call.function.model_dump() for tool_call in tool_calls]),
+                        "content": f"使用工具： \n {json.dumps([tool_call.function.model_dump() for tool_call in tool_calls],ensure_ascii=False)}\n",
                     }
                 )
                 params["messages"].append(
@@ -656,13 +665,15 @@ class LightAgent:
 
                                 for json_obj in json_objects:
                                     function_args = json.loads(json_obj)
-                                    tool_response = dispatch_tool(function_call["name"], function_args)
+                                    # tool_response = dispatch_tool(function_call["name"], function_args)
+                                    tool_response = asyncio.run(dispatch_tool(function_call["name"], function_args))
                                     function_call_name = function_call["name"]
+                                    combined_response = ""
+                                    single_tool_response = ""
 
                                     # 如果工具返回的是生成器（流式输出），则将所有 chunk 叠加
                                     if isinstance(tool_response, Generator):
                                         # print(f"Streaming response from tool: {function_call['name']}")
-                                        combined_response = ""
                                         for chunk in tool_response:
                                             # 将工具返回的数据继续流出
                                             if isinstance(chunk, ChatCompletionChunk):
@@ -682,13 +693,14 @@ class LightAgent:
                                                 combined_response += content  # 将每个 chunk 叠加
                                             else:
                                                 combined_response += chunk  # 将每个 chunk 叠加
-                                        tool_responses.append(combined_response)  # 将叠加后的完整响应添加到列表
+                                        single_tool_response = combined_response  # 处理单个工具的方法
                                     else:
                                         # print(f"Non-streaming response from tool: {tool_response}")
                                         combined_response = tool_response
-                                        tool_responses.append(combined_response)  # 直接添加普通响应
-                                    self.log("INFO", "stream tool_response", {"tool_response": combined_response})
-
+                                        single_tool_response = combined_response  # 处理单个工具的方法
+                                    self.log("INFO", "stream single_tool_response", {"single_tool_response": single_tool_response})
+                                    # 将单个工具的响应结果添加到列表中
+                                    tool_responses.append(single_tool_response)
 
                             except json.JSONDecodeError as e:
                                 self.log("ERROR", "json_decode_error",
@@ -1024,6 +1036,7 @@ class LightAgent:
 # 在函数内部定义工具信息
 get_weather.tool_info = {
     "tool_name": "get_weather",
+    "tool_title": "天气查询",
     "tool_description": "获取指定城市的当前天气信息",
     "tool_params": [
         {"name": "city_name", "description": "要查询的城市名称", "type": "string", "required": True},
