@@ -53,7 +53,8 @@
 
 ---
 ## 新闻
-- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-02-19]** LightAgent v0.2.7 支持单独采用 deepseek-r1 作为的agent推理规划ToT引擎，大幅度提升复杂任务的多工具Plan能力.
+- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-04-01]** LightAgent v0.3.0 全面支持MCP协议，支持多模型多工具的协同工作，实现更高效的复杂任务处理。<a href="mcp_release.zh-CN.md">查看MCP发布简介>></a>
+- **[2025-02-19]** LightAgent v0.2.7 支持单独采用 deepseek-r1 作为的agent推理规划ToT引擎，大幅度提升复杂任务的多工具Plan能力.
 - **[2025-02-06]** LightAgent version 0.2.5 is released now.
 - **[2025-01-20]** LightAgent version 0.2.0 is released now.
 - **[2025-01-05]** LightAgent version 0.1.0 is released now.

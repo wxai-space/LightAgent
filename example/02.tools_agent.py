@@ -1,11 +1,14 @@
 from LightAgent import LightAgent
 
+
 # Define Tool
 def get_weather(city_name: str) -> str:
     """
     Get the current weather for `city_name`
     """
     return f"Query result: {city_name} is sunny."
+
+
 # Define tool information inside the function
 get_weather.tool_info = {
     "tool_name": "get_weather",
@@ -18,7 +21,8 @@ get_weather.tool_info = {
 tools = [get_weather]
 
 # Initialize Agent
-agent = LightAgent(model="qwen-turbo-2024-11-01", api_key="sk-uXx0H0BalE****999F17778F0", base_url="http://url/v1", tools=tools)
+agent = LightAgent(model="qwen-turbo-2024-11-01", api_key="your_api_key", base_url="http://your_base_url/v1",
+                   tools=tools)
 
 # Run Agent
 response = agent.run("Please check the weather in Shanghai.")

@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "Demo1": {
+      "command": "python",
+      "args": [
+        "/Users/macpro/PycharmProjects/Langchain-Chatchat/LightAgent/mcp/mcpServers/mcpServer_demo_stdio.py"
+      ],
+      "disabled": false
+    },
+    "example-sse": {
+      "url": "http://localhost:8000/sse",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer sk-123456"
+      },
+      "disabled": false
+    }
+  }
+}

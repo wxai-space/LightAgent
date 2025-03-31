@@ -4,7 +4,7 @@ from LightAgent import LightAgent, LightSwarm
 # Set Environment Variables OPENAI_API_KEY and OPENAI_BASE_URL
 # The default model uses gpt-4o-mini
 os.environ["OPENAI_API_KEY"] = "your_api_key"
-os.environ["OPENAI_API_BASE"] = "your_base_url"
+os.environ["OPENAI_API_BASE"] = "http://your_base_url/v1"
 # Create an instance of LightSwarm
 light_swarm = LightSwarm()
 
