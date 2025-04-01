@@ -66,7 +66,7 @@ pip install lightagent==0.3.0
 ---
 
 **关于 LightAgent**  
-由上海万行AI与上海财经大学统计与数据科学学院联合研发的轻量级Agent框架，已服务超过500家企业客户，GitHub Star 数突破 15k，位列全球开源Agent框架TOP 3。其"百行代码构建生产级智能体"的设计理念，正重新定义AI应用开发范式。
+由上海万行AI与上海财经大学统计与数据科学学院联合研发的轻量级Agent框架，已应用于金融、政务、教育等领域。其"百行代码构建生产级智能体"的设计理念，正重新定义AI应用开发范式。
 
 **媒体联系**  
 商务合作 service@wanxingai.com | 学术合作 张立文教授 zhang.liwen@shufe.edu.cn

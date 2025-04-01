@@ -66,7 +66,7 @@ Visit the project official website [https://github.com/wxai-space/LightAgent/](h
 ---
 
 **About LightAgent**  
-Developed jointly by Shanghai Wanxing AI and the School of Statistics and Data Science at Shanghai University of Finance and Economics, the lightweight Agent framework has served over 500 enterprise clients, with GitHub Stars exceeding 15k, ranking in the top 3 of global open-source Agent frameworks. Its design philosophy of "building production-level agents with hundreds of lines of code" is redefining the paradigm of AI application development.
+The lightweight Agent framework jointly developed by Shanghai Wanxing AI and the School of Statistics and Data Science of Shanghai University of Finance and Economics has been applied to finance, government affairs, education and other fields. Its design concept of "100 lines of code to build production grade agents" is redefining the AI application development paradigm.
 
 **Media Contact**  
 Business Cooperation: service@wanxingai.com | Academic Cooperation: Professor Zhang Liwen zhang.liwen@shufe.edu.cn
