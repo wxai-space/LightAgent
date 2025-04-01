@@ -1,5 +1,10 @@
 ### **LightAgent 推出 v0.3.0 版本，率先兼容 Anthropic MCP 协议，开启智能体生态互联新时代**
-
+<div align="center">
+  <p>
+   <a href="mcp_release.md">English</a> | 
+    简体中文
+  </p>
+</div>
 新一代轻量级Agent框架 **LightAgent** 迎来重大升级。**v0.3.0 版本将全面兼容[Model Context Protocol](https://modelcontextprotocol.io/) (MCP)**，成为全球首批支持该协议的国产开源Agent框架。此次升级标志着LightAgent正式融入AI工具生态标准化进程，为开发者提供更高效的跨模型、跨平台智能体开发体验。
 
 ---
