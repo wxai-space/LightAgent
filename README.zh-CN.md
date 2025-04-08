@@ -30,10 +30,10 @@
 </div>
 
 <div align="center">
-  <h1>LightAgent🚀（下一代Agentic AI框架）</h1>
+  <h1>LightAgent🚀（生产级开源Agentic AI开发框架）</h1>
 </div>
 
-**LightAgent** 是一个极其轻量的带记忆（`mem0`）、工具（`Tools`）、思维树（`ToT`）的主动式 Agentic Framework（自主性框架）。它支持比Openai Swarm更简单的多智能体协同，构建具备自我学习能力的agent，并支持Agent测评，底层模型支持 OpenAI、智谱 ChatGLM、DeepSeek、阶跃星辰、Qwen通义千问大模型等。同时，LightAgent 支持 OpenAI 流格式 API 服务输出，无缝接入各大主流 Chat 框架。🌟
+**LightAgent** 是一个极其轻量的带记忆（`mem0`）、工具（`Tools`）、思维树（`ToT`）的主动式 Agentic Framework（自主性框架），并且完全开源。它支持比Openai Swarm更简单的多智能体协同，简单一步即可构建具备自我学习能力的agent，并支持stdio和sse方式接入MCP协议。底层模型支持 OpenAI、智谱 ChatGLM、DeepSeek、阶跃星辰、Qwen通义千问大模型等。同时，LightAgent 支持 OpenAI 流格式 API 服务输出，无缝接入各大主流 Chat 框架。🌟
 
 ---
 ![lightswarm_demo_cn.png](docs%2Fimages%2Flightswarm_demo_cn.png)
@@ -53,7 +53,7 @@
 
 ---
 ## 新闻
-- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-04-01]** LightAgent v0.3.0 全面支持MCP协议，支持多模型多工具的协同工作，实现更高效的复杂任务处理。<a href="mcp_release.zh-CN.md">查看MCP发布简介>></a>
+- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-04-01]** LightAgent v0.3.0 支持浏览器交互 [browser_use](https://github.com/browser-use/browser-use)，并全面支持MCP协议，支持多模型多工具的协同工作，实现更高效的复杂任务处理。<a href="mcp_release.zh-CN.md">查看MCP发布简介>></a>
 - **[2025-02-19]** LightAgent v0.2.7 支持单独采用 deepseek-r1 作为的agent推理规划ToT引擎，大幅度提升复杂任务的多工具Plan能力.
 - **[2025-02-06]** LightAgent version 0.2.5 is released now.
 - **[2025-01-20]** LightAgent version 0.2.0 is released now.

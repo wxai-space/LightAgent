@@ -30,10 +30,10 @@
   </p>
 </div>
 <div align="center">
-  <h1>LightAgent🚀 (Next Generation Agentic AI Framework)</h1>
+  <h1>LightAgent🚀 (Production-level open-source Agentic AI development framework)</h1>
 </div>
 
-**LightAgent** is an extremely lightweight active Agentic Framework with memory (`mem0`), tools (`Tools`), and a Tree of Thought (`ToT`). It supports swarm-like multi-agent collaboration, automated tool generation, and agent assessment, with underlying model support for OpenAI, Zhipu ChatGLM, Baichuan Large Model, DeepSeek, Qwen, stepfun and more. At the same time, LightAgent supports OpenAI streaming format API service output, seamlessly integrating with major mainstream chat frameworks. 🌟
+**LightAgent** is an extremely lightweight active Agentic Framework with memory (`mem0`), tools (`Tools`), and a tree of thought (`ToT`), and it is completely open-source. It supports simpler multi-agent collaboration than OpenAI Swarm, builds agents with self-learning capabilities, and supports MCP. The underlying models support OpenAI, ChatGLM, DeepSeek, stepfun, Qwen and more. At the same time, LightAgent supports OpenAI streaming format API service output, seamlessly integrating with major mainstream Chat frameworks. 🌟
 
 ---
 
@@ -55,7 +55,7 @@
 
 ---
 ## News
-- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-04-01]** LightAgent v0.3.0 fully supports the MCP protocol, enabling collaborative work with multiple models and tools to achieve more efficient handling of complex tasks.<a href="mcp_release.md">View MCP release introduction.>></a>
+- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-04-01]** LightAgent v0.3.0 Support browser interaction [browser_use](https://github.com/browser-use/browser-use) and fully supports the MCP protocol, enabling collaborative work with multiple models and tools to achieve more efficient handling of complex tasks.<a href="mcp_release.md">View MCP release introduction.>></a>
 - **[2025-02-19]** LightAgent v0.2.7  supports deepseek-r1 model for tot now.Significantly enhances the multi-tool planning capability for complex tasks.
 - **[2025-02-06]** LightAgent version 0.2.5 is released now.
 - **[2025-01-20]** LightAgent version 0.2.0 is released now.

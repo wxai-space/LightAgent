@@ -5,6 +5,7 @@
     <a href="mcp_release.zh-CN.md">简体中文</a>
   </p>
 </div>
+
 The next-generation lightweight Agent framework **LightAgent** has undergone a significant upgrade. **Version 0.3.0 will fully support the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP)**, becoming one of the first domestic open-source Agent frameworks in the world to support this protocol. This upgrade marks LightAgent's formal integration into the standardization process of AI tool ecosystems, providing developers with a more efficient experience in cross-model and cross-platform agent development.
 
 ---
