@@ -3,33 +3,32 @@
 
 """
 作者: [weego/WXAI-Team]
-版本: 0.3.0
+版本: 0.3.2
 最后更新: 2025-03-31
 """
 
-import re
-from typing import List, Dict, Any, Callable, Union, Iterable, Optional, Generator, AsyncGenerator
-from copy import deepcopy
+import asyncio
+import importlib
 import importlib.util
-import random
+import inspect
 import json
-from datetime import datetime
-from openai import OpenAI
 import logging
 import os
-import httpx
-import importlib
-from openai.types.chat import ChatCompletionChunk
-import inspect
+import random
+import re
 import traceback
-from mcp import ClientSession, StdioServerParameters, types
 from contextlib import AsyncExitStack
+from copy import deepcopy
+from datetime import datetime
+from functools import partial
+from typing import List, Dict, Any, Callable, Union, Optional, Generator, AsyncGenerator
 
+import httpx
+from mcp import ClientSession, StdioServerParameters
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client
-import asyncio
-from functools import partial
-
+from openai import OpenAI
+from openai.types.chat import ChatCompletionChunk
 
 # 全局工具注册表
 _FUNCTION_MAPPINGS = {}  # 工具名称 -> 工具函数
@@ -37,7 +36,7 @@ _FUNCTION_INFO = {}  # 工具名称 -> 工具info信息
 _OPENAI_FUNCTION_SCHEMAS = []  # OpenAI 格式的工具描述
 _PROMPT_FUNCTION_SCHEMAS = []  # prompt 格式的工具描述
 
-__version__ = "0.3.0"  # 你可以根据需要设置版本号
+__version__ = "0.3.2"  # 你可以根据需要设置版本号
 
 
 def register_tool_manually(tools: List[Union[str, Callable]]) -> bool:
@@ -179,6 +178,41 @@ def get_tools_str() -> str:
     # 使用 json.dumps 将字典转换为格式化的 JSON 字符串
     tools_str = json.dumps(_OPENAI_FUNCTION_SCHEMAS, indent=4, ensure_ascii=False)
     return tools_str
+
+
+def filter_tools_schemas(refined_content: str) -> json:
+    """
+    根据refined_content中的工具列表过滤全局_OPENAI_FUNCTION_SCHEMAS
+    :param refined_content: 包含工具列表的JSON字符串
+    """
+    # global _OPENAI_FUNCTION_SCHEMAS  # 声明操作全局变量
+
+    try:
+        # 解析工具列表
+        parsed_data: Dict[str, List[Dict]] = json.loads(refined_content)
+        valid_tools = {tool["name"].strip().lower() for tool in parsed_data.get("tools", [])}
+
+        # 原地过滤操作
+        filtered_schemas: List[Dict] = []
+        for schema in _OPENAI_FUNCTION_SCHEMAS:
+            if not isinstance(schema, dict):
+                continue
+
+            # 深度检查结构
+            function_info = schema.get("function", {})
+            if isinstance(function_info, dict):
+                schema_name = function_info.get("name", "").strip().lower()
+                if schema_name in valid_tools:
+                    filtered_schemas.append(schema)
+
+        # 直接替换全局变量内容
+        # _OPENAI_FUNCTION_SCHEMAS[:] = filtered_schemas
+        return filtered_schemas
+
+    except (json.JSONDecodeError, KeyError, AttributeError) as e:
+        # 错误处理：清空工具列表并记录日志
+        # _OPENAI_FUNCTION_SCHEMAS.clear()
+        raise ValueError(f"工具过滤失败: {str(e)}") from e
 
 
 class MCPClientManager:
@@ -379,7 +413,7 @@ class MCPClientManager:
 
 
 class LightAgent:
-    __version__ = "0.3.0"  # 将版本号放在类中
+    __version__ = "0.3.2"  # 将版本号放在类中
 
     def __init__(
             self,
@@ -462,7 +496,6 @@ class LightAgent:
             # 初始化工具列表
             self.load_tools(tools)
             # register_tool_manually(tools)
-
 
         if api_key is None:
             raise ValueError(
@@ -605,8 +638,8 @@ class LightAgent:
             self.logger.error(log_message)
 
     async def setup_mcp(
-                        self,
-                        mcp_setting: dict | None = None,  # mcp 设置
+            self,
+            mcp_setting: dict | None = None,  # mcp 设置
     ):
         if mcp_setting:
             self.mcp_setting = mcp_setting
@@ -680,18 +713,28 @@ class LightAgent:
         query = f"{memory}\n##用户提问：\n{query}"
         # print(query)
 
-        # 4. 拼接tools工具
-        tools = get_tools()
+        # 4. 思维链
+        active_tools = []
+        if self.tree_of_thought:
+            tot_response, active_tools = self.run_thought(query=query)
+            system_prompt = system_prompt + f" /n ##以下是问题的补充说明 /n {tot_response}"
+            self.log("DEBUG", "tree_of_thought", {"response": tot_response, "active_tools": active_tools})
+
+        # 5. 拼接tools工具
+        # 带类型校验 自适应工具机制
+        try:
+            tools = active_tools if (
+                    len(active_tools) > 0
+            ) else get_tools()
+        except TypeError:
+            tools = get_tools()
+        # 带类型校验 自适应工具机制
+        # tools = get_tools() # v0.2.X的工具选取机制
         if tools:
             self.log("DEBUG", "register_tools", {"tools": list(_FUNCTION_MAPPINGS.keys())})
+            self.log("DEBUG", "active_tools", {"tools": tools})
             params["tools"] = tools
             params["tool_choice"] = "auto"
-
-        # 5. 思维链
-        if self.tree_of_thought:
-            tot_response = self.run_thought(query=query)
-            system_prompt = system_prompt + f" /n ##以下是问题的补充说明 /n {tot_response}"
-            self.log("DEBUG", "tree_of_thought", {"response": tot_response})
 
         # 6. 调用核心运行逻辑
         params["messages"] = [{"role": "system", "content": system_prompt}]
@@ -1075,10 +1118,10 @@ class LightAgent:
         :param related_memories: 从记忆中检索到的相关内容。
         :return: 结合记忆后的上下文。
         """
-        if not related_memories or not related_memories["memories"]:
+        if not related_memories or not related_memories["results"]:
             return ""
 
-        memory_context = "\n".join([m["memory"] for m in related_memories["memories"]])
+        memory_context = "\n".join([m["memory"] for m in related_memories["results"]])
         if not memory_context:
             return ""
 
@@ -1093,10 +1136,10 @@ class LightAgent:
         :param agent_memories: 从记忆中检索到的相关内容。
         :return: 结合记忆后的上下文。
         """
-        if not agent_memories or not agent_memories["memories"]:
+        if not agent_memories or not agent_memories["results"]:
             return ""
 
-        memory_context = "\n".join([m["memory"] for m in agent_memories["memories"]])
+        memory_context = "\n".join([m["memory"] for m in agent_memories["results"]])
         if not memory_context:
             return ""
 
@@ -1104,7 +1147,7 @@ class LightAgent:
         self.log("DEBUG", "agent_memories", {"memory_context": memory_context})
         return prompt
 
-    def run_thought(self, query: str, stream=False, tools=None):
+    def run_thought(self, query: str) -> tuple:
         """使用思维树的方式 让大模型先根据get_tools_str生成一个解答用户query的工具使用计划"""
         tot_model = self.tot_model  # self.model
         tools = get_tools_str()
@@ -1113,30 +1156,62 @@ class LightAgent:
         now = datetime.now()
         current_date = now.strftime("%Y-%m-%d")
         current_time = now.strftime("%H:%M:%S")
-        system_prompt = f"""你是一个智能助手，请根据用户输入的问题，结合工具使用计划，生成一个思维树，并按照思维树依次调用工具步骤，最终生成一个最终回答。/n 今日的日期: {current_date} 当前时间: {current_time} /n 工具列表: {tools}"""
+        system_prompt = f"""你是一个智能助手，请根据用户输入的问题，结合工具使用计划，生成一个思维树，并按照思维树依次调用工具步骤，最终生成一个最终回答。\n 今日的日期: {current_date} 当前时间: {current_time} \n 工具列表: {tools}"""
         self.log("DEBUG", "run_thought", {"system_prompt": system_prompt})
 
-        # 第一次请求，生成初始的工具使用计划
-        params = dict(model=tot_model,
-                      messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": query}],
-                      stream=False)
-        response = self.tot_client.chat.completions.create(**params)
-        initial_content = response.choices[0].message.content
-        self.log("DEBUG", "initial_response", {"response": initial_content})
+        try:
+            # 第一次请求，生成初始的工具使用计划
+            params = dict(model=tot_model,
+                          messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": query}],
+                          stream=False)
+            response = self.tot_client.chat.completions.create(**params)
+            initial_content = response.choices[0].message.content
+            self.log("DEBUG", "initial_response", {"response": initial_content})
 
-        # 第二次请求，请求大模型反思并生成新的工具使用规划
-        reflection_prompt = "请反思你的回答，重新给出新的工具使用规划。仅输出新的工具使用规划，不要输出其他分析和回答。"
-        reflection_params = dict(model=tot_model, messages=[
-            {"role": "user", "content": f"{system_prompt} /n 开始思考问题: {query}"},
-            {"role": "assistant", "content": initial_content},
-            {"role": "user", "content": reflection_prompt}
-        ], stream=False)
-        self.log("DEBUG", "reflection_params", {"params": reflection_params})
+            # 第二次请求，请求大模型反思并生成新的工具使用规划
+            reflection_prompt = "请反思你的回答，请严格按照<工具列表>中的工具来规划，不可以创造其他新的工具。请输出新的任务规划，不要输出其他分析和回答。"
+            reflection_params = dict(model=tot_model, messages=[
+                {"role": "user", "content": f"{system_prompt} /n 开始思考问题: {query}"},
+                {"role": "assistant", "content": initial_content},
+                {"role": "user", "content": reflection_prompt}
+            ], stream=False)
+            self.log("DEBUG", "reflection_params", {"params": reflection_params})
+            reflection_response = self.tot_client.chat.completions.create(**reflection_params)
+            refined_content = reflection_response.choices[0].message.content
+            self.log("DEBUG", "refined_response", {"response": refined_content})
 
-        reflection_response = self.tot_client.chat.completions.create(**reflection_params)
-        refined_content = reflection_response.choices[0].message.content
-        self.log("DEBUG", "refined_response", {"response": refined_content})
-        return refined_content
+            # 获取工具的使用集合
+            tool_reflection_prompt = """请严格按以下要求执行：
+            1. 分析问题需求并规划需要使用的工具
+            2. 仅输出包含工具名称的JSON格式结果
+            3. 使用以下结构（示例）：
+            {"tools": [{"name": "工具名称1"}, {"name": "工具名称2"}]}
+            4. 不要包含任何解释性内容"""
+
+            tool_reflection_params = dict(
+                model=tot_model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"问题分析请求：{query}"},
+                    {"role": "assistant", "content": refined_content},
+                    {"role": "user", "content": tool_reflection_prompt}
+                ],
+                response_format={"type": "json_object"},  # 强制JSON输出格式
+                stream=False
+            )
+
+            self.log("DEBUG", "tool_reflection_params", {"params": tool_reflection_params})
+            tool_reflection_response = self.tot_client.chat.completions.create(**tool_reflection_params)
+            tool_reflection_result = tool_reflection_response.choices[0].message.content
+            self.log("DEBUG", "tool_reflection_result", {"result": tool_reflection_result})
+            current_tools = filter_tools_schemas(tool_reflection_result)
+            self.log("DEBUG", "current_tools", {"get_tools": current_tools})
+
+            return refined_content, current_tools
+
+        except Exception as e:
+            self.log("ERROR", "run_thought_failure", {"error": str(e)})
+            raise RuntimeError(f"思维链执行失败: {str(e)}") from e
 
     def _detect_intent(self, query: str, light_swarm=None) -> Optional[Dict]:
         """
