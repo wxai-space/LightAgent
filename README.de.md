@@ -46,7 +46,7 @@
 - **Komplexe Ziele** 🌳: Integriertes, reflektierendes Denkbaum-Modul (ToT), das komplexe Aufgabenzerlegungen und mehrstufiges Denken unterstützt, um die Aufgabenbearbeitungsfähigkeit zu verbessern.  
 - **Multi-Agenten-Kooperation** 🤖: Einfachere Implementierung der Multi-Agenten-Kooperation als Swarm, integrierte LightSwarm-Funktion zur Absichtserkennung und Aufgabenübertragung, die es ermöglicht, Benutzereingaben intelligenter zu verarbeiten und Aufgaben bei Bedarf an andere Agenten zu übertragen. 
 - **Unabhängige Ausführung** 🤖: Selbstständige Durchführung von Aufgaben ohne menschliches Eingreifen.  
-- **Unterstützung mehrerer Modelle** 🔄: Kompatibel mit OpenAI, Zhiyu ChatGLM, Baichuan große Modelle, Step Star, DeepSeek, Qwen-Serie große Modelle.  
+- **Unterstützung mehrerer Modelle** 🔄: Kompatibel mit OpenAI, Zhiyu ChatGLM, Baichuan große Modelle, StepFun, DeepSeek, Qwen-Serie große Modelle.  
 - **Stream-API** 🌊: Unterstützt die Ausgabe von OpenAI Stream-Format-API-Diensten, nahtlose Integration in gängige Chat-Frameworks zur Verbesserung der Benutzererfahrung.  
 - **Werkzeuggenerator** 🚀: Geben Sie einfach Ihre API-Dokumentation an den [Werkzeuggenerator] weiter, und er wird automatisch Ihre maßgeschneiderten Werkzeuge erstellen, sodass Sie in nur einer Stunde Hunderte von personalisierten benutzerdefinierten Werkzeugen schnell erstellen können, um die Effizienz zu steigern und Ihr kreatives Potenzial freizusetzen.
 
@@ -565,7 +565,7 @@ Deepseek-Serie
  - DeepSeekv2.5
  - DeepSeekv3
 
-Step Star
+StepFun
  - step-1-8k
  - step-1-32k
  - step-1-128k (Probleme bei der Verwendung mehrerer Werkzeuge)
@@ -635,7 +635,7 @@ Die Entwicklung und Implementierung von LightAgent wäre ohne die Inspiration un
 - **ChatGLM3**: Vielen Dank an [ChatGLM3](https://github.com/THUDM/ChatGLM3) für die Unterstützung leistungsstarker chinesischer großer Modelle und die Designinspiration.  
 - **Qwen**: Vielen Dank an [Qwen](https://github.com/QwenLM/Qwen) für die Unterstützung leistungsstarker chinesischer großer Modelle.  
 - **DeepSeek-V3**: Vielen Dank an [DeepSeek-V3](https://github.com/deepseek-ai/DeepSeek-V3) für die Unterstützung leistungsstarker chinesischer großer Modelle.  
-- **Step Star**: Vielen Dank an [step](https://www.stepfun.com/) für die Unterstützung leistungsstarker chinesischer großer Modelle.  
+- **StepFun**: Vielen Dank an [step](https://www.stepfun.com/) für die Unterstützung leistungsstarker chinesischer großer Modelle.  
 
 ---
 

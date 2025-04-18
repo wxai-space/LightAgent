@@ -48,7 +48,7 @@
 - **Complex Goals** 🌳: Built-in Tree of Thought (`ToT`) module with reflection, supporting complex task decomposition and multi-step reasoning, enhancing task processing capabilities.  
 - **Multi-Agent Collaboration** 🤖: Simpler to implement multi-agent collaboration than Swarm, with built-in LightSwarm for intent recognition and task delegation, enabling smarter handling of user input and delegating tasks to other agents as needed. 
 - **Independent Execution** 🤖: Tasks and tool calls are completed autonomously without human intervention.  
-- **Multi-Model Support** 🔄: Compatible with OpenAI, Zhipu ChatGLM, Baichuan Large Model, Step Star, DeepSeek, Qwen series large models.  
+- **Multi-Model Support** 🔄: Compatible with OpenAI, Zhipu ChatGLM, Baichuan Large Model, StepFun, DeepSeek, Qwen series large models.  
 - **Streaming API** 🌊: Supports OpenAI streaming format API service output, seamlessly integrates with mainstream chat frameworks, enhancing user experience.  
 - **Tool Generator** 🚀: Just provide your API documentation to the [Tool Generator], which will automatically create exclusive tools for you, allowing you to quickly build hundreds of personalized custom tools in just 1 hour to improve efficiency and unleash your creative potential.
 - **Agent Self-Learning** 🧠️: Each agent has its own scene memory capabilities and the ability to self-learn from user conversations.
@@ -680,7 +680,7 @@ Shanghai Wanxing AI and Professor Zhang Liwen's research group from the School o
 - **ChatGLM3**: Thanks to [ChatGLM3](https://github.com/THUDM/ChatGLM3) for providing high-performance Chinese large model support and design inspiration.  
 - **Qwen**: Thanks to [Qwen](https://github.com/QwenLM/Qwen) for providing high-performance Chinese large model support.  
 - **DeepSeek-V3**: Thanks to [DeepSeek-V3](https://github.com/deepseek-ai/DeepSeek-V3) for providing high-performance Chinese large model support.  
-- **Step Star**: Thanks to [step](https://www.stepfun.com/) for providing high-performance Chinese large model support.  
+- **StepFun**: Thanks to [step](https://www.stepfun.com/) for providing high-performance Chinese large model support.  
 
 ---
 

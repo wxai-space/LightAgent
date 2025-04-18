@@ -557,7 +557,7 @@ Deepseek series
  - DeepSeekv2.5
  - DeepSeekv3
 
-Jump Star
+StepFun
  - step-1-8k
  - step-1-32k
  - step-1-128k (There are issues in multiple tool calls)
@@ -623,7 +623,7 @@ The development and implementation of LightAgent would not have been possible wi
 - **ChatGLM3**: Thanks to [ChatGLM3](https://github.com/THUDM/ChatGLM3) for high-performance Chinese large model support and design inspiration.  
 - **Qwen**: Thanks to [Qwen](https://github.com/QwenLM/Qwen) for high-performance Chinese large model support.  
 - **DeepSeek-V3**: Thanks to [DeepSeek-V3](https://github.com/deepseek-ai/DeepSeek-V3) for high-performance Chinese large model support.  
-- **Jump Star**: Thanks to [step](https://www.stepfun.com/) for high-performance Chinese large model support.  
+- **StepFun**: Thanks to [step](https://www.stepfun.com/) for high-performance Chinese large model support.  
 
 ---
 

@@ -564,7 +564,7 @@ Série Deepseek
  - DeepSeekv2.5
  - DeepSeekv3
 
-Estágio Estelar
+StepFun
  - step-1-8k
  - step-1-32k
  - step-1-128k (alguns problemas em chamadas de múltiplas ferramentas)
@@ -634,7 +634,7 @@ O desenvolvimento e implementação do LightAgent não seriam possíveis sem a i
 - **ChatGLM3**: Agradecimentos ao [ChatGLM3](https://github.com/THUDM/ChatGLM3) pelo suporte de modelos grandes de alto desempenho em chinês e por inspirar o design.  
 - **Qwen**: Agradecimentos ao [Qwen](https://github.com/QwenLM/Qwen) pelo suporte de modelos grandes de alto desempenho em chinês.  
 - **DeepSeek-V3**: Agradecimentos ao [DeepSeek-V3](https://github.com/deepseek-ai/DeepSeek-V3) pelo suporte de modelos grandes de alto desempenho em chinês.  
-- **Estágio Estelar**: Agradecimentos à [step](https://www.stepfun.com/) pelo suporte de modelos grandes de alto desempenho em chinês.  
+- **StepFun**: Agradecimentos à [step](https://www.stepfun.com/) pelo suporte de modelos grandes de alto desempenho em chinês.  
 
 ---
 

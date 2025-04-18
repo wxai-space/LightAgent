@@ -47,7 +47,7 @@
 - **複雜目標** 🌳：內置帶反思的思維樹（ToT）模塊，支持複雜任務分解和多步推理，提升任務處理能力。  
 - **多智能體協同** 🤖：比Swarm更簡單實現的多智能體協同工作，內置LightSwarm實現意圖判斷和任務轉移功能，能夠更智能地處理用戶輸入，並根據需要將任務轉移給其他代理。 
 - **獨立執行** 🤖：無人為干預自主完成任務工具調用。  
-- **多模型支持** 🔄：兼容 OpenAI、智譜 ChatGLM、百川大模型、階躍星辰、DeepSeek、Qwen 系列大模型。  
+- **多模型支持** 🔄：兼容 OpenAI、智譜 ChatGLM、百川大模型、StepFun、DeepSeek、Qwen 系列大模型。  
 - **流式 API** 🌊：支持 OpenAI 流格式 API 服務輸出，無縫接入主流 Chat 框架，提升用戶體驗。  
 - **Tools工具生成器** 🚀：只需將您的 API 文檔交給[Tools工具生成器]，它將自動化地為您打造專屬的 tools，助您在短短1小時內快速構建數百個個性化的自定義工具，提高效率，釋放您的創新潛能。
 
@@ -566,7 +566,7 @@ Deepseek 系列
  - DeepSeekv2.5
  - DeepSeekv3
 
-階躍星辰
+StepFun
  - step-1-8k
  - step-1-32k
  - step-1-128k（在多工具調用中存在問題）
@@ -636,7 +636,7 @@ LightAgent 的開發和實現離不开以下開源項目的啟發和支持，特
 - **ChatGLM3**：感謝 [ChatGLM3](https://github.com/THUDM/ChatGLM3) 提供的高性能中文大模型支持和設計靈感。  
 - **Qwen**：感謝 [Qwen](https://github.com/QwenLM/Qwen) 提供的高性能中文大模型支持。  
 - **DeepSeek-V3**：感謝 [DeepSeek-V3](https://github.com/deepseek-ai/DeepSeek-V3) 提供的高性能中文大模型支持。  
-- **階躍星辰**：感謝 [step](https://www.stepfun.com/) 提供的高性能中文大模型支持。  
+- **StepFun**：感謝 [step](https://www.stepfun.com/) 提供的高性能中文大模型支持。  
 
 ---
 

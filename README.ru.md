@@ -534,18 +534,37 @@ for chunk in response:
 Совместимость с различными крупными моделями, включая OpenAI, ChatGLM от Zhipu, DeepSeek и Qwen.
 
 #### Модели, которые уже были протестированы на совместимость
-Серия Openai
+OpenAI Series
  - gpt-3.5-turbo
  - gpt-4
  - gpt-4o
  - gpt-4o-mini
 
-Серия Deepseek
+ChatGLM
+ - GLM-4-Plus
+ - GLM-4-Air-0111
+ - GLM-4-Flash
+ - GLM-4-FlashX
+ - GLM-4-alltools
+ - GLM-4
+ - GLM-3-Turbo
+ - ChatGLM3-6B
+ - GLM-4-9B-Chat
+
+DeepSeek Series
  - DeepSeek-chat (API)
  - DeepSeekv2.5
  - DeepSeekv3
 
-Серия Qwen
+stepfun
+ - step-1-8k
+ - step-1-32k
+ - step-1-128k (issues with multi-tool calls)
+ - step-1-256k (issues with multi-tool calls)
+ - step-1-flash (recommended, cost-effective)
+ - step-2-16k (issues with multi-tool calls)
+
+Qwen Series
  - qwen-plus-2024-11-25
  - qwen-plus-2024-11-27
  - qwen-plus-1220
