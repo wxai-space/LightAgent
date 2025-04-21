@@ -33,7 +33,7 @@
   <h1>LightAgent🚀 (Production-level open-source Agentic AI development framework)</h1>
 </div>
 
-**LightAgent** is an extremely lightweight active Agentic Framework with memory (`mem0`), tools (`Tools`), and a tree of thought (`ToT`), and it is completely open-source. It supports simpler multi-agent collaboration than OpenAI Swarm, builds agents with self-learning capabilities, and supports MCP. The underlying models support OpenAI, ChatGLM, DeepSeek, stepfun, Qwen and more. At the same time, LightAgent supports OpenAI streaming format API service output, seamlessly integrating with major mainstream Chat frameworks. 🌟
+**LightAgent** is an extremely lightweight active Agentic Framework with memory (`mem0`), tools (`Tools`), and a tree of thought (`ToT`), and it is completely open source. It supports simpler multi-agent collaboration than OpenAI Swarm, allowing you to build self-learning agents in just one step, and supports connecting to the MCP protocol via stdio and sse. The underlying models support OpenAI, Zhiyuan ChatGLM, DeepSeek, Jieyue Xingchen, Qwen Tongyi Qianwen large models, and more. At the same time, LightAgent supports OpenAI streaming format API service output, seamlessly integrating with major mainstream Chat frameworks. 🌟
 
 ---
 
@@ -52,10 +52,12 @@
 - **Streaming API** 🌊: Supports OpenAI streaming format API service output, seamlessly integrates with mainstream chat frameworks, enhancing user experience.  
 - **Tool Generator** 🚀: Just provide your API documentation to the [Tool Generator], which will automatically create exclusive tools for you, allowing you to quickly build hundreds of personalized custom tools in just 1 hour to improve efficiency and unleash your creative potential.
 - **Agent Self-Learning** 🧠️: Each agent has its own scene memory capabilities and the ability to self-learn from user conversations.
+- **Adaptive Tool Mechanism** 🛠️: Supports adding an unlimited number of tools, allowing the large model to first select a candidate tool set from thousands of tools, filtering irrelevant tools before submitting context to the large model, significantly reducing token consumption.
 
 ---
 ## News
-- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-04-01]** LightAgent v0.3.0 Support browser interaction [browser_use](https://github.com/browser-use/browser-use) and fully supports the MCP protocol, enabling collaborative work with multiple models and tools to achieve more efficient handling of complex tasks.<a href="mcp_release.md">View MCP release introduction.>></a>
+- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-04-21]** LightAgent v0.3.2 adds an adaptive Tools mechanism, supports unlimited intelligent tool filtering, reduces Token consumption by 80%, and improves response speed by 52%! [View](#4-tree-of-thought-tot)
+- **[2025-04-01]** LightAgent v0.3.0 Support browser interaction [browser_use](https://github.com/browser-use/browser-use) and fully supports the MCP protocol, enabling collaborative work with multiple models and tools to achieve more efficient handling of complex tasks.<a href="mcp_release.md">View MCP release introduction.>></a>
 - **[2025-02-19]** LightAgent v0.2.7  supports deepseek-r1 model for tot now.Significantly enhances the multi-tool planning capability for complex tasks.
 - **[2025-02-06]** LightAgent version 0.2.5 is released now.
 - **[2025-01-20]** LightAgent version 0.2.0 is released now.
@@ -65,8 +67,7 @@
 
 ## 🚧 Coming Soon
 
-- **Adaptive Tool Mechanism** 🛠️: Supports adding an unlimited number of tools, allowing the large model to first select a candidate tool set from thousands of tools, filtering irrelevant tools before submitting context to the large model, significantly reducing token consumption.
-- **Memory-Enabled Agent Collaboration** 🛠️: Agents can share information and pass messages among themselves for complex task collaboration.
+- **Agent Collaborative Communication** 🛠️: Agents can also share information and transmit messages, achieving complex information communication and task collaboration.
 - **Agent Assessment** 📊: Built-in agent assessment tool for conveniently evaluating and optimizing the agents you build, aligning with business scenarios, and continuously improving intelligence levels.  
 
 ## Built-in "Thought Flow"
@@ -122,7 +123,7 @@ Alternatively, you can use Mem0 on a hosted platform by clicking [here](https://
 from LightAgent import LightAgent
 
 # Initialize Agent
-agent = LightAgent(model="gpt-4o-mini", api_key="your_api_key", base_url="your_base_url")
+agent = LightAgent(model="gpt-4.1", api_key="your_api_key", base_url="your_base_url")
 
 # Run Agent
 response = agent.run("Hello, who are you?")
@@ -137,7 +138,7 @@ from LightAgent import LightAgent
 # Initialize Agent
 agent = LightAgent(
      role="Please remember that you are LightAgent, a useful assistant that helps users use multiple tools.",  # system role description
-     model="deepseek-chat",  # Supported models: openai, chatglm, deepseek, qwen, etc.
+     model="gpt-4.1",  # Supported models: openai, chatglm, deepseek, qwen, etc.
      api_key="your_api_key",  # Replace with your large model provider API Key
      base_url="your_base_url",  # Replace with your large model provider api url
  )
@@ -169,7 +170,7 @@ get_weather.tool_info = {
 tools = [get_weather]
 
 # Initialize Agent
-agent = LightAgent(model="qwen-turbo-2024-11-01", api_key="your_api_key", base_url="your_base_url", tools=tools)
+agent = LightAgent(model="gpt-4.1", api_key="your_api_key", base_url="your_base_url", tools=tools)
 
 # Run Agent
 response = agent.run("Please check the weather in Shanghai.")
@@ -229,7 +230,7 @@ class CustomMemory:
 
 agent = LightAgent(
         role="Please remember that you are LightAgent, a useful assistant to help users use multiple tools.",  # system role description
-        model="deepseek-chat",  # Supported models: openai, chatglm, deepseek, qwen, etc.
+        model="gpt-4.1",  # Supported models: openai, chatglm, deepseek, qwen, etc.
         api_key="your_api_key",  # Replace with your large model provider API Key
         base_url="your_base_url",  # Replace with your large model provider api url
         memory=CustomMemory(),  # Enable memory function
@@ -411,7 +412,7 @@ tools = [get_weather, search_news, get_user_info]  # including all tools
 
 # Initialize Agent
 # Replace with your model parameters, API key, and base URL
-agent = LightAgent(model="qwen-turbo-2024-11-01", api_key="your_api_key", base_url="your_base_url", tools=tools)
+agent = LightAgent(model="gpt-4.1", api_key="your_api_key", base_url="your_base_url", tools=tools)
 
 query = "How is the weather in Sanya today?"
 response = agent.run(query, stream=False)  # Use agent to run the query
@@ -436,7 +437,7 @@ agent = LightAgent(
     name="Agent A",  # Agent name
     instructions="You are a helpful agent.",  # Role description
     role="Please remember that you are a tool generator; your task is to automatically generate corresponding tool code based on the text description provided by the user and save it to the specified directory. Please ensure that the generated code is accurate, usable, and meets the user's needs.",  # Tool generator's role description
-    model="deepseek-chat",  # Replace with your model. Supported models: openai, chatglm, deepseek, qwen, etc.
+    model="gpt-4.1",  # Replace with your model. Supported models: openai, chatglm, deepseek, qwen, etc.
     api_key="your_api_key",  # Replace with your API Key
     base_url="your_base_url",  # Replace with your API URL
 )
@@ -487,15 +488,17 @@ Currently, it is already supported to independently customize the use of the dee
 ```python
 # Enable Tree of Thought
 agent = LightAgent(
-    model="qwen-turbo-2024-11-01", 
+    model="gpt-4.1", 
     api_key="your_api_key", 
     base_url="your_base_url", 
     tree_of_thought=True,  # Enable Tree of Thought
-    tot_model="deepseek-r1", 
+    tot_model="gpt-4o", 
     tot_api_key="sk-uXx0H0B***17778F1",  # your deepseek r1 API Key
-    tot_base_url="https://api.deepseek.com/v1",  # api url
+    tot_base_url="https://api.openai.com/v1",  # api url
+    filter_tools=False,  # Disable the adaptive tool mechanism
 )
 ```
+After enabling ToT, the adaptive tool mechanism is enabled by default. If you need to disable it, please add the parameter filter_tools=False when initializing LightAgent.
 
 ### 5. Multi-Agent Collaboration
 Supports swarm-like multi-agent collaboration, enhancing task processing efficiency. Multiple agents can work together to complete complex tasks.
@@ -563,7 +566,7 @@ agent = LightAgent(
         name="Agent A",  # Agent name
         instructions="You are a helpful agent.",  # Role description
         role="Please remember that you are LightAgent, a useful assistant to help users use multiple tools.",  # system role description
-        model="gpt-4o-mini",  # Supported models: openai, chatglm, deepseek, qwen, etc. qwen-turbo-2024-11-01 \ step-1-flash
+        model="gpt-4.1",  # Supported models: openai, chatglm, deepseek, qwen, etc. qwen-turbo-2024-11-01 \ step-1-flash
         api_key="your_api_key",  # Replace with your API Key
         base_url="http://your_base_url/v1",  # API URL
         memory=CustomMemory(),  # Enable memory function
@@ -597,6 +600,9 @@ OpenAI Series
  - gpt-4
  - gpt-4o
  - gpt-4o-mini
+ - gpt-4.1
+ - gpt-4.1-mini
+ - gpt-4.1-nano
 
 ChatGLM
  - GLM-4-Plus
@@ -636,6 +642,7 @@ Qwen Series
  - qwen-turbo-2024-11-01
  - qwen-turbo
  - qwen-long
+ - qwq-32b
 
 ---
 

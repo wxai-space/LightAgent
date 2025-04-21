@@ -34,7 +34,7 @@
   <h1>LightAgent🚀（차세대 Agentic AI 프레임워크）</h1>
 </div>
 
-**LightAgent**는 기억(`mem0`), 도구(`Tools`), 사고 트리(`ToT`)를 갖춘 극도로 경량의 능동적 Agentic Framework입니다. 이 프레임워크는 스웜(Swarm) 유사 다중 에이전트 협업, 자동화 도구 생성, 에이전트 평가를 지원하며, OpenAI, Zhiyun ChatGLM, Baichuan 대모델, DeepSeek, Qwen 시리즈 대모델 등 다양한 하위 모델을 지원합니다. 또한 LightAgent는 OpenAI 스트리밍 형식 API 서비스 출력을 지원하며, 주요 채팅 프레임워크와 원활하게 통합됩니다.🌟
+**LightAgent**는 메모리(`mem0`), 도구(`Tools`), 사고 트리(`ToT`)를 갖춘 극히 경량의 능동형 에이전틱 프레임워크로, 완전 오픈 소스입니다. OpenAI Swarm보다 더 간단한 다중 에이전트 협업을 지원하며, 한 단계로 자기 학습 능력을 갖춘 에이전트를 구축할 수 있고, stdio 및 sse 방식으로 MCP 프로토콜에 접속할 수 있습니다. 기본 모델은 OpenAI, 지프 ChatGLM, DeepSeek, 계단별 별, Qwen 통의 천문 대모델 등을 지원합니다. 또한, LightAgent는 OpenAI 스트림 형식 API 서비스 출력을 지원하여 주요 Chat 프레임워크에 원활하게 접속할 수 있습니다.🌟
 
 ---
 
@@ -50,13 +50,13 @@
 - **다양한 모델 지원** 🔄: OpenAI, Zhiyun ChatGLM, Baichuan 대모델, StepFun, DeepSeek, Qwen 시리즈 대모델을 호환합니다.  
 - **스트리밍 API** 🌊: OpenAI 스트리밍 형식 API 서비스 출력을 지원하여 주요 채팅 프레임워크와 원활하게 통합되어 사용자 경험을 향상시킵니다.  
 - **Tools 도구 생성기** 🚀: API 문서만 제공하면 [Tools 도구 생성기]가 자동으로 귀하만의 도구를 만들고, 단 1시간 내에 수백 개의 맞춤형 도구를 신속하게 구축하여 효율성을 높이고 혁신 잠재력을 발휘할 수 있습니다.
+- **에이전트 자기 학습** 🧠️: 각 에이전트는 사용자 대화에서 자기 학습 능력을 가진 장면 기억 능력을 가지고 있습니다.
+- **적응형 도구 메커니즘** 🛠️: 무제한 도구 추가를 지원하며, 수천 개의 도구 중에서 대모델이 후보 도구 집합을 선택한 후 관련 없는 도구를 필터링하여 대모델에 문맥을 제출하여 Token 소비를 대폭 줄일 수 있습니다.
 
 
 ## 🚧 곧 출시 예정
 
-- **적응형 도구 메커니즘** 🛠️: 무제한 도구 추가를 지원하며, 수천 개의 도구 중에서 대모델이 후보 도구 집합을 선택한 후 관련 없는 도구를 필터링하여 대모델에 문맥을 제출하여 Token 소비를 대폭 줄일 수 있습니다.
-- **기억이 있는 에이전트 협업** 🛠️: 에이전트 간 정보 공유 및 메시지 전달이 가능하여 복잡한 작업 협업을 실현합니다.
-- **에이전트 자기 학습** 🧠️: 각 에이전트는 사용자 대화에서 자기 학습 능력을 가진 장면 기억 능력을 가지고 있습니다.
+- **지능형 에이전트 협동 통신** 🛠️: 지능형 에이전트 간에 정보를 공유하고 메시지를 전달하여 복잡한 정보 통신 및 작업 협동을 실현할 수 있습니다.
 - **에이전트 평가** 📊: 내장된 에이전트 평가 도구로 귀하가 구축한 에이전트를 평가하고 최적화하여 비즈니스 장면에 맞춰 지속적으로 스마트 수준을 향상시킬 수 있습니다.  
 
 
@@ -476,14 +476,19 @@ agent.create_tool(text, tools_directory=tools_directory)
 내장된 사고 트리 모듈은 복잡한 작업 분해 및 다단계 추론을 지원합니다. 사고 트리를 통해 에이전트는 더 나은 방식으로 복잡한 작업을 처리할 수 있습니다.
 
 ```python
-# 사고 트리 활성화
+# 사고 나무 활성화
 agent = LightAgent(
-    model="qwen-turbo-2024-11-01", 
+    model="gpt-4.1", 
     api_key="your_api_key", 
     base_url= "your_base_url", 
-    tree_of_thought=True,  # 사고 트리 활성화
+    tree_of_thought=True,  # 사고 나무 활성화
+    tot_model="gpt-4o", 
+    tot_api_key="sk-uXx0H0B***17778F1",  # 당신의 deepseek r1 API Key로 교체
+    tot_base_url="https://api.openai.com/v1",  # api url
+    filter_tools=False,  # 적응형 도구 메커니즘 비활성화
 )
 ```
+ToT를 활성화하면 기본적으로 적응형 도구 메커니즘이 활성화됩니다. 비활성화하려면 LightAgent 초기화 시 filter_tools=False 매개변수를 추가하십시오.
 
 ### 5. 다중 에이전트 협업
 스웜(Swarm) 유사한 다중 에이전트 협업 작업을 지원하여 작업 처리 효율성을 높입니다. 여러 에이전트가 협력하여 복잡한 작업을 완료할 수 있습니다.
@@ -560,6 +565,9 @@ Openai 시리즈
  - gpt-4
  - gpt-4o
  - gpt-4o-mini
+ - gpt-4.1
+ - gpt-4.1-mini
+ - gpt-4.1-nano
 
 DeepSeek 시리즈
  - DeepSeek-chat (API)
@@ -589,8 +597,7 @@ Qwen 시리즈
  - qwen-turbo-2024-11-01
  - qwen-turbo
  - qwen-long
-
-
+ - qwq-32b
 
 
 ---

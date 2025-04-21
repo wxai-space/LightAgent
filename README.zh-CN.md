@@ -50,10 +50,12 @@
 - **流式 API输出** 🌊：支持 OpenAI 流格式 API 服务输出，无缝接入主流 Chat 框架，提升用户体验。  
 - **Tools工具生成器** 🚀：只需将您的API文档交给[[Tools工具生成器]](#3-tools工具生成器)，它将自动化地为您打造专属的tools，助您在短短1小时内快速构建数百个个性化的自定义工具，提升效率，释放您的创新潜能。
 - **agent自我学习** 🧠️：每个agent拥有自己的场景记忆能力，拥有从用户的对话中进行自我学习能力。
+- **自适应tools机制** 🛠️：支持添加无限量tools，在上万个工具中让大模型过滤无关工具后再发送给大模型，可大幅度降低Token消耗。
 
 ---
 ## 新闻
-- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-04-01]** LightAgent v0.3.0 支持浏览器交互 [browser_use](https://github.com/browser-use/browser-use)，并全面支持MCP协议，支持多模型多工具的协同工作，实现更高效的复杂任务处理。<a href="mcp_release.zh-CN.md">查看MCP发布简介>></a>
+- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-04-21]** LightAgent v0.3.2 新增自适应Tools机制，支持无限量工具智能筛选，Token消耗降低80%，响应速度提升52%！ [查看](#4-思维树tot)
+- **[2025-04-01]** LightAgent v0.3.0 支持浏览器交互 [browser_use](https://github.com/browser-use/browser-use)，并全面支持MCP协议，支持多模型多工具的协同工作，实现更高效的复杂任务处理。<a href="mcp_release.zh-CN.md">查看MCP发布简介>></a>
 - **[2025-02-19]** LightAgent v0.2.7 支持单独采用 deepseek-r1 作为的agent推理规划ToT引擎，大幅度提升复杂任务的多工具Plan能力.
 - **[2025-02-06]** LightAgent version 0.2.5 is released now.
 - **[2025-01-20]** LightAgent version 0.2.0 is released now.
@@ -63,8 +65,7 @@
 
 ## 🚧 即将推出
 
-- **自适应tools机制** 🛠️：支持添加无限量tools，在上万个工具中让大模型过滤无关工具后再发送给大模型，可大幅度降低Token消耗。
-- **带记忆的智能体协同** 🛠️：智能体之间还可以共享信息和传递消息，实现复杂的任务协同。
+- **智能体协同通讯** 🛠️：智能体之间还可以共享信息和传递消息，实现复杂的信息通讯和任务协同。
 - **Agent 测评** 📊：内置 Agent 测评工具，方便评估和优化你构建的Agent，对齐业务场景，持续提升智能水平。  
 
 
@@ -123,7 +124,7 @@ pip install mem0ai
 from LightAgent import LightAgent
 
 # 初始化 Agent
-agent = LightAgent(model="gpt-4o-mini", api_key="your_api_key", base_url= "your_base_url")
+agent = LightAgent(model="gpt-4.1", api_key="your_api_key", base_url= "your_base_url")
 
 # 运行 Agent
 response = agent.run("你好，你是谁？")
@@ -138,7 +139,7 @@ from LightAgent import LightAgent
 # 初始化 Agent
 agent = LightAgent(
      role="请记住你是LightAgent，一个可以帮助用户完成多工具使用的有用助手。",  # system角色描述
-     model="deepseek-chat",  # 支持的模型：openai, chatglm, deepseek, qwen 等
+     model="gpt-4.1",  # 支持的模型：openai, chatglm, deepseek, qwen 等
      api_key="your_api_key",  # 替换为你的大模型服务商 API Key
      base_url="your_base_url",  # 替换为你的大模型服务商 api url
  )
@@ -171,7 +172,7 @@ get_weather.tool_info = {
 tools = [get_weather]
 
 # 初始化 Agent
-agent = LightAgent(model="qwen-turbo-2024-11-01", api_key="your_api_key", base_url= "your_base_url", tools=tools)
+agent = LightAgent(model="gpt-4.1", api_key="your_api_key", base_url= "your_base_url", tools=tools)
 
 # 运行 Agent
 response = agent.run("请帮我查询一下上海的天气情况")
@@ -231,7 +232,7 @@ class CustomMemory:
 
 agent = LightAgent(
         role="请记住你是LightAgent，一个可以帮助用户完成多工具使用的有用助手。",  # system角色描述
-        model="deepseek-chat",  # 支持的模型：openai, chatglm, deepseek, qwen 等
+        model="gpt-4.1",  # 支持的模型：openai, chatglm, deepseek, qwen 等
         api_key="your_api_key",  # 替换为你的大模型服务商 API Key
         base_url="your_base_url",  # 替换为你的大模型服务商 api url
         memory=CustomMemory(),  # 启用记忆功能
@@ -413,7 +414,7 @@ tools = [get_weather, search_news, get_user_info]  # 包含所有工具
 
 # 初始化 Agent
 # 替换为你的模型参数model、api_key、base_url
-agent = LightAgent(model="qwen-turbo-2024-11-01", api_key="your_api_key", base_url= "your_base_url", tools=tools)
+agent = LightAgent(model="gpt-4.1", api_key="your_api_key", base_url= "your_base_url", tools=tools)
 
 query = "当前三亚天气如何？"
 response = agent.run(query, stream=False)  # 使用 agent 运行查询
@@ -489,15 +490,19 @@ agent.create_tool(text, tools_directory=tools_directory)
 ```python
 # 启用思维树
 agent = LightAgent(
-    model="qwen-turbo-2024-11-01", 
+    model="gpt-4.1", 
     api_key="your_api_key", 
     base_url= "your_base_url", 
     tree_of_thought=True,  # 启用思维树
     tot_model="deepseek-r1", 
     tot_api_key="sk-uXx0H0B***17778F1",  # 替换为你的 deepseek r1 API Key
     tot_base_url="https://api.deepseek.com/v1",  # api url
+    filter_tools=False,  # 禁用 自适应工具机制
 )
 ```
+开启ToT后，默认开启自适应工具机制，如需要关闭，请在初始化LightAgent时添加参数filter_tools=False。
+
+
 
 ### 5. 多智能体协同
 支持类 Swarm 的多智能体协同工作，提升任务处理效率。多个 Agent 可以协同完成复杂任务。
@@ -602,6 +607,9 @@ Openai系列
  - GPT-4
  - GPT-4o
  - GPT-4o-mini
+ - gpt-4.1
+ - gpt-4.1-mini
+ - gpt-4.1-nano
 
 ChatGLM
  - GLM-4-Plus
@@ -642,6 +650,7 @@ Qwen系列
  - qwen-turbo-2024-11-01
  - qwen-turbo
  - qwen-long
+ - qwq-32b
 
 
 

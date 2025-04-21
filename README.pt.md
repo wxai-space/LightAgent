@@ -33,7 +33,7 @@
   <h1>LightAgent🚀（Próxima geração de estrutura de IA Agentic）</h1>
 </div>
 
-**LightAgent** é uma estrutura de IA Agentic extremamente leve com memória (`mem0`), ferramentas (`Tools`) e árvore de raciocínio (`ToT`). Suporta colaboração multiagente em estilo Swarm, geração automatizada de ferramentas e avaliação de agentes, com modelos de base que suportam OpenAI, ChatGLM, Baichuan e séries de modelos Qwen. Além disso, o LightAgent oferece suporte à saída de serviços de API em formato de fluxo OpenAI, integrado perfeitamente aos principais frameworks de chat.🌟
+**LightAgent** é uma estrutura ativa de agente extremamente leve com memória (`mem0`), ferramentas (`Tools`) e árvore de pensamento (`ToT`), e é completamente de código aberto. Ele suporta uma colaboração multiagente mais simples do que o OpenAI Swarm, permitindo a construção de agentes com capacidade de autoaprendizagem em um único passo, e suporta a conexão ao protocolo MCP via stdio e sse. O modelo subjacente suporta OpenAI, ChatGLM da Zhiyu, DeepSeek, Jieyue Xingchen, Qwen Tongyi Qianwen e outros grandes modelos. Além disso, o LightAgent suporta a saída de serviços de API em formato de fluxo da OpenAI, integrando-se perfeitamente a várias estruturas de chat populares. 🌟
 
 ---
 
@@ -49,13 +49,13 @@
 - **Suporte a múltiplos modelos** 🔄: Compatível com OpenAI, ChatGLM, Baichuan, DeepSeek e séries de modelos Qwen.
 - **API em tempo real** 🌊: Suporte à saída de serviços de API em formato de fluxo OpenAI, integrado perfeitamente aos principais frameworks de chat, melhorando a experiência do usuário.
 - **Gerador de ferramentas** 🚀: Basta fornecer sua documentação de API ao [gerador de ferramentas], que ele criará automaticamente suas ferramentas personalizadas, permitindo a construção rápida de centenas de ferramentas personalizadas em apenas 1 hora, aumentando a eficiência e liberando seu potencial criativo.
+- **Auto-aprendizado de agentes** 🧠️: Cada agente terá sua própria capacidade de memória de cenário, permitindo o aprendizado autônomo a partir das interações do usuário.
+- **Mecanismo adaptativo de ferramentas** 🛠️: Suporte à adição de ferramentas em quantidade ilimitada, permitindo que o modelo grande selecione um conjunto de ferramentas candidatas entre milhares de opções, filtrando as irrelevantes antes de enviar o contexto para o modelo grande, reduzindo significativamente o consumo de tokens.
 
 
 ## 🚧 Em breve
 
-- **Mecanismo adaptativo de ferramentas** 🛠️: Suporte à adição de ferramentas em quantidade ilimitada, permitindo que o modelo grande selecione um conjunto de ferramentas candidatas entre milhares de opções, filtrando as irrelevantes antes de enviar o contexto para o modelo grande, reduzindo significativamente o consumo de tokens.
-- **Colaboração de agentes com memória** 🛠️: Os agentes podem compartilhar informações e transmitir mensagens entre si, permitindo a realização de tarefas complexas em conjunto.
-- **Auto-aprendizado de agentes** 🧠️: Cada agente terá sua própria capacidade de memória de cenário, permitindo o aprendizado autônomo a partir das interações do usuário.
+- **Comunicação colaborativa entre agentes** 🛠️: Os agentes também podem compartilhar informações e transmitir mensagens, realizando comunicações complexas de informações e colaboração em tarefas.
 - **Avaliação de agentes** 📊: Ferramenta de avaliação de agentes embutida, facilitando a avaliação e otimização do agente que você criou, alinhando-se aos cenários de negócios e melhorando continuamente o nível de inteligência.
 
 
@@ -475,14 +475,19 @@ Após a execução, ele gerará 2 arquivos no diretório de ferramentas: get_sto
 Módulo de árvore de raciocínio embutido, suportando decomposição de tarefas complexas e raciocínio em múltiplos passos. Com a árvore de raciocínio, o agente pode lidar melhor com tarefas complexas.
 
 ```python
-# Habilitando a árvore de raciocínio
+# Ativar árvore de pensamento
 agent = LightAgent(
-    model="qwen-turbo-2024-11-01", 
+    model="gpt-4.1", 
     api_key="your_api_key", 
     base_url= "your_base_url", 
-    tree_of_thought=True,  # habilita a árvore de raciocínio
+    tree_of_thought=True,  # Ativar árvore de pensamento
+    tot_model="gpt-4o", 
+    tot_api_key="sk-uXx0H0B***17778F1",  # Substitua pela sua chave de API do deepseek r1
+    tot_base_url="https://api.openai.com/v1",  # url da API
+    filter_tools=False,  # Desativar mecanismo de ferramentas adaptativas
 )
 ```
+Após ativar o ToT, o mecanismo de ferramentas adaptativas é ativado por padrão; se precisar desativá-lo, adicione o parâmetro filter_tools=False ao inicializar o LightAgent.
 
 ### 5. Colaboração Multiagente
 Suporte à colaboração multiagente em estilo Swarm, aumentando a eficiência no tratamento de tarefas. Vários agentes podem colaborar para completar tarefas complexas.
@@ -558,6 +563,9 @@ Série Openai
  - gpt-4
  - gpt-4o
  - gpt-4o-mini
+ - gpt-4.1
+ - gpt-4.1-mini
+ - gpt-4.1-nano
 
 Série Deepseek
  - DeepSeek-chat (API)
@@ -587,6 +595,7 @@ Série Qwen
  - qwen-turbo-2024-11-01
  - qwen-turbo
  - qwen-long
+ - qwq-32b
 
 
 

@@ -34,7 +34,7 @@
   <h1>LightAgent🚀 (Next Generation Agentic AI Framework)</h1>
 </div>
 
-**LightAgent** is an extremely lightweight Agentic Framework with memory (`mem0`), tools (`Tools`), and Tree of Thought (`ToT`). It supports swarm-like multi-agent collaboration, automated tool generation, and agent evaluation, while underlying models support OpenAI, Zhiyu ChatGLM, Baichuan large models, DeepSeek, Qwen series large models, and more. At the same time, LightAgent supports OpenAI streaming API service output, seamlessly integrating with major mainstream chat frameworks. 🌟
+**LightAgent** is an extremely lightweight active Agentic Framework with memory (`mem0`), tools (`Tools`), and a thought tree (`ToT`), and it is completely open source. It supports simpler multi-agent collaboration than OpenAI Swarm, allowing you to build self-learning agents in just one step, and supports connecting to the MCP protocol via stdio and sse. The underlying models support OpenAI, Zhiyuan ChatGLM, DeepSeek, Jieyue Xingchen, Qwen Tongyi Qianwen large models, etc. At the same time, LightAgent supports OpenAI streaming format API service output, seamlessly integrating with major mainstream Chat frameworks. 🌟
 
 ---
 
@@ -50,12 +50,13 @@
 - **Multi-model Support** 🔄: Compatible with OpenAI, Zhiyu ChatGLM, Baichuan large models, Jumpshop Star, DeepSeek, Qwen series large models.  
 - **Streaming API** 🌊: Supports OpenAI streaming API service output, seamlessly integrating with mainstream chat frameworks, enhancing user experience.  
 - **Tools Generator** 🚀: Just hand over your API documentation to the [Tools Generator], and it will automatically create your exclusive tools, helping you quickly build hundreds of personalized custom tools in just one hour, enhancing efficiency and unleashing your creative potential.
+- **Agent Self-Learning** 🧠️: Each agent has its own contextual memory capability, enabling self-learning from user conversations.
+- **Adaptive Tools Mechanism** 🛠️: Support for adding unlimited tools, allowing the large model to first select a candidate tool set from tens of thousands of tools, filtering out irrelevant tools before submitting context to the large model, significantly reducing token consumption.
+
 
 ## 🚧 Coming Soon
 
-- **Adaptive Tools Mechanism** 🛠️: Support for adding unlimited tools, allowing the large model to first select a candidate tool set from tens of thousands of tools, filtering out irrelevant tools before submitting context to the large model, significantly reducing token consumption.
-- **Memory-Enabled Agent Collaboration** 🛠️: Agents can share information and exchange messages, achieving complex task collaboration.
-- **Agent Self-Learning** 🧠️: Each agent has its own contextual memory capability, enabling self-learning from user conversations.
+- **Communication collaborative des agents** 🛠️ : Les agents peuvent également partager des informations et transmettre des messages, réalisant ainsi une communication complexe des informations et une collaboration sur les tâches.
 - **Agent Evaluation** 📊: Built-in Agent evaluation tools for assessing and optimizing the agents you build, aligning with business scenarios, and continuously improving intelligence.  
 
 ## Built-in "Thought Flow"
@@ -470,14 +471,19 @@ Executing this will generate 2 files in the tools directory: get_stock_kline_dat
 Built-in thought tree module supports complex task decomposition and multi-step reasoning. Through the Tree of Thought, the agent can better handle complex tasks.
 
 ```python
-# Enable Tree of Thought
+# Activer l'arbre de pensée
 agent = LightAgent(
-    model="qwen-turbo-2024-11-01", 
+    model="gpt-4.1", 
     api_key="your_api_key", 
-    base_url="your_base_url", 
-    tree_of_thought=True,  # Enable Tree of Thought
+    base_url= "your_base_url", 
+    tree_of_thought=True,  # Activer l'arbre de pensée
+    tot_model="gpt-4o", 
+    tot_api_key="sk-uXx0H0B***17778F1",  # Remplacez par votre clé API deepseek r1
+    tot_base_url="https://api.openai.com/v1",  # url de l'API
+    filter_tools=False,  # Désactiver le mécanisme d'outils adaptatifs
 )
 ```
+Après avoir activé ToT, le mécanisme d'outils adaptatifs est activé par défaut. Si vous souhaitez le désactiver, veuillez ajouter le paramètre filter_tools=False lors de l'initialisation de LightAgent.
 
 ### 5. Multi-Agent Collaboration
 Supports swarm-like multi-agent collaboration to enhance task processing efficiency. Multiple agents can collaborate to complete complex tasks.
@@ -551,6 +557,9 @@ Openai series
  - gpt-4
  - gpt-4o
  - gpt-4o-mini
+ - gpt-4.1
+ - gpt-4.1-mini
+ - gpt-4.1-nano
 
 Deepseek series
  - DeepSeek-chat (API)
@@ -579,6 +588,7 @@ Qwen series
  - qwen-turbo-2024-11-01
  - qwen-turbo
  - qwen-long
+ - qwq-32b
 
 ---
 

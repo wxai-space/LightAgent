@@ -34,7 +34,7 @@
   <h1>LightAgent🚀（下一代Agentic AI框架）</h1>
 </div>
 
-**LightAgent** 是一個極其輕量的帶記憶（`mem0`）、工具（`Tools`）、思維樹（`ToT`）的主動式 Agentic Framework（自主性框架）。它支持類 Swarm 的多智能體協同、自動化工具生成、Agent 測評，底層模型支持 OpenAI、智譜 ChatGLM、百川大模型、DeepSeek、Qwen 系列大模型等。同時，LightAgent 支持 OpenAI 流格式 API 服務輸出，無縫接入各大主流 Chat 框架。🌟
+**LightAgent** 是一個極其輕量的帶記憶（`mem0`）、工具（`Tools`）、思維樹（`ToT`）的主動式 Agentic Framework（自主性框架），並且完全開源。它支持比Openai Swarm更簡單的多智能體協同，簡單一步即可構建具備自我學習能力的agent，並支持stdio和sse方式接入MCP協議。底層模型支持 OpenAI、智譜 ChatGLM、DeepSeek、階躍星辰、Qwen通義千問大模型等。同時，LightAgent 支持 OpenAI 流格式 API 服務輸出，無縫接入各大主流 Chat 框架。🌟
 
 ---
 
@@ -50,13 +50,13 @@
 - **多模型支持** 🔄：兼容 OpenAI、智譜 ChatGLM、百川大模型、StepFun、DeepSeek、Qwen 系列大模型。  
 - **流式 API** 🌊：支持 OpenAI 流格式 API 服務輸出，無縫接入主流 Chat 框架，提升用戶體驗。  
 - **Tools工具生成器** 🚀：只需將您的 API 文檔交給[Tools工具生成器]，它將自動化地為您打造專屬的 tools，助您在短短1小時內快速構建數百個個性化的自定義工具，提高效率，釋放您的創新潛能。
+- **agent 自我學習** 🧠️：每個 agent 擁有自己的場景記憶能力，擁有從用戶的對話中進行自我學習能力。
+- **自適應 tools 機制** 🛠️：支持添加無限量 tools，在上萬個工具中讓大模型先選取候選工具集合，過濾無關工具後再提交上下文給大模型，可大幅度降低 Token 消耗。
 
 
 ## 🚧 即將推出
 
-- **自適應 tools 機制** 🛠️：支持添加無限量 tools，在上萬個工具中讓大模型先選取候選工具集合，過濾無關工具後再提交上下文給大模型，可大幅度降低 Token 消耗。
-- **帶記憶的智能體協同** 🛠️：智能體之間還可以共享信息和傳遞消息，實現複雜的任務協同。
-- **agent 自我學習** 🧠️：每個 agent 擁有自己的場景記憶能力，擁有從用戶的對話中進行自我學習能力。
+- **智能體協同通訊** 🛠️：智能體之間還可以共享資訊和傳遞消息，實現複雜的信息通訊和任務協同。
 - **Agent 測評** 📊：內置 Agent 測評工具，方便評估和優化您構建的 Agent，對齊業務場景，持續提升智能水平。  
 
 
@@ -478,12 +478,17 @@ agent.create_tool(text, tools_directory=tools_directory)
 ```python
 # 啟用思維樹
 agent = LightAgent(
-    model="qwen-turbo-2024-11-01", 
+    model="gpt-4.1", 
     api_key="your_api_key", 
     base_url= "your_base_url", 
     tree_of_thought=True,  # 啟用思維樹
+    tot_model="gpt-4o", 
+    tot_api_key="sk-uXx0H0B***17778F1",  # 替換為你的 deepseek r1 API Key
+    tot_base_url="https://api.openai.com/v1",  # api url
+    filter_tools=False,  # 禁用 自適應工具機制
 )
 ```
+開啟ToT後，默認開啟自適應工具機制，如需要關閉，請在初始化LightAgent時添加參數filter_tools=False。
 
 ### 5. 多智能體協同
 支持類 Swarm 的多智能體協同工作，提升任務處理效率。多個 Agent 可以協同完成複雜任務。
@@ -560,6 +565,9 @@ Openai 系列
  - gpt-4
  - gpt-4o
  - gpt-4o-mini
+ - gpt-4.1
+ - gpt-4.1-mini
+ - gpt-4.1-nano
 
 Deepseek 系列
  - DeepSeek-chat (API)
@@ -589,8 +597,7 @@ Qwen 系列
  - qwen-turbo-2024-11-01
  - qwen-turbo
  - qwen-long
-
-
+ - qwq-32b
 
 
 ---

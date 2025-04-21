@@ -33,7 +33,7 @@
   <h1>LightAgent🚀（Nächste Generation des Agentic AI-Frameworks）</h1>
 </div>
 
-**LightAgent** ist ein extrem leichtgewichtiges, speicherfähiges (`mem0`), werkzeugbasiertes (`Tools`), und denkbaumgestütztes (`ToT`) aktives Agentic Framework. Es unterstützt swarmähnliche Multi-Agenten-Kooperation, automatisierte Werkzeuggenerierung und Agentenbewertung. Die zugrunde liegenden Modelle unterstützen OpenAI, Zhiyu ChatGLM, Baichuan große Modelle, DeepSeek, Qwen-Serie große Modelle und mehr. Gleichzeitig unterstützt LightAgent die Ausgabe von OpenAI Stream-Format-API-Diensten und nahtlose Integration in die gängigsten Chat-Frameworks.🌟
+**LightAgent** ist ein extrem leichtgewichtiges, speicherfähiges (`mem0`), werkzeugbasiertes (`Tools`), denkbaumgestütztes (`ToT`) aktives Agenten-Framework, das vollständig Open Source ist. Es unterstützt eine einfachere Multi-Agenten-Kollaboration als OpenAI Swarm, ermöglicht es, in einem Schritt Agenten mit Selbstlernfähigkeiten zu erstellen, und unterstützt die Anbindung an das MCP-Protokoll über stdio und sse. Das zugrunde liegende Modell unterstützt OpenAI, Zhiyu ChatGLM, DeepSeek, Jieyue Xingchen, Qwen Tongyi Qianwen und andere große Modelle. Gleichzeitig unterstützt LightAgent die Ausgabe von OpenAI Stream-Format-API-Diensten und ermöglicht eine nahtlose Integration in alle gängigen Chat-Frameworks. 🌟
 
 ---
 
@@ -49,13 +49,13 @@
 - **Unterstützung mehrerer Modelle** 🔄: Kompatibel mit OpenAI, Zhiyu ChatGLM, Baichuan große Modelle, StepFun, DeepSeek, Qwen-Serie große Modelle.  
 - **Stream-API** 🌊: Unterstützt die Ausgabe von OpenAI Stream-Format-API-Diensten, nahtlose Integration in gängige Chat-Frameworks zur Verbesserung der Benutzererfahrung.  
 - **Werkzeuggenerator** 🚀: Geben Sie einfach Ihre API-Dokumentation an den [Werkzeuggenerator] weiter, und er wird automatisch Ihre maßgeschneiderten Werkzeuge erstellen, sodass Sie in nur einer Stunde Hunderte von personalisierten benutzerdefinierten Werkzeugen schnell erstellen können, um die Effizienz zu steigern und Ihr kreatives Potenzial freizusetzen.
+- **Selbstlernender Agent** 🧠️: Jeder Agent hat die Fähigkeit, seine eigene Szenarienerinnerung zu entwickeln und aus den Gesprächen mit Benutzern zu lernen.
+- **Adaptive Werkzeugmechanismen** 🛠️: Unterstützung für die Hinzufügung unbegrenzter Werkzeuge, Auswahl von Kandidatenwerkzeugen aus Tausenden von Werkzeugen durch das große Modell, Filtern irrelevanter Werkzeuge und anschließende Einreichung des Kontexts an das große Modell, was den Token-Verbrauch erheblich senken kann.
 
 
 ## 🚧 Bald verfügbar
 
-- **Adaptive Werkzeugmechanismen** 🛠️: Unterstützung für die Hinzufügung unbegrenzter Werkzeuge, Auswahl von Kandidatenwerkzeugen aus Tausenden von Werkzeugen durch das große Modell, Filtern irrelevanter Werkzeuge und anschließende Einreichung des Kontexts an das große Modell, was den Token-Verbrauch erheblich senken kann.
-- **Intelligente Agentenkooperation mit Gedächtnis** 🛠️: Agenten können Informationen teilen und Nachrichten übermitteln, um komplexe Aufgabenkooperation zu realisieren.
-- **Selbstlernender Agent** 🧠️: Jeder Agent hat die Fähigkeit, seine eigene Szenarienerinnerung zu entwickeln und aus den Gesprächen mit Benutzern zu lernen.
+- **Agent-Kooperation Kommunikation** 🛠️: Agenten können Informationen austauschen und Nachrichten übermitteln, um komplexe Informationskommunikation und Aufgabenkoordination zu realisieren.
 - **Agentenbewertung** 📊: Integriertes Agentenbewertungstool zur einfachen Bewertung und Optimierung Ihrer erstellten Agenten, um sie an Geschäftsszenarien anzupassen und das Intelligenzniveau kontinuierlich zu verbessern.  
 
 
@@ -475,14 +475,21 @@ Nach der Ausführung werden im Werkzeugsverzeichnis zwei Dateien generiert: get_
 Integriertes Denkbaum-Modul, das komplexe Aufgabenzerlegungen und mehrstufiges Denken unterstützt. Durch den Denkbaum kann der Agent komplexe Aufgaben besser bearbeiten.
 
 ```python
-# Aktivieren des Denkbaums
+# Aktivieren Sie den Denkbaum
 agent = LightAgent(
     model="qwen-turbo-2024-11-01", 
     api_key="your_api_key", 
     base_url= "your_base_url", 
-    tree_of_thought=True,  # Aktivieren des Denkbaums
+    tree_of_thought=True,  # Aktivieren Sie den Denkbaum
+    tot_model="deepseek-r1", 
+    tot_api_key="sk-uXx0H0B***17778F1",  # Ersetzen Sie dies durch Ihren deepseek r1 API-Schlüssel
+    tot_base_url="https://api.deepseek.com/v1",  # API-URL
+    filter_tools=False,  # Deaktivieren Sie die adaptive Werkzeugmechanismus
 )
 ```
+Nachdem ToT aktiviert ist, wird standardmäßig der adaptive Werkzeugmechanismus aktiviert. Wenn Sie ihn deaktivieren möchten, fügen Sie beim Initialisieren von LightAgent den Parameter filter_tools=False hinzu.
+
+
 
 ### 5. Multi-Agenten-Kooperation
 Unterstützt swarmähnliche Multi-Agenten-Kooperation zur Verbesserung der Effizienz bei der Aufgabenbearbeitung. Mehrere Agenten können gemeinsam komplexe Aufgaben erledigen.
@@ -559,6 +566,9 @@ Openai-Serie
  - gpt-4
  - gpt-4o
  - gpt-4o-mini
+ - gpt-4.1
+ - gpt-4.1-mini
+ - gpt-4.1-nano
 
 Deepseek-Serie
  - DeepSeek-chat (API)
@@ -588,6 +598,7 @@ Qwen-Serie
  - qwen-turbo-2024-11-01
  - qwen-turbo
  - qwen-long
+ - qwq-32b
 
 
 
