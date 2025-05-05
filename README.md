@@ -56,7 +56,8 @@
 
 ---
 ## News
-- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-04-21]** LightAgent v0.3.2 adds an adaptive Tools mechanism, supports unlimited intelligent tool filtering, reduces Token consumption by 80%, and improves response speed by 52%! [View](#4-tree-of-thought-tot)
+- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-05-05]** LightAgent v0.3.3 Released: Deep [Langfuse](https://langfuse.com/) Logging Integration, Enhanced Context Management and Tool Invocation Stability [View](#8-integrating-langfuse-log-tracking)
+- **[2025-04-21]** LightAgent v0.3.2 adds an adaptive Tools mechanism, supports unlimited intelligent tool filtering, reduces Token consumption by 80%, and improves response speed by 52%! [View](#4-tree-of-thought-tot)
 - **[2025-04-01]** LightAgent v0.3.0 Support browser interaction [browser_use](https://github.com/browser-use/browser-use) and fully supports the MCP protocol, enabling collaborative work with multiple models and tools to achieve more efficient handling of complex tasks.<a href="mcp_release.md">View MCP release introduction.>></a>
 - **[2025-02-19]** LightAgent v0.2.7  supports deepseek-r1 model for tot now.Significantly enhances the multi-tool planning capability for complex tasks.
 - **[2025-02-06]** LightAgent version 0.2.5 is released now.
@@ -588,7 +589,39 @@ agent.run(query, stream=False, user_id=user_id)
 
 ```
 
-### 8. Agent Assessment (Coming Soon)
+### 8. Integrating Langfuse Log Tracking
+
+LightAgent integrates with the [Langfuse open-source platform](https://github.com/langfuse/langfuse), providing full-link monitoring and log analysis capabilities, real-time tracking of key metrics such as token consumption and response latency, and supporting interactive data management and version control. The platform's visualization analysis features clearly display the core decision-making processes of the Agent, such as context retrieval and tool invocation, and fully record user interaction flows.
+```python
+from LightAgent import LightAgent
+
+tracetools = {
+    "TraceTool": "langfuse",
+    "TraceToolConfig": {
+        "langfuse_enabled": True,
+        "langfuse_host": "https://cloud.langfuse.com",
+        "langfuse_public_key": "pk-lf-9fedb073-a*86-4**5-b**2-52****1b1**7",
+        "langfuse_secret_key": "sk-lf-27bdbdec-c**6-4**3-a**2-28**0140**c7"
+    }
+}
+
+agent = LightAgent(
+        name="Agent A",  # Agent Name
+        instructions="You are a helpful agent.",  # Role Description
+        role="Please remember that you are LightAgent, a useful assistant to help users use multiple tools.",  # system role description
+        model="gpt-4o-mini",  # Supported models: openai, chatglm, deepseek, qwen, etc. qwen-turbo-2024-11-01 \ step-1-flash
+        api_key="your_api_key",  # Replace with your API Key
+        base_url="http://your_base_url/v1",  # API URL
+        debug=True,
+        log_level="DEBUG",
+        log_file="example.log",
+        tracetools=tracetools
+    )
+```
+The LLM call logs tracked by Langfuse are shown in the figure below:
+![langfuse.png](docs/images/langfuse.png)
+
+### 9. Agent Assessment (Coming Soon)
 Built-in agent assessment tool for conveniently evaluating and optimizing agent performance.
 
 ## Mainstream Agent Model Support
@@ -643,6 +676,14 @@ Qwen Series
  - qwen-turbo
  - qwen-long
  - qwq-32b
+ - qwen3-0.6b
+ - qwen3-1.7b
+ - qwen3-4b
+ - qwen3-8b
+ - qwen3-14b
+ - qwen3-32b
+ - qwen3-30b-a3b
+ - qwen3-235b-a22b
 
 ---
 
@@ -682,6 +723,7 @@ We will review your contributions promptly. Thank you for your support! ❤️
 
 Shanghai Wanxing AI and Professor Zhang Liwen's research group from the School of Statistics and Data Science at Shanghai University of Finance and Economics have jointly open-sourced a new generation intelligent agent framework called LightAgent.The development and implementation of LightAgent owe much to the inspiration and support from the following open-source projects, especially the outstanding projects and teams:
 
+- **MCP**: Thanks to [mcp](https://modelcontextprotocol.io/introduction) for providing the **Model Context Protocol (MCP)**, which offers a standardized infrastructure for the **dynamic tool integration** of LightAgent.
 - **mem0**: Thanks to [mem0](https://github.com/mem0ai/mem0) for providing the memory module, which offers strong support for LightAgent's context management.  
 - **Swarm**: Thanks to [Swarm](https://github.com/openai/swarm) for designing ideas for multi-agent collaboration, laying the groundwork for LightAgent's multi-agent features.  
 - **ChatGLM3**: Thanks to [ChatGLM3](https://github.com/THUDM/ChatGLM3) for providing high-performance Chinese large model support and design inspiration.  

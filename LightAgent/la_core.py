@@ -3,8 +3,8 @@
 
 """
 作者: [weego/WXAI-Team]
-版本: 0.3.2
-最后更新: 2025-03-31
+版本: 0.3.3
+最后更新: 2025-05-05
 """
 
 import asyncio
@@ -22,12 +22,12 @@ from copy import deepcopy
 from datetime import datetime
 from functools import partial
 from typing import List, Dict, Any, Callable, Union, Optional, Generator, AsyncGenerator
+from uuid import uuid4
 
 import httpx
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client
-from openai import OpenAI
 from openai.types.chat import ChatCompletionChunk
 
 # 全局工具注册表
@@ -36,7 +36,10 @@ _FUNCTION_INFO = {}  # 工具名称 -> 工具info信息
 _OPENAI_FUNCTION_SCHEMAS = []  # OpenAI 格式的工具描述
 _PROMPT_FUNCTION_SCHEMAS = []  # prompt 格式的工具描述
 
-__version__ = "0.3.2"  # 你可以根据需要设置版本号
+__version__ = "0.3.3"  # 你可以根据需要设置版本号
+
+
+# openai.langfuse_auth_check()
 
 
 def register_tool_manually(tools: List[Union[str, Callable]]) -> bool:
@@ -186,7 +189,10 @@ def filter_tools_schemas(refined_content: str) -> json:
     :param refined_content: 包含工具列表的JSON字符串
     """
     # global _OPENAI_FUNCTION_SCHEMAS  # 声明操作全局变量
-
+    """安全解析可能包含 Markdown 代码块的 JSON"""
+    refined_content = refined_content.strip()
+    if refined_content.startswith('```json') and refined_content.endswith('```'):
+        refined_content = refined_content[7:-3].strip()  # 去除 ```json 和 ```
     try:
         # 解析工具列表
         parsed_data: Dict[str, List[Dict]] = json.loads(refined_content)
@@ -413,7 +419,7 @@ class MCPClientManager:
 
 
 class LightAgent:
-    __version__ = "0.3.2"  # 将版本号放在类中
+    __version__ = "0.3.3"  # 将版本号放在类中
 
     def __init__(
             self,
@@ -425,16 +431,18 @@ class LightAgent:
             api_key: str | None = None,  # 模型 api key
             base_url: str | httpx.URL | None = None,  # 模型 base url
             websocket_base_url: str | httpx.URL | None = None,  # 模型 websocket base url
-            memory=None,  # 支持外部传入记忆模块
+            memory: str | None = None,  # 支持外部传入记忆模块
             tree_of_thought: bool = False,  # 是否启用链式思考
             tot_model: str | None = None,  # 链式思考模型
             tot_api_key: str | None = None,  # 链式思考模型API密钥
             tot_base_url: str | httpx.URL | None = None,  # 链式思考模型base_url
+            filter_tools: bool = True,  # 是否启用工具过滤
             self_learning: bool = False,  # 是否启用agent自我学习
             tools: List[Union[str, Callable]] = None,  # 支持工具混合输入
             debug: bool = False,  # 是否启用调试模式
             log_level: str = "INFO",  # 日志级别（INFO, DEBUG, ERROR）
-            log_file: Optional[str] = None  # 日志文件路径
+            log_file: Optional[str] = None,  # 日志文件路径
+            tracetools: Optional[dict] = None,  # log跟踪工具
     ) -> None:
         """
         初始化 LightAgent。
@@ -451,10 +459,12 @@ class LightAgent:
         :param tot_model: 使用的模型名称。
         :param tot_api_key: API 密钥。
         :param tot_base_url: API 的基础 URL。
+        :param filter_tools: 是否启用工具过滤。
         :param tools: 工具列表，支持函数名称（字符串）或函数对象。
         :param debug: 是否启用调试模式。
         :param log_level: 日志级别（INFO, DEBUG, ERROR）。
         :param log_file: 日志文件路径。
+        :param tracetools: log跟踪工具。
         """
         self.mcp_setting = None
         self.mcp_client = None
@@ -477,9 +487,11 @@ class LightAgent:
         self.memory = memory
         self.tree_of_thought = tree_of_thought
         self.self_learning = self_learning
+        self.filter_tools = filter_tools
 
         self.debug = debug
         self.log_level = log_level.upper()
+        self.traceid = ""  # 用于存储 traceid
         # 确保 log 目录存在
         log_dir = 'logs'
         if not os.path.exists(log_dir):
@@ -507,10 +519,6 @@ class LightAgent:
         if base_url is None:
             base_url = f"https://api.openai.com/v1"
 
-        self.client = OpenAI(
-            base_url=base_url,
-            api_key=self.api_key
-        )
         if self.tree_of_thought:
             if tot_api_key is None:
                 tot_api_key = api_key
@@ -519,10 +527,36 @@ class LightAgent:
             if not tot_model:
                 tot_model = "deepseek-r1"  # 默认思维推理模型为deepseek-r1
             self.tot_model = tot_model
-            self.tot_client = OpenAI(
-                base_url=tot_base_url,
-                api_key=tot_api_key
+
+        if tracetools is None:
+            self.tracetools = []
+        if tracetools:
+            self.tracetools = tracetools
+            # 初始化工具列表
+            from langfuse.openai import openai as la_openai
+            la_openai.langfuse_public_key = self.tracetools['TraceToolConfig']['langfuse_public_key']
+            la_openai.langfuse_secret_key = self.tracetools['TraceToolConfig']['langfuse_secret_key']
+            la_openai.langfuse_enabled = self.tracetools['TraceToolConfig'][
+                'langfuse_enabled']  # Default is True, set to False to disable Langfuse
+            la_openai.langfuse_host = self.tracetools['TraceToolConfig']['langfuse_host']  # 🇪🇺 EU region
+            la_openai.base_url = base_url
+            la_openai.api_key = self.api_key
+            self.client = la_openai
+            if self.tree_of_thought:
+                la_openai.base_url = tot_base_url
+                la_openai.api_key = tot_api_key
+                self.tot_client = la_openai
+        else:
+            from openai import OpenAI as la_openai
+            self.client = la_openai(
+                base_url=base_url,
+                api_key=self.api_key
             )
+            if self.tree_of_thought:
+                self.tot_client = la_openai(
+                    base_url=tot_base_url,
+                    api_key=tot_api_key
+                )
 
     def get_tool(self, tool_name: str) -> Callable:
         """
@@ -629,7 +663,10 @@ class LightAgent:
         """
         if not self.debug:
             return
-        log_message = f"{action}: {data}"
+        if self.traceid is not None:
+            log_message = f"[TraceID: {self.traceid}] {action}: {data}"
+        else:
+            log_message = f"{action}: {data}"
         if level == "DEBUG":
             self.logger.debug(log_message)
         elif level == "INFO":
@@ -671,6 +708,7 @@ class LightAgent:
         :param metadata: 元数据。
         :return: 代理的回复。
         """
+        self.traceid = uuid4().hex
         self.log("INFO", "run", {"query": query, "user_id": user_id, "light_swarm": light_swarm, "stream": stream})
         if history is None:
             history = []
@@ -687,19 +725,25 @@ class LightAgent:
         #         self._transfer_to_agent(light_swarm.agents[target_agent_name], query, stream=stream)
         #         return  # 立即结束当前生成器
 
-        # 1. 判断是否需要转移任务
+        # 0. 判断是否需要转移任务
         if light_swarm:
             result = self._handle_task_transfer(query, light_swarm, stream)
             if result is not None:
                 return result
 
-        # 2. 正常处理任务
+        # 1. 正常处理任务
         now = datetime.now()
         current_date = now.strftime("%Y-%m-%d")
         current_time = now.strftime("%H:%M:%S")
         system_prompt = f"##代理名称：{self.name} ##代理指令 /n{self.instructions}  ##身份 /n {self.role} /n 请一步一步思考来完成用户的要求。尽可能完成用户的回答，如果有补充信息，请参考补充信息来调用工具，直到获取所有满足用户的提问所需的答案。 /n 今日的日期: {current_date} 当前时间: {current_time}"
         params = dict(model=self.model, stream=stream)
         memory = ''
+
+        # 2.添加langfuse的session
+        if self.tracetools:
+            params["session_id"] = self.traceid
+            self.log("DEBUG", "Query Trace ID", {"query": query})
+
         # 3. 从记忆中检索相关内容&保存记忆
         if self.memory:
             related_memories = self.memory.retrieve(query=query, user_id=user_id)
@@ -743,6 +787,7 @@ class LightAgent:
             params["messages"].append({"role": item["role"], "content": item["content"]})
         # 最后添加当前用户的查询信息
         params["messages"].append({"role": "user", "content": query})
+
         response = self.client.chat.completions.create(**params)
 
         result = self._core_run_logic(response, params, stream, max_retry)
@@ -1160,7 +1205,7 @@ class LightAgent:
         self.log("DEBUG", "run_thought", {"system_prompt": system_prompt})
 
         try:
-            # 第一次请求，生成初始的工具使用计划
+            # 1. 第一次请求，生成初始的工具使用计划
             params = dict(model=tot_model,
                           messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": query}],
                           stream=False)
@@ -1168,7 +1213,7 @@ class LightAgent:
             initial_content = response.choices[0].message.content
             self.log("DEBUG", "initial_response", {"response": initial_content})
 
-            # 第二次请求，请求大模型反思并生成新的工具使用规划
+            # 2. 第二次请求，请求大模型反思并生成新的工具使用规划
             reflection_prompt = "请反思你的回答，请严格按照<工具列表>中的工具来规划，不可以创造其他新的工具。请输出新的任务规划，不要输出其他分析和回答。"
             reflection_params = dict(model=tot_model, messages=[
                 {"role": "user", "content": f"{system_prompt} /n 开始思考问题: {query}"},
@@ -1204,8 +1249,12 @@ class LightAgent:
             tool_reflection_response = self.tot_client.chat.completions.create(**tool_reflection_params)
             tool_reflection_result = tool_reflection_response.choices[0].message.content
             self.log("DEBUG", "tool_reflection_result", {"result": tool_reflection_result})
-            current_tools = filter_tools_schemas(tool_reflection_result)
-            self.log("DEBUG", "current_tools", {"get_tools": current_tools})
+
+            # 3.执行自适应工具过滤
+            current_tools = []
+            if self.filter_tools:
+                current_tools = filter_tools_schemas(tool_reflection_result)
+                self.log("DEBUG", "current_tools", {"get_tools": current_tools})
 
             return refined_content, current_tools
 

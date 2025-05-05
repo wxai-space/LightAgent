@@ -54,7 +54,8 @@
 
 ---
 ## 新闻
-- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-04-21]** LightAgent v0.3.2 新增自适应Tools机制，支持无限量工具智能筛选，Token消耗降低80%，响应速度提升52%！ [查看](#4-思维树tot)
+- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-05-05]** LightAgent v0.3.3版本发布：深度集成Langfuse日志跟踪，优化上下文管理与工具调用稳定性 [查看>>](#8-集成langfuse日志跟踪)
+- **[2025-04-21]** LightAgent v0.3.2 新增自适应Tools机制，支持无限量工具智能筛选，Token消耗降低80%，响应速度提升52%！ [查看>>](#4-思维树tot)
 - **[2025-04-01]** LightAgent v0.3.0 支持浏览器交互 [browser_use](https://github.com/browser-use/browser-use)，并全面支持MCP协议，支持多模型多工具的协同工作，实现更高效的复杂任务处理。<a href="mcp_release.zh-CN.md">查看MCP发布简介>></a>
 - **[2025-02-19]** LightAgent v0.2.7 支持单独采用 deepseek-r1 作为的agent推理规划ToT引擎，大幅度提升复杂任务的多工具Plan能力.
 - **[2025-02-06]** LightAgent version 0.2.5 is released now.
@@ -187,7 +188,7 @@ print(response)
 ## 功能详解
 
 ### 1. 可拆卸的全自动记忆模块（`mem0`）
-LightAgent 支持外部扩展 `mem0` 记忆模块，全自动进行上下文记忆和历史记录管理，无需开发人员手动触发添加记忆和记忆查找。通过记忆模块，Agent 可以在多轮对话中保持上下文一致性。
+LightAgent 支持外部扩展自定义记忆模块或使用 `mem0` 作为记忆扩展，[查看什么是mem0？](https://github.com/mem0ai/mem0/)，全自动进行上下文记忆和历史记录管理，无需开发人员手动触发添加记忆和记忆查找。通过记忆模块，Agent 可以在多轮对话中保持上下文一致性。
 
 ```python
 # 启用记忆模块
@@ -559,6 +560,18 @@ print(res)
 
 ```python
 # 启用流式输出
+from LightAgent import LightAgent
+
+# 初始化 Agent
+agent = LightAgent(
+     role="请记住你是LightAgent，一个可以帮助用户完成多工具使用的有用助手。",  # system角色描述
+     model="gpt-4.1-mini",  # 支持的模型：openai, chatglm, deepseek, qwen 等
+     api_key="your_api_key",  # 替换为你的大模型服务商 API Key
+     base_url="your_base_url",  # 替换为你的大模型服务商 api url
+ )
+# 运行 Agent
+
+
 response = agent.run("请生成一篇关于 AI 的文章", stream=True)
 for chunk in response:
     print(chunk)
@@ -568,6 +581,8 @@ for chunk in response:
 ### 7. Agent 自我学习
 Agent 具备独特的场景记忆能力，能够精准留存与用户交互过程中的关键信息。同时，它拥有强大的从用户对话中汲取知识并进行自我学习的能力，在每次对话交流中不断优化自身对各种场景的理解和应对策略，从而实现智能水平的持续提升，更好地满足用户多样化的需求 。通过这种自我学习机制，Agent 能够不断适应复杂多变的任务场景，为用户提供更优质、高效且个性化的服务。
 ```python
+from LightAgent import LightAgent
+
 agent = LightAgent(
         name="Agent A",  # 代理名称
         instructions="You are a helpful agent.",  # 角色描述
@@ -594,9 +609,40 @@ agent.run(query, stream=False, user_id=user_id)
 
 ```
 
-### 8. Agent 测评 (即将推出)
-内置 Agent 测评工具，方便评估和优化 Agent 性能。
+### 8. 集成Langfuse日志跟踪
 
+LightAgent集成[Langfuse开源平台](https://github.com/langfuse/langfuse)，提供全链路监控和日志分析能力，实时跟踪Token消耗、响应延迟等关键指标，支持交互数据管理和版本控制。平台的可视化分析功能清晰展现Agent的上下文检索、工具调用等核心决策过程，完整记录用户交互流水。
+```python
+from LightAgent import LightAgent
+
+tracetools = {
+    "TraceTool": "langfuse",
+    "TraceToolConfig": {
+        "langfuse_enabled": True,
+        "langfuse_host": "https://cloud.langfuse.com",
+        "langfuse_public_key": "pk-lf-9fedb073-a*86-4**5-b**2-52****1b1**7",
+        "langfuse_secret_key": "sk-lf-27bdbdec-c**6-4**3-a**2-28**0140**c7"
+    }
+}
+
+agent = LightAgent(
+        name="Agent A",  # 代理名称
+        instructions="You are a helpful agent.",  # 角色描述
+        role="Please remember that you are LightAgent, a useful assistant to help users use multiple tools.",  # system role description
+        model="gpt-4o-mini",  # 支持的模型：openai, chatglm, deepseek, qwen 等 qwen-turbo-2024-11-01 \ step-1-flash
+        api_key="your_api_key",  # 替换为你的 API Key
+        base_url="http://your_base_url/v1",  # api url
+        debug=True,
+        log_level="DEBUG",
+        log_file="example.log",
+        tracetools=tracetools
+    )
+```
+Langfuse跟踪的LLM调用日志如下图：
+![langfuse.png](docs/images/langfuse.png)
+
+### 9. Agent 测评 (即将推出)
+内置 Agent 测评工具，方便评估和优化 Agent 性能。
 
 ## 主流Agent模型支持
 兼容多种大模型，包括 OpenAI、智谱ChatGLM、DeepSeek、Qwen系列大模型。
@@ -634,6 +680,7 @@ Deepseek系列
  - step-1-256k（在多工具调用中存在问题）
  - step-1-flash（推荐用此模型，性价比高）
  - step-2-16k（在多工具调用中存在问题）
+ - step-2-mini
 
 
 Qwen系列
@@ -651,6 +698,14 @@ Qwen系列
  - qwen-turbo
  - qwen-long
  - qwq-32b
+ - qwen3-0.6b
+ - qwen3-1.7b
+ - qwen3-4b
+ - qwen3-8b
+ - qwen3-14b
+ - qwen3-32b
+ - qwen3-30b-a3b
+ - qwen3-235b-a22b
 
 
 
@@ -693,6 +748,7 @@ Qwen系列
 
 上海万行AI与上海财经大学统计与数据科学学院张立文教授课题组联合开源了新一代智能体框架 LightAgent。LightAgent 的开发和实现离不开以下开源项目的启发和支持，特别感谢这些优秀的项目和团队：
 
+- **MCP**：感谢 [mcp](https://modelcontextprotocol.io/introduction) 提供的**模型上下文协议（MCP）**，为 LightAgent 的**动态工具集成**提供了标准化基础设施。  
 - **mem0**：感谢 [mem0](https://github.com/mem0ai/mem0) 提供的记忆模块，为 LightAgent 的上下文管理提供了强大支持。  
 - **Swarm**：感谢 [Swarm](https://github.com/openai/swarm) 提供的多智能体协同设计思路，为 LightAgent 的多智能体功能奠定了基础。  
 - **ChatGLM3**：感谢 [ChatGLM3](https://github.com/THUDM/ChatGLM3) 提供的高性能中文大模型支持和设计灵感。  
