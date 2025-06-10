@@ -44,7 +44,7 @@
 - **Lightweight and Efficient** 🚀: Minimalist design, quick deployment, suitable for various application scenarios. (No LangChain, No LlamaIndex) 100% Python implementation, no additional dependencies, core code is only 1000 lines, fully open source. 
 - **Memory Support** 🧠: Supports custom long-term memory for each user, natively supporting the `mem0` memory module, automatically managing user personalized memory during conversations, making agents smarter.
 - **Autonomous Learning** 📚️: Each agent possesses autonomous learning capabilities, and admins with permissions can manage each agent.
-- **Tool Integration** 🛠️: Supports custom tools (`Tools`), automated tool generation, flexible expansion to meet diverse needs.  
+- **Tool Integration** 🛠️: Support for custom tools (`Tools`) and MCP tool integration, flexible expansion to meet diverse needs.  
 - **Complex Goals** 🌳: Built-in Tree of Thought (`ToT`) module with reflection, supporting complex task decomposition and multi-step reasoning, enhancing task processing capabilities.  
 - **Multi-Agent Collaboration** 🤖: Simpler to implement multi-agent collaboration than Swarm, with built-in LightSwarm for intent recognition and task delegation, enabling smarter handling of user input and delegating tasks to other agents as needed. 
 - **Independent Execution** 🤖: Tasks and tool calls are completed autonomously without human intervention.  
