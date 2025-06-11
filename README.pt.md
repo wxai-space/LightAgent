@@ -33,7 +33,7 @@
   <h1>LightAgent🚀（Próxima geração de estrutura de IA Agentic）</h1>
 </div>
 
-**LightAgent** é uma estrutura ativa de agente extremamente leve com memória (`mem0`), ferramentas (`Tools`) e árvore de pensamento (`ToT`), e é completamente de código aberto. Ele suporta uma colaboração multiagente mais simples do que o OpenAI Swarm, permitindo a construção de agentes com capacidade de autoaprendizagem em um único passo, e suporta a conexão ao protocolo MCP via stdio e sse. O modelo subjacente suporta OpenAI, ChatGLM da Zhiyu, DeepSeek, Jieyue Xingchen, Qwen Tongyi Qianwen e outros grandes modelos. Além disso, o LightAgent suporta a saída de serviços de API em formato de fluxo da OpenAI, integrando-se perfeitamente a várias estruturas de chat populares. 🌟
+**LightAgent** é uma estrutura ativa e autônoma extremamente leve com memória (`mem0`), ferramentas (`Tools`) e árvore de pensamento (`ToT`), e é totalmente de código aberto. Ele suporta uma colaboração multiagente mais simples do que o OpenAI Swarm, permitindo a construção de agentes com capacidade de autoaprendizado em um único passo, e suporta a conexão ao protocolo MCP via stdio e sse. O modelo subjacente suporta OpenAI, Zhiyu ChatGLM, DeepSeek, Jieyue Xingchen, Qwen Tongyi Qianwen e outros grandes modelos. Além disso, o LightAgent suporta a saída de serviços de API em formato de fluxo da OpenAI, integrando-se perfeitamente a várias estruturas de chat populares. 🌟
 
 ---
 

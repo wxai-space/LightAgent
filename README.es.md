@@ -34,7 +34,7 @@
   <h1>LightAgent🚀（Próximo marco de IA Agentic）</h1>
 </div>
 
-**LightAgent** es un marco activo de autonomía extremadamente ligero con memoria (`mem0`), herramientas (`Tools`) y un árbol de pensamiento (`ToT`), y es completamente de código abierto. Soporta una colaboración multiagente más simple que OpenAI Swarm, permitiendo construir agentes con capacidad de autoaprendizaje en un solo paso, y admite la conexión al protocolo MCP a través de stdio y sse. El modelo subyacente es compatible con OpenAI, Zhiyu ChatGLM, DeepSeek, Jieyue Xingchen, Qwen Tongyi Qianwen y otros grandes modelos. Al mismo tiempo, LightAgent admite la salida de servicios API en formato de flujo de OpenAI, integrándose sin problemas con los principales marcos de Chat. 🌟
+**LightAgent** es un marco de trabajo activo y autónomo extremadamente ligero que cuenta con memoria (`mem0`), herramientas (`Tools`) y un árbol de pensamiento (`ToT`), y es completamente de código abierto. Soporta una colaboración multiagente más simple que OpenAI Swarm, permitiendo construir agentes con capacidad de autoaprendizaje en un solo paso, y admite la conexión al protocolo MCP a través de stdio y sse. El modelo subyacente es compatible con OpenAI, Zhiyu ChatGLM, DeepSeek, Jieyue Xingchen, Qwen Tongyi Qianwen y otros grandes modelos. Al mismo tiempo, LightAgent admite la salida de servicios API en formato de flujo de OpenAI, integrándose sin problemas con los principales marcos de Chat. 🌟
 
 ---
 

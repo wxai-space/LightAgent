@@ -33,7 +33,7 @@
   <h1>LightAgent🚀（Nächste Generation des Agentic AI-Frameworks）</h1>
 </div>
 
-**LightAgent** ist ein extrem leichtgewichtiges, speicherfähiges (`mem0`), werkzeugbasiertes (`Tools`), denkbaumgestütztes (`ToT`) aktives Agenten-Framework, das vollständig Open Source ist. Es unterstützt eine einfachere Multi-Agenten-Kollaboration als OpenAI Swarm, ermöglicht es, in einem Schritt Agenten mit Selbstlernfähigkeiten zu erstellen, und unterstützt die Anbindung an das MCP-Protokoll über stdio und sse. Das zugrunde liegende Modell unterstützt OpenAI, Zhiyu ChatGLM, DeepSeek, Jieyue Xingchen, Qwen Tongyi Qianwen und andere große Modelle. Gleichzeitig unterstützt LightAgent die Ausgabe von OpenAI Stream-Format-API-Diensten und ermöglicht eine nahtlose Integration in alle gängigen Chat-Frameworks. 🌟
+**LightAgent** ist ein extrem leichtgewichtiges, speicherfähiges (`mem0`), werkzeugbasiertes (`Tools`), denkbaumgestütztes (`ToT`) aktives Agenten-Framework, das vollständig Open Source ist. Es unterstützt eine einfachere Multi-Agenten-Kollaboration als OpenAI Swarm, ermöglicht es, in einem Schritt Agenten mit Selbstlernfähigkeiten zu erstellen, und unterstützt die Anbindung an das MCP-Protokoll über stdio und sse. Das zugrunde liegende Modell unterstützt OpenAI, Zhiyu ChatGLM, DeepSeek, Jieyue Xingchen, Qwen Tongyi Qianwen große Modelle usw. Gleichzeitig unterstützt LightAgent die Ausgabe von OpenAI Stream-Format-API-Diensten und ermöglicht eine nahtlose Integration in alle gängigen Chat-Frameworks. 🌟
 
 ---
 

@@ -34,7 +34,7 @@
   <h1>LightAgent🚀（차세대 Agentic AI 프레임워크）</h1>
 </div>
 
-**LightAgent**는 메모리(`mem0`), 도구(`Tools`), 사고 트리(`ToT`)를 갖춘 극히 경량의 능동형 에이전틱 프레임워크로, 완전 오픈 소스입니다. OpenAI Swarm보다 더 간단한 다중 에이전트 협업을 지원하며, 한 단계로 자기 학습 능력을 갖춘 에이전트를 구축할 수 있고, stdio 및 sse 방식으로 MCP 프로토콜에 접속할 수 있습니다. 기본 모델은 OpenAI, 지프 ChatGLM, DeepSeek, 계단별 별, Qwen 통의 천문 대모델 등을 지원합니다. 또한, LightAgent는 OpenAI 스트림 형식 API 서비스 출력을 지원하여 주요 Chat 프레임워크에 원활하게 접속할 수 있습니다.🌟
+**LightAgent**는 기억(`mem0`), 도구(`Tools`), 사고 트리(`ToT`)를 갖춘 극히 경량의 능동형 에이전틱 프레임워크로, 완전 오픈 소스입니다. 이는 OpenAI Swarm보다 더 간단한 다중 에이전트 협업을 지원하며, 단 한 단계로 자기 학습 능력을 갖춘 에이전트를 구축할 수 있고, stdio 및 sse 방식으로 MCP 프로토콜에 접속할 수 있습니다. 기본 모델은 OpenAI, 지프 ChatGLM, DeepSeek, 계단별 별, Qwen 통의 천문 대모델 등을 지원합니다. 또한, LightAgent는 OpenAI 스트림 형식 API 서비스 출력을 지원하여 주요 Chat 프레임워크에 원활하게 접속할 수 있습니다.🌟
 
 ---
 
