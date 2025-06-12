@@ -56,7 +56,8 @@
 
 ---
 ## News
-- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-05-05]** LightAgent v0.3.3 Released: Deep [Langfuse](https://langfuse.com/) Logging Integration, Enhanced Context Management and Tool Invocation Stability [View](#8-integrating-langfuse-log-tracking)
+- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-06-12]** We are pleased to announce the official release of LightAgent v0.4.0! This version upgrade brings architectural improvements, with significant enhancements in performance, stability, and maintainability.
+- **[2025-05-05]** LightAgent v0.3.3 Released: Deep [Langfuse](https://langfuse.com/) Logging Integration, Enhanced Context Management and Tool Invocation Stability [View](#8-integrating-langfuse-log-tracking)
 - **[2025-04-21]** LightAgent v0.3.2 adds an adaptive Tools mechanism, supports unlimited intelligent tool filtering, reduces Token consumption by 80%, and improves response speed by 52%! [View](#4-tree-of-thought-tot)
 - **[2025-04-01]** LightAgent v0.3.0 Support browser interaction [browser_use](https://github.com/browser-use/browser-use) and fully supports the MCP protocol, enabling collaborative work with multiple models and tools to achieve more efficient handling of complex tasks.<a href="mcp_release.md">View MCP release introduction.>></a>
 - **[2025-02-19]** LightAgent v0.2.7  supports deepseek-r1 model for tot now.Significantly enhances the multi-tool planning capability for complex tasks.

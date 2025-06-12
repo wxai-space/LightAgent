@@ -5,7 +5,7 @@
       "args": [
         "/Users/macpro/PycharmProjects/Langchain-Chatchat/LightAgent/mcp/mcpServers/mcpServer_demo_stdio.py"
       ],
-      "disabled": false
+      "disabled": true
     },
     "example-sse": {
       "url": "http://localhost:8000/sse",

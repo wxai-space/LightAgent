@@ -54,7 +54,8 @@
 
 ---
 ## 新闻
-- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-05-05]** LightAgent v0.3.3版本发布：深度集成Langfuse日志跟踪，优化上下文管理与工具调用稳定性 [查看>>](#8-集成langfuse日志跟踪)
+- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-06-12]** 我们很高兴地宣布 LightAgent v0.4.0 正式发布！本次版本升级带来了架构级改进，在性能、稳定性和可维护性方面均有显著提升。
+- **[2025-05-05]** LightAgent v0.3.3版本发布：深度集成Langfuse日志跟踪，优化上下文管理与工具调用稳定性 [查看>>](#8-集成langfuse日志跟踪)
 - **[2025-04-21]** LightAgent v0.3.2 新增自适应Tools机制，支持无限量工具智能筛选，Token消耗降低80%，响应速度提升52%！ [查看>>](#4-思维树tot)
 - **[2025-04-01]** LightAgent v0.3.0 支持浏览器交互 [browser_use](https://github.com/browser-use/browser-use)，并全面支持MCP协议，支持多模型多工具的协同工作，实现更高效的复杂任务处理。<a href="mcp_release.zh-CN.md">查看MCP发布简介>></a>
 - **[2025-02-19]** LightAgent v0.2.7 支持单独采用 deepseek-r1 作为的agent推理规划ToT引擎，大幅度提升复杂任务的多工具Plan能力.

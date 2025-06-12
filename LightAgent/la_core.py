@@ -3,8 +3,8 @@
 
 """
 作者: [weego/WXAI-Team]
-版本: 0.3.3
-最后更新: 2025-05-05
+版本: 0.4.0
+最后更新: 2025-06-12
 """
 
 import asyncio
@@ -21,7 +21,7 @@ from contextlib import AsyncExitStack
 from copy import deepcopy
 from datetime import datetime
 from functools import partial
-from typing import List, Dict, Any, Callable, Union, Optional, Generator, AsyncGenerator
+from typing import List, Dict, Any, Callable, Union, Optional, Generator, AsyncGenerator, Protocol
 from uuid import uuid4
 
 import httpx
@@ -30,34 +30,39 @@ from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client
 from openai.types.chat import ChatCompletionChunk
 
-# 全局工具注册表
-_FUNCTION_MAPPINGS = {}  # 工具名称 -> 工具函数
-_FUNCTION_INFO = {}  # 工具名称 -> 工具info信息
-_OPENAI_FUNCTION_SCHEMAS = []  # OpenAI 格式的工具描述
-_PROMPT_FUNCTION_SCHEMAS = []  # prompt 格式的工具描述
 
-__version__ = "0.3.3"  # 你可以根据需要设置版本号
+__version__ = "0.4.0"  # 你可以根据需要设置版本号
 
 
 # openai.langfuse_auth_check()
 
+# 1. 定义内存接口协议
+class MemoryProtocol(Protocol):
+    def store(self, data: str, user_id: str) -> Any:
+        ...
 
-def register_tool_manually(tools: List[Union[str, Callable]]) -> bool:
-    """
-    手动注册多个工具，从函数属性中提取工具信息
-    :param tools: 工具函数列表
-    """
-    for func in tools:
+    def retrieve(self, query: str, user_id: str) -> List[Any]:
+        ...
+
+class ToolRegistry:
+    """集中管理工具注册表，避免全局变量"""
+
+    def __init__(self):
+        self.function_mappings = {}  # 工具名称 -> 工具函数
+        self.function_info = {}  # 工具名称 -> 工具info信息
+        self.openai_function_schemas = []  # OpenAI 格式的工具描述
+
+    def register_tool(self, func: Callable) -> bool:
+        """注册单个工具"""
         if not hasattr(func, "tool_info"):
-            # raise ValueError(f"Function `{func.__name__}` does not have tool_info attribute.")
-            continue
+            return False
 
         tool_info = func.tool_info
         tool_name = tool_info["tool_name"]
 
-        # 注册到全局字典
-        _FUNCTION_INFO[tool_name] = tool_info
-        _FUNCTION_MAPPINGS[tool_name] = func  # 注册工具
+        # 注册到字典
+        self.function_info[tool_name] = tool_info
+        self.function_mappings[tool_name] = func
 
         # 构建 OpenAI 格式的工具描述
         tool_params_openai = {}
@@ -83,174 +88,194 @@ def register_tool_manually(tools: List[Union[str, Callable]]) -> bool:
             }
         }
 
-        _OPENAI_FUNCTION_SCHEMAS.append(tool_def_openai)
-    return True
+        self.openai_function_schemas.append(tool_def_openai)
+        return True
+
+    def register_tools(self, tools: List[Callable]) -> bool:
+        """批量注册工具"""
+        success = True
+        for func in tools:
+            if not self.register_tool(func):
+                success = False
+        return success
+
+    def get_tools(self) -> List[Dict[str, Any]]:
+        """获取所有工具的描述（OpenAI 格式）"""
+        return deepcopy(self.openai_function_schemas)
+
+    def get_tools_str(self) -> str:
+        """将工具描述转换为格式化的 JSON 字符串"""
+        return json.dumps(self.openai_function_schemas, indent=4, ensure_ascii=False)
+
+    def filter_tools(self, tool_reflection_result: str) -> List[Dict]:
+        """根据内容过滤工具"""
+        try:
+            # 安全解析可能包含 Markdown 代码块的 JSON
+            refined_content = tool_reflection_result.strip()
+            if refined_content.startswith('```json') and refined_content.endswith('```'):
+                refined_content = refined_content[7:-3].strip()
+
+            parsed_data = json.loads(refined_content)
+            valid_tools = {tool["name"].strip().lower() for tool in parsed_data.get("tools", [])}
+
+            return [
+                schema for schema in self.openai_function_schemas
+                if isinstance(schema, dict) and
+                   schema.get("function", {}).get("name", "").strip().lower() in valid_tools
+            ]
+        except (json.JSONDecodeError, KeyError, AttributeError) as e:
+            raise ValueError(f"工具过滤失败: {str(e)}") from e
 
 
-def load_tool(tool_name: str, tools_directory: str = "tools"):
-    """
-    根据工具名称从 tools 目录中加载对应的工具函数
-    """
-    tool_path = os.path.join(tools_directory, f"{tool_name}.py")
-    if not os.path.exists(tool_path):
-        raise FileNotFoundError(f"Tool '{tool_name}' not found in {tools_directory}")
+class ToolLoader:
+    """工具加载器，支持动态加载和缓存"""
 
-    # 动态加载模块
-    spec = importlib.util.spec_from_file_location(tool_name, tool_path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    def __init__(self, tools_directory: str = "tools"):
+        self.tools_directory = tools_directory
+        self.loaded_tools = {}
 
-    # 获取工具函数
-    if hasattr(module, tool_name):
-        tool_func = getattr(module, tool_name)
-        if callable(tool_func) and hasattr(tool_func, "tool_info"):
-            return tool_func
-    raise AttributeError(f"Tool '{tool_name}' is not properly defined in {tool_path}")
+    def load_tool(self, tool_name: str) -> Callable:
+        """加载单个工具"""
+        if tool_name in self.loaded_tools:
+            return self.loaded_tools[tool_name]
+
+        tool_path = os.path.join(self.tools_directory, f"{tool_name}.py")
+        if not os.path.exists(tool_path):
+            raise FileNotFoundError(f"Tool '{tool_name}' not found in {tool_path}")
+
+        # 动态加载模块
+        spec = importlib.util.spec_from_file_location(tool_name, tool_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        # 获取工具函数
+        if hasattr(module, tool_name):
+            tool_func = getattr(module, tool_name)
+            if callable(tool_func) and hasattr(tool_func, "tool_info"):
+                self.loaded_tools[tool_name] = tool_func
+                return tool_func
+
+        raise AttributeError(f"Tool '{tool_name}' is not properly defined in {tool_path}")
+
+    def load_tools(self, tool_names: List[str]) -> Dict[str, Callable]:
+        """批量加载工具"""
+        for tool_name in tool_names:
+            if tool_name not in self.loaded_tools:
+                self.load_tool(tool_name)
+        return self.loaded_tools
 
 
-async def dispatch_tool(tool_name: str, tool_params: Dict[str, Any]) -> Union[
-    str, Generator[str, None, None], AsyncGenerator[str, None]]:
-    """
-    调用工具执行，支持同步/异步工具及流式输出。
-    """
-    if tool_name not in _FUNCTION_MAPPINGS:
-        return f"Tool `{tool_name}` not found."
+class AsyncToolDispatcher:
+    """异步工具调度器"""
 
-    tool_call = _FUNCTION_MAPPINGS[tool_name]
-    try:
-        # 处理不同类型的流式输出
-        # 区分同步/异步工具
-        if inspect.iscoroutinefunction(tool_call):
-            # result = await tool_call(**tool_params)
-            # 将参数以字典形式传递给包装器
-            result = await tool_call(**tool_params) if inspect.iscoroutinefunction(tool_call) else tool_call(
-                **tool_params)
-        else:
-            result = tool_call(**tool_params)
+    async def dispatch(self, tool_name: str, tool_params: Dict[str, Any]) -> Union[
+        str, Generator[str, None, None], AsyncGenerator[str, None]]:
+        """调用工具执行，支持同步/异步工具及流式输出"""
+        if tool_name not in self.function_mappings:
+            return f"Tool `{tool_name}` not found."
 
-        # 处理不同类型的流式输出
-        if inspect.isasyncgen(result):
-            return async_stream_generator(result)
-        elif inspect.isgenerator(result):
-            return stream_generator(result)
-        else:
+        tool_call = self.function_mappings[tool_name]
+        try:
+            # 处理不同类型的工具
+            if inspect.iscoroutinefunction(tool_call):
+                result = await tool_call(**tool_params)
+            elif inspect.isasyncgenfunction(tool_call):
+                result = tool_call(**tool_params)
+            else:
+                result = tool_call(**tool_params)
+
+            # 处理流式输出
+            if inspect.isasyncgen(result):
+                return self.async_stream_generator(result)
+            elif inspect.isgenerator(result):
+                return self.stream_generator(result)
             return str(result)
-    except Exception as e:
-        return traceback.format_exc()
+        except Exception as e:
+            return f"Tool call error: {str(e)}\n{traceback.format_exc()}"
+
+    async def async_stream_generator(self, async_gen: AsyncGenerator) -> AsyncGenerator[str, None]:
+        async for chunk in async_gen:
+            yield chunk
+
+    def stream_generator(self, sync_gen: Generator) -> Generator[str, None, None]:
+        for chunk in sync_gen:
+            yield chunk
 
 
-async def async_stream_generator(async_gen: AsyncGenerator) -> AsyncGenerator[str, None]:
-    async for chunk in async_gen:
-        yield chunk
+class LoggerManager:
+    """集中管理日志系统"""
 
+    def __init__(self, name: str, debug: bool, log_level: str, log_file: Optional[str] = None):
+        self.name = name
+        self.debug = debug
+        self.logger = self._setup_logger(log_level, log_file)
+        self.traceid = ""
 
-def stream_generator(sync_gen: Generator) -> Generator[str, None, None]:
-    for chunk in sync_gen:
-        yield chunk
+    def _setup_logger(self, log_level: str, log_file: Optional[str] = None) -> logging.Logger:
+        logger = logging.getLogger(self.name)
+        logger.setLevel(log_level.upper())
+        logger.propagate = False
 
+        formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 
-def dispatch_tool_old(tool_name: str, tool_params: Dict[str, Any]) -> str:
-    """
-    调用工具执行
-    """
-    if tool_name not in _FUNCTION_MAPPINGS:
-        return f"Tool `{tool_name}` not found."
+        if self.debug:
+            console_handler = logging.StreamHandler()
+            console_handler.setFormatter(formatter)
+            logger.addHandler(console_handler)
 
-    tool_call = _FUNCTION_MAPPINGS[tool_name]
-    try:
-        # print(f"Calling tool: {tool_name} with params: {tool_params}")  # 调试信息
-        return str(tool_call(**tool_params))
-    except Exception as e:
-        # print(f"Tool call failed: {e}")  # 调试信息
-        return traceback.format_exc()
+        if log_file:
+            # 确保 log 目录存在
+            log_dir = os.path.dirname(log_file)
+            if log_dir and not os.path.exists(log_dir):
+                os.makedirs(log_dir)
 
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
 
-def get_tools() -> List[Dict[str, Any]]:
-    """
-    获取所有工具的描述（OpenAI 格式）
-    """
-    return deepcopy(_OPENAI_FUNCTION_SCHEMAS)
+        return logger
 
+    def log(self, level: str, action: str, data: Any):
+        """记录日志"""
+        if not self.debug:
+            return
 
-def get_tools_str() -> str:
-    """
-    将 _OPENAI_FUNCTION_SCHEMAS 转换为格式化的 JSON 字符串。
-    Returns:
-        str: 格式化的 JSON 字符串。
-    """
-    # 使用 json.dumps 将字典转换为格式化的 JSON 字符串
-    tools_str = json.dumps(_OPENAI_FUNCTION_SCHEMAS, indent=4, ensure_ascii=False)
-    return tools_str
+        trace_info = f"[TraceID: {self.traceid}] " if self.traceid else ""
+        log_message = f"{trace_info}{action}: {data}"
 
+        if level == "DEBUG":
+            self.logger.debug(log_message)
+        elif level == "INFO":
+            self.logger.info(log_message)
+        elif level == "ERROR":
+            self.logger.error(log_message)
 
-def filter_tools_schemas(refined_content: str) -> json:
-    """
-    根据refined_content中的工具列表过滤全局_OPENAI_FUNCTION_SCHEMAS
-    :param refined_content: 包含工具列表的JSON字符串
-    """
-    # global _OPENAI_FUNCTION_SCHEMAS  # 声明操作全局变量
-    """安全解析可能包含 Markdown 代码块的 JSON"""
-    refined_content = refined_content.strip()
-    if refined_content.startswith('```json') and refined_content.endswith('```'):
-        refined_content = refined_content[7:-3].strip()  # 去除 ```json 和 ```
-    try:
-        # 解析工具列表
-        parsed_data: Dict[str, List[Dict]] = json.loads(refined_content)
-        valid_tools = {tool["name"].strip().lower() for tool in parsed_data.get("tools", [])}
-
-        # 原地过滤操作
-        filtered_schemas: List[Dict] = []
-        for schema in _OPENAI_FUNCTION_SCHEMAS:
-            if not isinstance(schema, dict):
-                continue
-
-            # 深度检查结构
-            function_info = schema.get("function", {})
-            if isinstance(function_info, dict):
-                schema_name = function_info.get("name", "").strip().lower()
-                if schema_name in valid_tools:
-                    filtered_schemas.append(schema)
-
-        # 直接替换全局变量内容
-        # _OPENAI_FUNCTION_SCHEMAS[:] = filtered_schemas
-        return filtered_schemas
-
-    except (json.JSONDecodeError, KeyError, AttributeError) as e:
-        # 错误处理：清空工具列表并记录日志
-        # _OPENAI_FUNCTION_SCHEMAS.clear()
-        raise ValueError(f"工具过滤失败: {str(e)}") from e
+    def set_traceid(self, traceid: str):
+        """设置当前跟踪ID"""
+        self.traceid = traceid
 
 
 class MCPClientManager:
     """增强版MCP客户端管理器"""
 
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, tool_registry: ToolRegistry):
         self.config = config
+        self.tool_registry = tool_registry
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
-        self._streams_context = None
-        self._session_context = None
-        self.server_sessions = {}  # 存储不同服务器的会话
-
-    async def _call_tool_wrapper(self, tool_name: str, target_server: str, **kwargs):
-        """参数转换适配器"""
-        return await self.call_tool(
-            tool_name=tool_name,
-            arguments=kwargs,
-            target_server=target_server
-        )
+        self.server_sessions = {}
 
     async def _create_session(self, server_name: str, config: dict):
         """创建并管理会话上下文"""
         if 'url' in config:
             # SSE 服务器连接
-            self._streams_context = sse_client(
+            streams_context = sse_client(
                 url=config['url'],
                 headers=config.get('headers', {})
             )
-            streams = await self.exit_stack.enter_async_context(self._streams_context)
-            self._session_context = ClientSession(*streams)
-            self.session = await self.exit_stack.enter_async_context(self._session_context)
+            streams = await self.exit_stack.enter_async_context(streams_context)
+            session_context = ClientSession(*streams)
+            self.session = await self.exit_stack.enter_async_context(session_context)
         else:
             # 标准输入输出服务器连接
             server_params = StdioServerParameters(
@@ -260,23 +285,19 @@ class MCPClientManager:
             )
             transport = await self.exit_stack.enter_async_context(stdio_client(server_params))
             stdio, write = transport
-            self._session_context = ClientSession(stdio, write)
-            self.session = await self.exit_stack.enter_async_context(self._session_context)
+            session_context = ClientSession(stdio, write)
+            self.session = await self.exit_stack.enter_async_context(session_context)
 
         await self.session.initialize()
         self.server_sessions[server_name] = self.session
 
     async def cleanup(self):
         """清理所有会话资源"""
-        await self.exit_stack.__aexit__(None, None, None)
+        await self.exit_stack.aclose()
         self.server_sessions.clear()
 
     async def register_mcp_tool(self) -> bool:
-        """
-        自动注册所有MCP服务的工具到全局字典
-        :param config: MCP服务配置（与call_tool使用的相同配置）
-        :return: 是否至少成功注册一个工具
-        """
+        """自动注册所有MCP服务的工具"""
         registered_count = 0
         enabled_servers = [
             (name, config)
@@ -286,15 +307,10 @@ class MCPClientManager:
 
         for server_name, config in enabled_servers:
             try:
-                # 创建会话连接
-                # print(server_name,config)
                 await self._create_session(server_name, config)
-
-                # 获取工具列表
                 tools_response = await self.session.list_tools()
-                print(f"🔍 Registering tools for server : {server_name} ...")
+                print(f"🔍 Registering MCP tools for server : {server_name} ...")
 
-                # 注册工具处理逻辑
                 for tool in tools_response.tools:
                     try:
                         # 构建工具元数据
@@ -316,9 +332,9 @@ class MCPClientManager:
                                 "required": param_name in required_fields
                             })
 
-                        # 注册到全局字典
-                        _FUNCTION_INFO[tool.name] = tool_info
-                        _FUNCTION_MAPPINGS[tool.name] = partial(
+                        # 注册到工具注册表
+                        self.tool_registry.function_info[tool.name] = tool_info
+                        self.tool_registry.function_mappings[tool.name] = partial(
                             self._call_tool_wrapper,
                             tool_name=tool.name,
                             target_server=server_name
@@ -340,31 +356,27 @@ class MCPClientManager:
                                 }
                             }
                         }
-                        _OPENAI_FUNCTION_SCHEMAS.append(openai_schema)
-
+                        self.tool_registry.openai_function_schemas.append(openai_schema)
                         registered_count += 1
-                        print(f"✅ The registered tool : {tool.name}")
-
+                        print(f"✅ The registered MCP tool : {tool.name}")
                     except Exception as e:
-                        print(f"⚠️ 工具 {tool.name} 注册失败: {str(e)}")
                         continue
-                print(f"🟢 {registered_count} tools have been registered")
-
             except Exception as e:
-                print(f"🔴 服务器 {server_name} 连接失败: {str(e)}")
                 continue
-        # 清理
+
         await self.cleanup()
         return registered_count > 0
 
+    async def _call_tool_wrapper(self, tool_name: str, target_server: str, **kwargs):
+        """参数转换适配器"""
+        return await self.call_tool(
+            tool_name=tool_name,
+            arguments=kwargs,
+            target_server=target_server
+        )
+
     async def call_tool(self, tool_name: str, arguments: dict, target_server: str = None):
-        """
-        通用工具调用方法
-        :param tool_name: 要调用的工具名称
-        :param arguments: 工具参数字典
-        :param target_server: 指定服务器名称（可选）
-        :return: 工具调用结果
-        """
+        """通用工具调用方法"""
         enabled_servers = [
             (name, config)
             for name, config in self.config["mcpServers"].items()
@@ -376,15 +388,11 @@ class MCPClientManager:
 
         for server_name, config in enabled_servers:
             try:
-                # 复用已建立的会话
                 session = self.server_sessions.get(server_name)
-                # print(111,server_name,session)
-                # print(222,server_name,config)
                 if not session:
                     await self._create_session(server_name, config)
                     session = self.session
 
-                # 获取工具列表
                 tools = await session.list_tools()
                 available_tools = {t.name: t for t in tools.tools}
 
@@ -395,31 +403,26 @@ class MCPClientManager:
 
                     # 执行调用
                     result = await session.call_tool(tool_name, arguments)
-                    # print(f"mcp工具运行结果: {result.content[0].text}")
-                    # 调用完成清理session
                     await self.cleanup()
                     return {
                         "server": server_name,
                         "tool": tool_name,
                         "result": result.content[0].text
                     }
-
             except Exception as e:
-                print(f"调用服务器 {server_name} 失败: {str(e)}")
                 continue
 
         raise ValueError(f"工具 {tool_name} 在可用服务器中未找到")
 
     def _validate_arguments(self, arguments: dict, schema: dict):
-        """简单参数校验（可选）"""
+        """简单参数校验"""
         required_fields = schema.get("required", [])
         for field in required_fields:
             if field not in arguments:
                 raise ValueError(f"缺少必要参数: {field}")
 
-
 class LightAgent:
-    __version__ = "0.3.3"  # 将版本号放在类中
+    __version__ = "0.4.0"  # 将版本号放在类中
 
     def __init__(
             self,
@@ -431,7 +434,7 @@ class LightAgent:
             api_key: str | None = None,  # 模型 api key
             base_url: str | httpx.URL | None = None,  # 模型 base url
             websocket_base_url: str | httpx.URL | None = None,  # 模型 websocket base url
-            memory: str | None = None,  # 支持外部传入记忆模块
+            memory: Optional[MemoryProtocol] = None,  # 支持外部传入记忆模块
             tree_of_thought: bool = False,  # 是否启用链式思考
             tot_model: str | None = None,  # 链式思考模型
             tot_api_key: str | None = None,  # 链式思考模型API密钥
@@ -466,6 +469,13 @@ class LightAgent:
         :param log_file: 日志文件路径。
         :param tracetools: log跟踪工具。
         """
+
+        # 初始化核心组件
+        self.tool_registry = ToolRegistry()
+        self.tool_loader = ToolLoader()
+        self.tool_dispatcher = AsyncToolDispatcher()
+        self.tool_dispatcher.function_mappings = self.tool_registry.function_mappings
+
         self.mcp_setting = None
         self.mcp_client = None
         if not model:
@@ -500,7 +510,14 @@ class LightAgent:
         if debug:
             self.log_file = os.path.join(log_dir, log_file)
             # Set up the logger
-            self.logger = self._setup_logger(log_level, self.log_file)
+            # 初始化日志系统
+            self.logger = LoggerManager(
+                name=self.name,
+                debug=debug,
+                log_level=log_level,
+                log_file=log_file
+            )
+
         if tools is None:
             self.tools = []
         if tools:
@@ -515,48 +532,53 @@ class LightAgent:
             )
         self.api_key = api_key
         self.websocket_base_url = websocket_base_url
-
-        if base_url is None:
-            base_url = f"https://api.openai.com/v1"
+        self.base_url = base_url or os.environ.get("OPENAI_BASE_URL") or "https://api.openai.com/v1"
 
         if self.tree_of_thought:
             if tot_api_key is None:
-                tot_api_key = api_key
+                tot_api_key = self.api_key
             if tot_base_url is None:
-                tot_base_url = base_url
+                tot_base_url = self.base_url
             if not tot_model:
                 tot_model = "deepseek-r1"  # 默认思维推理模型为deepseek-r1
             self.tot_model = tot_model
 
-        if tracetools is None:
-            self.tracetools = []
+        # 初始化客户端
+        self._initialize_clients(tracetools, tot_api_key, tot_base_url, tot_model)
+
+    def _initialize_clients(self, tracetools, tot_api_key, tot_base_url, tot_model):
+        """初始化 OpenAI 客户端"""
         if tracetools:
-            self.tracetools = tracetools
-            # 初始化工具列表
             from langfuse.openai import openai as la_openai
-            la_openai.langfuse_public_key = self.tracetools['TraceToolConfig']['langfuse_public_key']
-            la_openai.langfuse_secret_key = self.tracetools['TraceToolConfig']['langfuse_secret_key']
-            la_openai.langfuse_enabled = self.tracetools['TraceToolConfig'][
-                'langfuse_enabled']  # Default is True, set to False to disable Langfuse
-            la_openai.langfuse_host = self.tracetools['TraceToolConfig']['langfuse_host']  # 🇪🇺 EU region
-            la_openai.base_url = base_url
+            la_openai.langfuse_public_key = tracetools['TraceToolConfig']['langfuse_public_key']
+            la_openai.langfuse_secret_key = tracetools['TraceToolConfig']['langfuse_secret_key']
+            la_openai.langfuse_enabled = tracetools['TraceToolConfig']['langfuse_enabled']
+            la_openai.langfuse_host = tracetools['TraceToolConfig']['langfuse_host']
+            la_openai.base_url = self.base_url
             la_openai.api_key = self.api_key
             self.client = la_openai
+
             if self.tree_of_thought:
-                la_openai.base_url = tot_base_url
-                la_openai.api_key = tot_api_key
+                la_openai.base_url = tot_base_url or self.base_url
+                la_openai.api_key = tot_api_key or self.api_key
                 self.tot_client = la_openai
         else:
             from openai import OpenAI as la_openai
             self.client = la_openai(
-                base_url=base_url,
+                base_url=self.base_url,
                 api_key=self.api_key
             )
             if self.tree_of_thought:
                 self.tot_client = la_openai(
-                    base_url=tot_base_url,
-                    api_key=tot_api_key
+                    base_url=tot_base_url or self.base_url,
+                    api_key=tot_api_key or self.api_key
                 )
+
+    def get_tools(self) -> List[Dict[str, Any]]:
+        """
+        获取所有工具的描述（OpenAI 格式）
+        """
+        return deepcopy(self.tool_registry.get_tools())
 
     def get_tool(self, tool_name: str) -> Callable:
         """
@@ -568,111 +590,19 @@ class LightAgent:
             return self.loaded_tools[tool_name]
         raise ValueError(f"Tool `{tool_name}` is not loaded.")
 
-    def get_tools(self) -> List[str]:
-        """
-        用于外部可以获取已加载的工具函数列表
-        :return: 工具函数
-        """
-        return list(_FUNCTION_MAPPINGS.keys())
-
     def load_tools(self, tool_names: List[Union[str, Callable]], tools_directory: str = "tools"):
-        """
-        根据工具名称列表加载对应的工具函数，并注册到全局工具注册表中
-        """
-        for tool_name in tool_names:
-            try:
-                tool_func = load_tool(tool_name, tools_directory)
-                # globals()[tool_name] = tool_func  # 添加到全局命名空间
-                self.loaded_tools[tool_name] = tool_func  # 存储工具函数
-                # print(f"Tool `{tool_name}` loaded successfully and added to _loaded_tools.")  # 调试信息
-
-                # 注册工具函数
-                if hasattr(tool_func, "tool_info"):
-                    tool_info = tool_func.tool_info
-                    _FUNCTION_INFO[tool_name] = tool_info  # 注册工具info信息
-                    _FUNCTION_MAPPINGS[tool_name] = tool_func
-
-                    # 构建 OpenAI 格式的工具描述
-                    tool_params_openai = {}
-                    tool_required = []
-                    for param in tool_info["tool_params"]:
-                        tool_params_openai[param["name"]] = {
-                            "type": param["type"],
-                            "description": param["description"],
-                        }
-                        if param["required"]:
-                            tool_required.append(param["name"])
-
-                    tool_def_openai = {
-                        "type": "function",
-                        "function": {
-                            "name": tool_name,
-                            "description": tool_info["tool_description"],
-                            "parameters": {
-                                "type": "object",
-                                "properties": tool_params_openai,
-                                "required": tool_required,
-                            },
-                        }
-                    }
-                    _OPENAI_FUNCTION_SCHEMAS.append(tool_def_openai)
-
-                self.log("DEBUG", "load_tools success", {"tools": tool_name})
-            except Exception as e:
-                if register_tool_manually([tool_name]):
-                    self.log("DEBUG", "register_tool_manually success", {"tools": tool_name})
-                else:
-                    self.log("DEBUG", "load_tools error", {"e": e})
-
-    def _setup_logger(self, log_level: str, log_file: Optional[str] = None) -> logging.Logger:
-        """
-        设置日志记录器。
-
-        :param log_level: 日志级别（INFO, DEBUG, ERROR）。
-        :param log_file: 日志文件路径。
-        :return: 配置好的日志记录器。
-        """
-        logger = logging.getLogger(self.name)
-        logger.setLevel(log_level.upper())
-        logger.propagate = False  # 禁用传播到根日志记录器
-
-        formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-
-        # 输出到控制台
-        # 仅在调试模式下输出到控制台
-        if self.debug:
-            console_handler = logging.StreamHandler()
-            console_handler.setFormatter(formatter)
-            logger.addHandler(console_handler)
-
-        # 输出到文件（如果指定了文件路径）
-        if log_file:
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setFormatter(formatter)
-            logger.addHandler(file_handler)
-
-        return logger
-
-    def log(self, level, action, data):
-        """
-        记录日志。
-
-        :param level: 日志级别（INFO, DEBUG, ERROR）。
-        :param action: 日志动作（如 chat, call_tool, retrieve_memory）。
-        :param data: 日志数据。
-        """
-        if not self.debug:
-            return
-        if self.traceid is not None:
-            log_message = f"[TraceID: {self.traceid}] {action}: {data}"
-        else:
-            log_message = f"{action}: {data}"
-        if level == "DEBUG":
-            self.logger.debug(log_message)
-        elif level == "INFO":
-            self.logger.info(log_message)
-        elif level == "ERROR":
-            self.logger.error(log_message)
+        """加载并注册工具"""
+        for tool in tool_names:
+            if isinstance(tool, str):
+                try:
+                    tool_func = self.tool_loader.load_tool(tool)
+                    self.tool_registry.register_tool(tool_func)
+                    self.logger.log("DEBUG", "load_tools", {"tool": tool, "status": "success"})
+                except Exception as e:
+                    self.logger.log("ERROR", "load_tools", {"tool": tool, "error": str(e)})
+            elif callable(tool) and hasattr(tool, "tool_info"):
+                if self.tool_registry.register_tool(tool):
+                    self.logger.log("DEBUG", "register_tool", {"tool": tool.__name__, "status": "success"})
 
     async def setup_mcp(
             self,
@@ -682,9 +612,9 @@ class LightAgent:
             self.mcp_setting = mcp_setting
         """单独初始化 MCP 模块"""
         if self.mcp_setting and not self.mcp_client:
-            self.mcp_client = MCPClientManager(self.mcp_setting)
+            self.mcp_client = MCPClientManager(self.mcp_setting, self.tool_registry)
             await self.mcp_client.register_mcp_tool()
-            self.log("INFO", "setup_mcp", "MCP 模块初始化成功")
+            self.logger.log("INFO", "setup_mcp", "MCP 模块初始化成功")
 
     def run(
             self,
@@ -708,22 +638,13 @@ class LightAgent:
         :param metadata: 元数据。
         :return: 代理的回复。
         """
-        self.traceid = uuid4().hex
-        self.log("INFO", "run", {"query": query, "user_id": user_id, "light_swarm": light_swarm, "stream": stream})
-        if history is None:
-            history = []
-        # 构建消息列表，先添加系统提示信息
-        params = {}
+        # 设置跟踪ID
+        traceid = uuid4().hex
+        self.logger.set_traceid(traceid)
+        self.logger.log("INFO", "run_start", {"query": query, "user_id": user_id, "stream": stream})
 
-        # 1. 判断是否需要转移任务
-        # if light_swarm:
-        #     intent = self._detect_intent(query, light_swarm)
-        #     if intent and intent.get("transfer_to"):
-        #         target_agent_name = intent["transfer_to"]
-        #         self.log("INFO", "detect_intent", {"intent": intent})
-        #         print(light_swarm.agents[target_agent_name])
-        #         self._transfer_to_agent(light_swarm.agents[target_agent_name], query, stream=stream)
-        #         return  # 立即结束当前生成器
+        # 初始化历史记录
+        history = history or []
 
         # 0. 判断是否需要转移任务
         if light_swarm:
@@ -735,66 +656,75 @@ class LightAgent:
         now = datetime.now()
         current_date = now.strftime("%Y-%m-%d")
         current_time = now.strftime("%H:%M:%S")
-        system_prompt = f"##代理名称：{self.name} ##代理指令 /n{self.instructions}  ##身份 /n {self.role} /n 请一步一步思考来完成用户的要求。尽可能完成用户的回答，如果有补充信息，请参考补充信息来调用工具，直到获取所有满足用户的提问所需的答案。 /n 今日的日期: {current_date} 当前时间: {current_time}"
-        params = dict(model=self.model, stream=stream)
-        memory = ''
+        system_prompt = (
+            f"##代理名称：{self.name}\n"
+            f"##代理指令：{self.instructions}\n"
+            f"##身份：{self.role}\n"
+            f"请一步一步思考来完成用户的要求。尽可能完成用户的回答，如果有补充信息，请参考补充信息来调用工具，直到获取所有满足用户的提问所需的答案。\n"
+            f"今日的日期: {current_date} 当前时间: {current_time}"
+        )
+        # 添加记忆上下文
+        query = self._add_memory_context(query, user_id)
 
-        # 2.添加langfuse的session
-        if self.tracetools:
-            params["session_id"] = self.traceid
-            self.log("DEBUG", "Query Trace ID", {"query": query})
-
-        # 3. 从记忆中检索相关内容&保存记忆
-        if self.memory:
-            related_memories = self.memory.retrieve(query=query, user_id=user_id)
-            memory = memory + self._build_context(related_memories)
-            self.memory.store(data=query, user_id=user_id)
-            if self.self_learning:
-                agent_memories = self.memory.retrieve(query=query, user_id=self.name)
-                memory = memory + self._build_agent_memory(agent_memories)
-                self.memory.store(data=query, user_id=self.name)
-
-        query = f"{memory}\n##用户提问：\n{query}"
-        # print(query)
-
-        # 4. 思维链
+        # 思维链处理
         active_tools = []
         if self.tree_of_thought:
-            tot_response, active_tools = self.run_thought(query=query)
-            system_prompt = system_prompt + f" /n ##以下是问题的补充说明 /n {tot_response}"
-            self.log("DEBUG", "tree_of_thought", {"response": tot_response, "active_tools": active_tools})
+            tot_response, active_tools = self.run_thought(query)
+            system_prompt += f"\n##以下是问题的补充说明\n{tot_response}"
+            self.logger.log("DEBUG", "tree_of_thought", {"response": tot_response, "active_tools": active_tools})
 
-        # 5. 拼接tools工具
-        # 带类型校验 自适应工具机制
-        try:
-            tools = active_tools if (
-                    len(active_tools) > 0
-            ) else get_tools()
-        except TypeError:
-            tools = get_tools()
-        # 带类型校验 自适应工具机制
-        # tools = get_tools() # v0.2.X的工具选取机制
+        # 准备API参数
+        params = {
+            "model": self.model,
+            "messages": [{"role": "system", "content": system_prompt}] + history + [{"role": "user", "content": query}],
+            "stream": stream
+        }
+
+        # 添加工具
+        tools = active_tools or self.tool_registry.get_tools()
         if tools:
-            self.log("DEBUG", "register_tools", {"tools": list(_FUNCTION_MAPPINGS.keys())})
-            self.log("DEBUG", "active_tools", {"tools": tools})
             params["tools"] = tools
             params["tool_choice"] = "auto"
 
-        # 6. 调用核心运行逻辑
-        params["messages"] = [{"role": "system", "content": system_prompt}]
-        # 将历史对话添加到消息列表中
-        for item in history:
-            params["messages"].append({"role": item["role"], "content": item["content"]})
-        # 最后添加当前用户的查询信息
-        params["messages"].append({"role": "user", "content": query})
+        # 添加跟踪会话
+        if hasattr(self, 'tracetools') and self.tracetools:
+            params["session_id"] = traceid
 
+        # 调用模型
         response = self.client.chat.completions.create(**params)
+        return self._core_run_logic(response, params, stream, max_retry)
 
-        result = self._core_run_logic(response, params, stream, max_retry)
+    def _add_memory_context(self, query: str, user_id: str) -> str:
+        """添加记忆上下文"""
+        if not self.memory:
+            return query
 
-        return result
+        context = ""
+        related_memories = self.memory.retrieve(query=query, user_id=user_id)
+        if related_memories and related_memories.get("results"):
+            context += "\n##用户偏好\n用户之前提到了:\n" + "\n".join(
+                [m["memory"] for m in related_memories["results"]]
+            )
+        self.memory.store(data=query, user_id=user_id)
 
-    def _run_logic_non_stream(self, response, params, max_retry) -> Union[str, None]:
+        if self.self_learning:
+            agent_memories = self.memory.retrieve(query=query, user_id=self.name)
+            if agent_memories and agent_memories.get("results"):
+                context += "\n##问题相关补充信息:\n" + "\n".join(
+                    [m["memory"] for m in agent_memories["results"]]
+                )
+                self.memory.store(data=query, user_id=self.name)
+
+        return f"{context}\n##用户提问：\n{query}" if context else query
+
+    def _core_run_logic(self, response, params, stream, max_retry) -> Union[Generator[str, None, None], str]:
+        """核心运行逻辑"""
+        if stream:
+            return self._run_stream_logic(response, params, max_retry)
+        else:
+            return self._run_non_stream_logic(response, params, max_retry)
+
+    def _run_non_stream_logic(self, response, params, max_retry) -> Union[str, None]:
         """
         非流式处理逻辑。
         """
@@ -806,7 +736,7 @@ class LightAgent:
                 output = ""
                 function_call_name = ""
                 tool_calls = response.choices[0].message.tool_calls
-                self.log("DEBUG", "non_stream tool_calls", {"tool_calls": tool_calls})
+                self.logger.log("DEBUG", "non_stream tool_calls", {"tool_calls": tool_calls})
 
                 # 遍历所有工具调用
                 for tool_call in tool_calls:
@@ -814,13 +744,13 @@ class LightAgent:
 
                     # 尝试自动修复常见转义问题
                     fixed_args = function_call.arguments.replace('\\"', '"').replace('\\\\', '\\')
-                    self.log("DEBUG", "non_stream function_call", {"function_call": fixed_args})
+                    self.logger.log("DEBUG", "non_stream function_call", {"function_call": fixed_args})
 
                     # 解析函数参数
                     function_args = json.loads(fixed_args)
 
                     # 调用工具并获取响应
-                    tool_response = asyncio.run(dispatch_tool(function_call.name, function_args))
+                    tool_response = asyncio.run(self.tool_dispatcher.dispatch(function_call.name, function_args))
                     function_call_name = function_call.name
                     combined_response = ""
                     single_tool_response = ""
@@ -863,13 +793,13 @@ class LightAgent:
                                 pass  # 如果不是 JSON 字符串，保持原样
                         single_tool_response = combined_response  # 处理单个工具的方法
 
-                    self.log("INFO", "non_stream single_tool_response", {"single_tool_response": single_tool_response})
+                    self.logger.log("INFO", "non_stream single_tool_response", {"single_tool_response": single_tool_response})
 
                     # 将单个工具的响应结果添加到列表中
                     tool_responses.append(single_tool_response)
 
                 # 将所有工具调用的结果合并为一个字符串
-                self.log("DEBUG", "non_stream tool_responses", {"tool_responses": tool_responses})
+                self.logger.log("DEBUG", "non_stream tool_responses", {"tool_responses": tool_responses})
 
                 combined_tool_response = "\n".join(tool_responses)
 
@@ -889,14 +819,14 @@ class LightAgent:
             else:
                 # 返回最终回复
                 reply = response.choices[0].message.content
-                self.log("INFO", "non_stream final_reply", {"reply": reply})
+                self.logger.log("INFO", "non_stream final_reply", {"reply": reply})
                 return reply
 
             # 更新响应
             if function_call_name == 'finish':
                 return  # 如果最后调用了finish工具，则结束生成器
             # print("params:",params)
-            self.log("DEBUG", "non_stream chat-completions params", {"params": params})
+            self.logger.log("DEBUG", "non_stream chat-completions params", {"params": params})
 
             try:
                 response = self.client.chat.completions.create(**params)
@@ -904,20 +834,17 @@ class LightAgent:
                 print(f"An error occurred: {e}")
 
         # 重试次数用尽
-        self.log("ERROR", "max_retry_reached", {"message": "Failed to generate a valid response."})
+        self.logger.log("ERROR", "max_retry_reached", {"message": "Failed to generate a valid response."})
         return "Failed to generate a valid response."
 
-    def _run_logic_stream(self, response, params, max_retry) -> Generator[str, None, None]:
-        """
-        流式处理逻辑。
-        """
+    def _run_stream_logic(self, response, params, max_retry) -> Generator[str, None, None]:
+        """流式处理逻辑"""
         for _ in range(max_retry):
             # 初始化变量
             output = ""
-            function_call_name = ""
-            function_call_arguments = ""
             tool_calls = []  # 用于存储所有工具调用的信息
             tool_responses = []  # 用于存储所有工具调用的结果
+            finish_called = False  # 标记是否调用了finish工具
 
             for chunk in response:
                 content = chunk.choices[0].delta.content or ""
@@ -936,7 +863,7 @@ class LightAgent:
 
                         # 如果工具调用信息尚未记录，初始化一个空字典
                         if len(tool_calls) <= tool_call_index:
-                            tool_calls.append({"name": "", "arguments": "", "index": tool_call_index})
+                            tool_calls.append({"name": "", "arguments": "", "index": tool_call_index, "title": ""})
 
                         # 更新工具调用的名称
                         if hasattr(tool_call_delta.function, "name") and tool_call_delta.function.name:
@@ -946,35 +873,48 @@ class LightAgent:
                         if hasattr(tool_call_delta.function, "arguments") and tool_call_delta.function.arguments:
                             tool_calls[tool_call_index]["arguments"] += tool_call_delta.function.arguments
 
-                except (IndexError, AttributeError, KeyError):
-                    pass
+                except (IndexError, AttributeError, KeyError) as e:
+                    self.logger.log("ERROR", "tool_call_error", {
+                        "error": str(e),
+                        "traceback": traceback.format_exc()
+                    })
 
                 # 如果流式输出结束
-                if chunk.choices[0].finish_reason == "stop" and not any(tool_call["name"] for tool_call in tool_calls):
-                    self.log("INFO", "stream_response", {"output": output})
+                finish_reason = chunk.choices[0].finish_reason if chunk.choices else None
+                if finish_reason == "stop" and not any(tc["name"] for tc in tool_calls):
+                    self.logger.log("INFO", "stream_response", {"output": output})
                     return  # 结束生成器
 
                 # 如果工具调用结束
-                elif chunk.choices[0].finish_reason == "tool_calls" or (
-                        chunk.choices[0].finish_reason == "stop" and any(
-                    tool_call["name"] for tool_call in tool_calls)):
+                elif finish_reason in ("tool_calls", "stop") and any(tc["name"] for tc in tool_calls):
                     # 遍历所有工具调用
-                    self.log("DEBUG", "stream tool_calls", {"tool_calls": tool_calls})
+                    self.logger.log("DEBUG", "stream tool_calls", {"tool_calls": tool_calls})
                     for tool_call in tool_calls:
                         if tool_call["name"]:  # 确保工具调用有名称
-                            function_call = {
-                                "name": tool_call["name"],
-                                "title": _FUNCTION_INFO.get(tool_call["name"], {}).get('tool_title') or '',
-                                "arguments": tool_call["arguments"],
+                            tool_name = tool_call["name"]
+                            arguments = tool_call["arguments"]
+
+                            # 从注册表中获取工具标题
+                            tool_info = self.tool_registry.function_info.get(tool_name, {})
+                            tool_title = tool_info.get("tool_title") or ""
+
+                            # 更新工具调用信息
+                            tool_call["title"] = tool_title
+
+                            # 记录调用工具
+                            tool_call_info = {
+                                "name": tool_name,
+                                "title": tool_title,
+                                "arguments": arguments,
                             }
-                            self.log("INFO", "stream function_call", {"function_call": function_call})
+                            self.logger.log("INFO", "stream function_call", {"tool_call_start": tool_call_info})
                             # 将工具的调用信息推送给开发者
-                            yield function_call
+                            yield tool_call_info
 
                             # 解析参数并调用工具
                             try:
                                 # 使用正则表达式将多个 JSON 对象拆分开
-                                json_objects = re.findall(r'\{.*?\}', function_call["arguments"])
+                                json_objects = re.findall(r'\{.*?\}', tool_call_info["arguments"])
 
                                 # 解析每个 JSON 对象并调用工具
                                 # for json_obj in json_objects:
@@ -985,12 +925,15 @@ class LightAgent:
                                 for json_obj in json_objects:
                                     # 尝试自动修复常见转义问题
                                     fixed_args = json_obj.replace('\\"', '"').replace('\\\\', '\\')
-                                    self.log("DEBUG", "stream fixed_args", {"fixed_args": fixed_args})
+                                    self.logger.log("DEBUG", "stream fixed_args", {"fixed_args": fixed_args})
 
+                                    # 解析参数
                                     function_args = json.loads(fixed_args)
-                                    # tool_response = dispatch_tool(function_call["name"], function_args)
-                                    tool_response = asyncio.run(dispatch_tool(function_call["name"], function_args))
-                                    function_call_name = function_call["name"]
+
+                                    # 调用工具
+                                    tool_response = asyncio.run(self.tool_dispatcher.dispatch(tool_name, function_args))
+
+                                    # 处理不同类型的工具响应
                                     combined_response = ""
                                     single_tool_response = ""
 
@@ -1003,15 +946,14 @@ class LightAgent:
                                                 yield chunk
                                             else:
                                                 tool_output = {
-                                                    "name": tool_call["name"],
-                                                    "title": _FUNCTION_INFO.get(tool_call["name"], {}).get(
-                                                        'tool_title') or '',
+                                                    "name": tool_name,
+                                                    "title": tool_title,
                                                     "output": chunk,
                                                 }
-                                                self.log("DEBUG", "stream tool_output", {"tool_output": tool_output})
+                                                self.logger.log("DEBUG", "stream tool_output", {"tool_output": tool_output})
                                                 yield tool_output
                                             # 将工具的调用信息推送给开发者
-                                            if function_call_name == 'finish':
+                                            if tool_name == 'finish':
                                                 content = chunk.choices[0].delta.content or ""
                                                 combined_response += content  # 将每个 chunk 叠加
                                             else:
@@ -1019,25 +961,54 @@ class LightAgent:
                                         single_tool_response = combined_response  # 处理单个工具的方法
                                     else:
                                         # print(f"Non-streaming response from tool: {tool_response}")
-                                        combined_response = tool_response
+                                        combined_response = str(tool_response)
                                         single_tool_response = combined_response  # 处理单个工具的方法
-                                    self.log("INFO", "stream single_tool_response",
+                                        tool_output = {
+                                            "name": tool_name,
+                                            "title": tool_title,
+                                            "output": combined_response
+                                        }
+                                        yield tool_output
+
+                                    # 记录工具响应
+                                    self.logger.log("INFO", "stream single_tool_response",
                                              {"single_tool_response": single_tool_response})
-                                    # 将单个工具的响应结果添加到列表中
+
+                                    # 将单个工具的响应结果保存到列表中
                                     tool_responses.append(single_tool_response)
 
-                            except json.JSONDecodeError as e:
-                                self.log("ERROR", "json_decode_error",
-                                         {"error": str(e), "arguments": function_call["arguments"]})
-                                continue
+                                    # 检查是否调用了finish工具
+                                    if tool_name == 'finish':
+                                        finish_called = True
+                                        self.logger.log("INFO", "finish_tool_called", {"response": combined_response})
 
-                    # 将所有工具调用的结果合并为一个字符串
+                            except json.JSONDecodeError as e:
+                                error_msg = f"JSON解析错误: {str(e)}\n参数: {arguments}"
+                                self.logger.log("ERROR", "json_decode_error", {"tool": tool_name, "title": tool_title, "error": error_msg})
+                                tool_responses.append(error_msg)
+                                yield {"name": tool_name, "title": tool_title, "error": error_msg}
+
+                            except Exception as e:
+                                error_msg = f"工具调用错误: {str(e)}\n{traceback.format_exc()}"
+                                self.logger.log("ERROR", "tool_execution_error", {
+                                    "tool": tool_name,
+                                    "title": tool_title,
+                                    "error": error_msg
+                                })
+                                tool_responses.append(error_msg)
+                                yield {"name": tool_name, "title": tool_title, "error": error_msg}
+
+                    # 如果调用了finish工具，则结束处理
+                    if finish_called:
+                        return
+
+                    # 准备下一轮请求
                     combined_tool_response = "\n".join(tool_responses)
                     tool_str = json.dumps(
                         [{"name": tool_call["name"], "arguments": tool_call["arguments"]} for tool_call in tool_calls],
                         ensure_ascii=False)
 
-                    # 将工具调用和响应添加到消息列表中
+                    # 添加工具调用和响应到消息历史
                     params["messages"].append(
                         {
                             "role": "assistant",
@@ -1051,26 +1022,15 @@ class LightAgent:
                         }
                     )
 
+                    # 创建新的响应流
+                    self.logger.log("DEBUG", "stream next_request_params", {"params": params})
+                    response = self.client.chat.completions.create(**params)
                     break
 
-            # 更新响应
-            if function_call_name == 'finish':
-                return  # 如果最后调用了finish工具，则结束生成器
-            self.log("DEBUG", "stream chat-completions params", {"params": params})
-            response = self.client.chat.completions.create(**params)
-
         # 重试次数用尽
-        self.log("ERROR", "max_retry_reached", {"message": "Failed to generate a valid response."})
+        self.logger.log("ERROR", "max_retry_reached", {"message": "Failed to generate a valid response."})
         yield "Failed to generate a valid response."
 
-    def _core_run_logic(self, response, params, stream, max_retry) -> Union[Generator[str, None, None], str]:
-        """
-        核心运行逻辑。
-        """
-        if stream:
-            return self._run_logic_stream(response, params, max_retry)
-        else:
-            return self._run_logic_non_stream(response, params, max_retry)
 
     def _handle_task_transfer(
             self,
@@ -1089,9 +1049,9 @@ class LightAgent:
         intent = self._detect_intent(query, light_swarm)
         if intent and intent.get("transfer_to"):
             target_agent_name = intent["transfer_to"]
-            self.log("INFO", "detect_intent", {"intent": intent})
+            self.logger.log("INFO", "detect_intent", {"intent": intent})
             if target_agent_name == self.name:
-                self.log("INFO", "self_transfer_detected", {"target_agent": target_agent_name})
+                self.logger.log("INFO", "self_transfer_detected", {"target_agent": target_agent_name})
                 return None  # 如果是自身，直接返回 None
             if stream:
                 return self._handle_task_transfer_stream(light_swarm.agents[target_agent_name], query, light_swarm)
@@ -1113,18 +1073,18 @@ class LightAgent:
         :param light_swarm: LightSwarm 实例。
         :return: 生成器，用于流式输出。
         """
-        self.log("INFO", "transfer_to_agent", {"from": self.name, "to": target_agent.name, "context": context})
+        self.logger.log("INFO", "transfer_to_agent", {"from": self.name, "to": target_agent.name, "context": context})
 
         # 检查目标代理是否有效
         if not hasattr(target_agent, 'run'):
-            self.log("ERROR", "invalid_target_agent", {"target_agent": target_agent})
+            self.logger.log("ERROR", "invalid_target_agent", {"target_agent": target_agent})
             yield "Failed to transfer task: invalid target agent"
             return
 
         try:
             yield from target_agent.run(context, light_swarm=light_swarm, stream=True)
         except Exception as e:
-            self.log("ERROR", "run_failed", {"error": str(e)})
+            self.logger.log("ERROR", "run_failed", {"error": str(e)})
             raise  # 重新抛出异常以便调试
 
     def _handle_task_transfer_non_stream(
@@ -1141,11 +1101,11 @@ class LightAgent:
         :param light_swarm: LightSwarm 实例。
         :return: 字符串，表示非流式输出结果。
         """
-        self.log("INFO", "transfer_to_agent", {"from": self.name, "to": target_agent.name, "context": context})
+        self.logger.log("INFO", "transfer_to_agent", {"from": self.name, "to": target_agent.name, "context": context})
 
         # 检查目标代理是否有效
         if not hasattr(target_agent, 'run'):
-            self.log("ERROR", "invalid_target_agent", {"target_agent": target_agent})
+            self.logger.log("ERROR", "invalid_target_agent", {"target_agent": target_agent})
             return "Failed to transfer task: invalid target agent"
 
         try:
@@ -1154,7 +1114,7 @@ class LightAgent:
                 return "".join(result)  # 将生成器转换为字符串
             return result
         except Exception as e:
-            self.log("ERROR", "run_failed", {"error": str(e)})
+            self.logger.log("ERROR", "run_failed", {"error": str(e)})
             raise  # 重新抛出异常以便调试
 
     def _build_context(self, related_memories):
@@ -1171,7 +1131,7 @@ class LightAgent:
             return ""
 
         prompt = f"\n##用户偏好 \n用户之前提到了\n{memory_context}。"
-        self.log("DEBUG", "related_memories", {"memory_context": memory_context})
+        self.logger.log("DEBUG", "related_memories", {"memory_context": memory_context})
         return prompt
 
     def _build_agent_memory(self, agent_memories):
@@ -1189,20 +1149,20 @@ class LightAgent:
             return ""
 
         prompt = f"\n##以下是解决该问题的相关补充信息：\n{memory_context}。"
-        self.log("DEBUG", "agent_memories", {"memory_context": memory_context})
+        self.logger.log("DEBUG", "agent_memories", {"memory_context": memory_context})
         return prompt
 
     def run_thought(self, query: str) -> tuple:
         """使用思维树的方式 让大模型先根据get_tools_str生成一个解答用户query的工具使用计划"""
         tot_model = self.tot_model  # self.model
-        tools = get_tools_str()
+        tools = self.tool_registry.get_tools_str()
         if not isinstance(tools, str):
             tools = str(tools)  # 确保 tools 是字符串
         now = datetime.now()
         current_date = now.strftime("%Y-%m-%d")
         current_time = now.strftime("%H:%M:%S")
         system_prompt = f"""你是一个智能助手，请根据用户输入的问题，结合工具使用计划，生成一个思维树，并按照思维树依次调用工具步骤，最终生成一个最终回答。\n 今日的日期: {current_date} 当前时间: {current_time} \n 工具列表: {tools}"""
-        self.log("DEBUG", "run_thought", {"system_prompt": system_prompt})
+        self.logger.log("DEBUG", "run_thought", {"system_prompt": system_prompt})
 
         try:
             # 1. 第一次请求，生成初始的工具使用计划
@@ -1210,20 +1170,20 @@ class LightAgent:
                           messages=[{"role": "system", "content": system_prompt}, {"role": "user", "content": query}],
                           stream=False)
             response = self.tot_client.chat.completions.create(**params)
-            initial_content = response.choices[0].message.content
-            self.log("DEBUG", "initial_response", {"response": initial_content})
+            thought_response = response.choices[0].message.content
+            self.logger.log("DEBUG", "thought_response", {"response": thought_response})
 
             # 2. 第二次请求，请求大模型反思并生成新的工具使用规划
             reflection_prompt = "请反思你的回答，请严格按照<工具列表>中的工具来规划，不可以创造其他新的工具。请输出新的任务规划，不要输出其他分析和回答。"
             reflection_params = dict(model=tot_model, messages=[
                 {"role": "user", "content": f"{system_prompt} /n 开始思考问题: {query}"},
-                {"role": "assistant", "content": initial_content},
+                {"role": "assistant", "content": thought_response},
                 {"role": "user", "content": reflection_prompt}
             ], stream=False)
-            self.log("DEBUG", "reflection_params", {"params": reflection_params})
+            self.logger.log("DEBUG", "reflection_params", {"params": reflection_params})
             reflection_response = self.tot_client.chat.completions.create(**reflection_params)
             refined_content = reflection_response.choices[0].message.content
-            self.log("DEBUG", "refined_response", {"response": refined_content})
+            self.logger.log("DEBUG", "reflection_response", {"response": refined_content})
 
             # 获取工具的使用集合
             tool_reflection_prompt = """请严格按以下要求执行：
@@ -1245,21 +1205,21 @@ class LightAgent:
                 stream=False
             )
 
-            self.log("DEBUG", "tool_reflection_params", {"params": tool_reflection_params})
+            self.logger.log("DEBUG", "tool_reflection_params", {"params": tool_reflection_params})
             tool_reflection_response = self.tot_client.chat.completions.create(**tool_reflection_params)
             tool_reflection_result = tool_reflection_response.choices[0].message.content
-            self.log("DEBUG", "tool_reflection_result", {"result": tool_reflection_result})
+            self.logger.log("DEBUG", "tool_reflection_result", {"result": tool_reflection_result})
 
             # 3.执行自适应工具过滤
             current_tools = []
             if self.filter_tools:
-                current_tools = filter_tools_schemas(tool_reflection_result)
-                self.log("DEBUG", "current_tools", {"get_tools": current_tools})
+                current_tools = self.tool_registry.filter_tools(tool_reflection_result)
+                self.logger.log("DEBUG", "current_tools", {"get_tools": current_tools})
 
             return refined_content, current_tools
 
         except Exception as e:
-            self.log("ERROR", "run_thought_failure", {"error": str(e)})
+            self.logger.log("ERROR", "run_thought_failure", {"error": str(e)})
             raise RuntimeError(f"思维链执行失败: {str(e)}") from e
 
     def _detect_intent(self, query: str, light_swarm=None) -> Optional[Dict]:
@@ -1296,7 +1256,7 @@ class LightAgent:
             messages=[{"role": "system", "content": prompt}]
         )
         intent = response.choices[0].message.content
-        self.log("DEBUG", "detect_intent", {"intent": intent})
+        self.logger.log("DEBUG", "detect_intent", {"intent": intent})
 
         # # 使用正则表达式解析意图
         # match = re.search(r"transfer to (\w+)", intent, re.IGNORECASE)
@@ -1328,11 +1288,11 @@ class LightAgent:
         :param stream: 是否启用流式输出。
         :return: 如果 stream=True，返回生成器；否则返回完整结果字符串。
         """
-        self.log("INFO", "transfer_to_agent", {"from": self.name, "to": target_agent.name, "context": context})
+        self.logger.log("INFO", "transfer_to_agent", {"from": self.name, "to": target_agent.name, "context": context})
 
         # 检查目标代理是否有效
         if not hasattr(target_agent, 'run'):
-            self.log("ERROR", "invalid_target_agent", {"target_agent": target_agent})
+            self.logger.log("ERROR", "invalid_target_agent", {"target_agent": target_agent})
             return "Failed to transfer task: invalid target agent"
         #
         # # 调用目标代理的 run 方法
@@ -1352,7 +1312,7 @@ class LightAgent:
                     return "".join(result)  # 将生成器转换为字符串
                 return result
         except Exception as e:
-            self.log("ERROR", "run_failed", {"error": str(e)})
+            self.logger.log("ERROR", "run_failed", {"error": str(e)})
             raise  # 重新抛出异常以便调试
 
     def create_tool(self, user_input: str, tools_directory: str = "tools"):
@@ -1429,19 +1389,19 @@ get_weather.tool_info = {
                 tool_code = tool_data.get("tool_code")
 
                 if not tool_name or not tool_code:
-                    self.log("ERROR", "invalid_tool_data", {"tool_data": tool_data})
+                    self.logger.log("ERROR", "invalid_tool_data", {"tool_data": tool_data})
                     continue
 
                 # 保存生成的代码到 tools 目录
                 tool_path = os.path.join(tools_directory, f"{tool_name}.py")
                 with open(tool_path, "w", encoding="utf-8") as f:
                     f.write(tool_code)
-                self.log("INFO", "tool_created", {"tool_name": tool_name, "tool_path": tool_path})
+                self.logger.log("INFO", "tool_created", {"tool_name": tool_name, "tool_path": tool_path})
 
                 # 自动加载新创建的工具
                 self.load_tools([tool_name], tools_directory)
         except Exception as e:
-            self.log("ERROR", "tool_creation_failed", {"error": str(e)})
+            self.logger.log("ERROR", "tool_creation_failed", {"error": str(e)})
 
 
 class LightSwarm:
@@ -1457,11 +1417,11 @@ class LightSwarm:
         for agent in agents:
             if agent.name in self.agents:
                 # print(f"Agent '{agent.name}' is already registered.")
-                agent.log("INFO", "register_agent", {"agent_name": agent.name, "status": "already_registered"})
+                agent.logger.log("INFO", "register_agent", {"agent_name": agent.name, "status": "already_registered"})
             else:
                 self.agents[agent.name] = agent
                 # print(f"Agent '{agent.name}' registered.")
-                agent.log("INFO", "register_agent", {"agent_name": agent.name, "status": "registered"})
+                agent.logger.log("INFO", "register_agent", {"agent_name": agent.name, "status": "registered"})
 
     def run(self, agent: LightAgent, query: str, stream=False):
         """
