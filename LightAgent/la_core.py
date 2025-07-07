@@ -680,6 +680,11 @@ class LightAgent:
             "stream": stream
         }
 
+        # 添加参数
+        if metadata:
+            for key, value in metadata.items():
+                params[key] = value
+
         # 添加工具
         tools = active_tools or self.tool_registry.get_tools()
         if tools:
@@ -691,6 +696,7 @@ class LightAgent:
             params["session_id"] = traceid
 
         # 调用模型
+        self.logger.log("DEBUG", "first_request_params", {"params": params})
         response = self.client.chat.completions.create(**params)
         return self._core_run_logic(response, params, stream, max_retry)
 
