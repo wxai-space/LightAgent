@@ -3,8 +3,8 @@
 
 """
 作者: [weego/WXAI-Team]
-版本: 0.4.0
-最后更新: 2025-06-12
+版本: 0.4.1
+最后更新: 2025-07-07
 """
 
 import asyncio
@@ -31,7 +31,7 @@ from mcp.client.stdio import stdio_client
 from openai.types.chat import ChatCompletionChunk
 
 
-__version__ = "0.4.0"  # 你可以根据需要设置版本号
+__version__ = "0.4.1"  # 你可以根据需要设置版本号
 
 
 # openai.langfuse_auth_check()
@@ -422,7 +422,7 @@ class MCPClientManager:
                 raise ValueError(f"缺少必要参数: {field}")
 
 class LightAgent:
-    __version__ = "0.4.0"  # 将版本号放在类中
+    __version__ = "0.4.1"  # 将版本号放在类中
 
     def __init__(
             self,
