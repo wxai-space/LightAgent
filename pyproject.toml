@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "LightAgent"
-version = "0.4.0"
-description = "LightAgent is an extremely lightweight active Agentic Framework with memory (`mem0`), tools (`Tools`), and a tree of thought (`ToT`), and it is completely open source. It supports simpler multi-agent collaboration than OpenAI Swarm, allowing you to build self-learning agents in just one step, and supports connecting to the MCP protocol via stdio and sse. The underlying models support OpenAI, Zhiyuan ChatGLM, DeepSeek, Jieyue Xingchen, Qwen Tongyi Qianwen large models, and more. At the same time, LightAgent supports OpenAI streaming format API service output, seamlessly integrating with major mainstream Chat frameworks. 🌟"
+version = "0.4.3"
+description = "LightAgent: Lightweight AI agent framework with memory, tools & tree-of-thought. Supports multi-agent collaboration, self-learning, and major LLMs (OpenAI/DeepSeek/Qwen). Open-source with MCP/SSE protocol integration."
 authors = ["caiweige <caiweige@qq.com>"]
 license = "Apache 2.0"
 readme = [

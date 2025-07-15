@@ -3,8 +3,8 @@
 
 """
 作者: [weego/WXAI-Team]
-版本: 0.4.1
-最后更新: 2025-07-07
+版本: 0.4.3
+最后更新: 2025-07-10
 """
 
 import asyncio
@@ -30,8 +30,7 @@ from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client
 from openai.types.chat import ChatCompletionChunk
 
-
-__version__ = "0.4.1"  # 你可以根据需要设置版本号
+__version__ = "0.4.3"  # 你可以根据需要设置版本号
 
 
 # openai.langfuse_auth_check()
@@ -43,6 +42,7 @@ class MemoryProtocol(Protocol):
 
     def retrieve(self, query: str, user_id: str) -> List[Any]:
         ...
+
 
 class ToolRegistry:
     """集中管理工具注册表，避免全局变量"""
@@ -242,13 +242,14 @@ class LoggerManager:
 
         trace_info = f"[TraceID: {self.traceid}] " if self.traceid else ""
         log_message = f"{trace_info}{action}: {data}"
+        safe_msg = log_message.encode('utf-8', 'ignore').decode('utf-8')
 
         if level == "DEBUG":
-            self.logger.debug(log_message)
+            self.logger.debug(safe_msg)
         elif level == "INFO":
-            self.logger.info(log_message)
+            self.logger.info(safe_msg)
         elif level == "ERROR":
-            self.logger.error(log_message)
+            self.logger.error(safe_msg)
 
     def set_traceid(self, traceid: str):
         """设置当前跟踪ID"""
@@ -421,8 +422,9 @@ class MCPClientManager:
             if field not in arguments:
                 raise ValueError(f"缺少必要参数: {field}")
 
+
 class LightAgent:
-    __version__ = "0.4.1"  # 将版本号放在类中
+    __version__ = "0.4.3"  # 将版本号放在类中
 
     def __init__(
             self,
@@ -545,6 +547,7 @@ class LightAgent:
 
         # 初始化客户端
         self._initialize_clients(tracetools, tot_api_key, tot_base_url, tot_model)
+        self.chat_params = {}  # history 存储器
 
     def _initialize_clients(self, tracetools, tot_api_key, tot_base_url, tot_model):
         """初始化 OpenAI 客户端"""
@@ -574,6 +577,12 @@ class LightAgent:
                     api_key=tot_api_key or self.api_key
                 )
 
+    def get_history(self) -> List[Dict[str, Any]]:
+        """
+        获取对话的history的描述（OpenAI 格式）
+        """
+        return deepcopy(self.chat_params['messages'])
+
     def get_tools(self) -> List[Dict[str, Any]]:
         """
         获取所有工具的描述（OpenAI 格式）
@@ -597,12 +606,12 @@ class LightAgent:
                 try:
                     tool_func = self.tool_loader.load_tool(tool)
                     self.tool_registry.register_tool(tool_func)
-                    self.logger.log("DEBUG", "load_tools", {"tool": tool, "status": "success"})
+                    self.log("DEBUG", "load_tools", {"tool": tool, "status": "success"})
                 except Exception as e:
-                    self.logger.log("ERROR", "load_tools", {"tool": tool, "error": str(e)})
+                    self.log("ERROR", "load_tools", {"tool": tool, "error": str(e)})
             elif callable(tool) and hasattr(tool, "tool_info"):
                 if self.tool_registry.register_tool(tool):
-                    self.logger.log("DEBUG", "register_tool", {"tool": tool.__name__, "status": "success"})
+                    self.log("DEBUG", "register_tool", {"tool": tool.__name__, "status": "success"})
 
     async def setup_mcp(
             self,
@@ -614,7 +623,15 @@ class LightAgent:
         if self.mcp_setting and not self.mcp_client:
             self.mcp_client = MCPClientManager(self.mcp_setting, self.tool_registry)
             await self.mcp_client.register_mcp_tool()
-            self.logger.log("INFO", "setup_mcp", "MCP 模块初始化成功")
+            self.log("INFO", "setup_mcp", "MCP 模块初始化成功")
+
+    def log(self, level, action, data):
+        """
+        日志打印入口
+        """
+        if not self.debug:
+            return
+        self.logger.log(level, action, data)
 
     def run(
             self,
@@ -640,8 +657,9 @@ class LightAgent:
         """
         # 设置跟踪ID
         traceid = uuid4().hex
-        self.logger.set_traceid(traceid)
-        self.logger.log("INFO", "run_start", {"query": query, "user_id": user_id, "stream": stream})
+        if self.debug and hasattr(self, 'logger'):  # 仅在 debug=True 且 logger 存在时记录日志
+            self.logger.set_traceid(traceid)
+        self.log("INFO", "run_start", {"query": query, "user_id": user_id, "stream": stream})
 
         # 初始化历史记录
         history = history or []
@@ -671,10 +689,10 @@ class LightAgent:
         if self.tree_of_thought:
             tot_response, active_tools = self.run_thought(query)
             system_prompt += f"\n##以下是问题的补充说明\n{tot_response}"
-            self.logger.log("DEBUG", "tree_of_thought", {"response": tot_response, "active_tools": active_tools})
+            self.log("DEBUG", "tree_of_thought", {"response": tot_response, "active_tools": active_tools})
 
         # 准备API参数
-        params = {
+        self.chat_params = {
             "model": self.model,
             "messages": [{"role": "system", "content": system_prompt}] + history + [{"role": "user", "content": query}],
             "stream": stream
@@ -683,22 +701,22 @@ class LightAgent:
         # 添加参数
         if metadata:
             for key, value in metadata.items():
-                params[key] = value
+                self.chat_params[key] = value
 
         # 添加工具
         tools = active_tools or self.tool_registry.get_tools()
         if tools:
-            params["tools"] = tools
-            params["tool_choice"] = "auto"
+            self.chat_params["tools"] = tools
+            self.chat_params["tool_choice"] = "auto"
 
         # 添加跟踪会话
         if hasattr(self, 'tracetools') and self.tracetools:
-            params["session_id"] = traceid
+            self.chat_params["session_id"] = traceid
 
         # 调用模型
-        self.logger.log("DEBUG", "first_request_params", {"params": params})
-        response = self.client.chat.completions.create(**params)
-        return self._core_run_logic(response, params, stream, max_retry)
+        self.log("DEBUG", "first_request_params", {"params": self.chat_params})
+        response = self.client.chat.completions.create(**self.chat_params)
+        return self._core_run_logic(response, stream, max_retry)
 
     def _add_memory_context(self, query: str, user_id: str) -> str:
         """添加记忆上下文"""
@@ -723,14 +741,14 @@ class LightAgent:
 
         return f"{context}\n##用户提问：\n{query}" if context else query
 
-    def _core_run_logic(self, response, params, stream, max_retry) -> Union[Generator[str, None, None], str]:
+    def _core_run_logic(self, response, stream, max_retry) -> Union[Generator[str, None, None], str]:
         """核心运行逻辑"""
         if stream:
-            return self._run_stream_logic(response, params, max_retry)
+            return self._run_stream_logic(response, max_retry)
         else:
-            return self._run_non_stream_logic(response, params, max_retry)
+            return self._run_non_stream_logic(response, max_retry)
 
-    def _run_non_stream_logic(self, response, params, max_retry) -> Union[str, None]:
+    def _run_non_stream_logic(self, response, max_retry) -> Union[str, None]:
         """
         非流式处理逻辑。
         """
@@ -742,7 +760,7 @@ class LightAgent:
                 output = ""
                 function_call_name = ""
                 tool_calls = response.choices[0].message.tool_calls
-                self.logger.log("DEBUG", "non_stream tool_calls", {"tool_calls": tool_calls})
+                self.log("DEBUG", "non_stream tool_calls", {"tool_calls": tool_calls})
 
                 # 遍历所有工具调用
                 for tool_call in tool_calls:
@@ -750,7 +768,7 @@ class LightAgent:
 
                     # 尝试自动修复常见转义问题
                     fixed_args = function_call.arguments.replace('\\"', '"').replace('\\\\', '\\')
-                    self.logger.log("DEBUG", "non_stream function_call", {"function_call": fixed_args})
+                    self.log("DEBUG", "non_stream function_call", {"function_call": fixed_args})
 
                     # 解析函数参数
                     function_args = json.loads(fixed_args)
@@ -799,24 +817,25 @@ class LightAgent:
                                 pass  # 如果不是 JSON 字符串，保持原样
                         single_tool_response = combined_response  # 处理单个工具的方法
 
-                    self.logger.log("INFO", "non_stream single_tool_response", {"single_tool_response": single_tool_response})
+                    self.log("INFO", "non_stream single_tool_response",
+                             {"single_tool_response": single_tool_response})
 
                     # 将单个工具的响应结果添加到列表中
                     tool_responses.append(single_tool_response)
 
                 # 将所有工具调用的结果合并为一个字符串
-                self.logger.log("DEBUG", "non_stream tool_responses", {"tool_responses": tool_responses})
+                self.log("DEBUG", "non_stream tool_responses", {"tool_responses": tool_responses})
 
                 combined_tool_response = "\n".join(tool_responses)
 
                 # 将工具调用和响应添加到消息列表中
-                params["messages"].append(
+                self.chat_params["messages"].append(
                     {
                         "role": "assistant",
                         "content": f"使用工具： \n {json.dumps([tool_call.function.model_dump() for tool_call in tool_calls], ensure_ascii=False)}\n",
                     }
                 )
-                params["messages"].append(
+                self.chat_params["messages"].append(
                     {
                         "role": "user",
                         "content": f"工具响应内容：\n {combined_tool_response} \n 请给出下一步输出",
@@ -825,25 +844,25 @@ class LightAgent:
             else:
                 # 返回最终回复
                 reply = response.choices[0].message.content
-                self.logger.log("INFO", "non_stream final_reply", {"reply": reply})
+                self.log("INFO", "non_stream final_reply", {"reply": reply})
                 return reply
 
             # 更新响应
             if function_call_name == 'finish':
                 return  # 如果最后调用了finish工具，则结束生成器
-            # print("params:",params)
-            self.logger.log("DEBUG", "non_stream chat-completions params", {"params": params})
+            # print("params:",self.chat_params)
+            self.log("DEBUG", "non_stream chat-completions params", {"params": self.chat_params})
 
             try:
-                response = self.client.chat.completions.create(**params)
+                response = self.client.chat.completions.create(**self.chat_params)
             except Exception as e:
                 print(f"An error occurred: {e}")
 
         # 重试次数用尽
-        self.logger.log("ERROR", "max_retry_reached", {"message": "Failed to generate a valid response."})
+        self.log("ERROR", "max_retry_reached", {"message": "Failed to generate a valid response."})
         return "Failed to generate a valid response."
 
-    def _run_stream_logic(self, response, params, max_retry) -> Generator[str, None, None]:
+    def _run_stream_logic(self, response, max_retry) -> Generator[str, None, None]:
         """流式处理逻辑"""
         for _ in range(max_retry):
             # 初始化变量
@@ -880,7 +899,7 @@ class LightAgent:
                             tool_calls[tool_call_index]["arguments"] += tool_call_delta.function.arguments
 
                 except (IndexError, AttributeError, KeyError) as e:
-                    self.logger.log("ERROR", "tool_call_error", {
+                    self.log("ERROR", "tool_call_error", {
                         "error": str(e),
                         "traceback": traceback.format_exc()
                     })
@@ -888,13 +907,13 @@ class LightAgent:
                 # 如果流式输出结束
                 finish_reason = chunk.choices[0].finish_reason if chunk.choices else None
                 if finish_reason == "stop" and not any(tc["name"] for tc in tool_calls):
-                    self.logger.log("INFO", "stream_response", {"output": output})
+                    self.log("INFO", "stream_response", {"output": output})
                     return  # 结束生成器
 
                 # 如果工具调用结束
                 elif finish_reason in ("tool_calls", "stop") and any(tc["name"] for tc in tool_calls):
                     # 遍历所有工具调用
-                    self.logger.log("DEBUG", "stream tool_calls", {"tool_calls": tool_calls})
+                    self.log("DEBUG", "stream tool_calls", {"tool_calls": tool_calls})
                     for tool_call in tool_calls:
                         if tool_call["name"]:  # 确保工具调用有名称
                             tool_name = tool_call["name"]
@@ -913,7 +932,7 @@ class LightAgent:
                                 "title": tool_title,
                                 "arguments": arguments,
                             }
-                            self.logger.log("INFO", "stream function_call", {"tool_call_start": tool_call_info})
+                            self.log("INFO", "stream function_call", {"tool_call_start": tool_call_info})
                             # 将工具的调用信息推送给开发者
                             yield tool_call_info
 
@@ -931,7 +950,7 @@ class LightAgent:
                                 for json_obj in json_objects:
                                     # 尝试自动修复常见转义问题
                                     fixed_args = json_obj.replace('\\"', '"').replace('\\\\', '\\')
-                                    self.logger.log("DEBUG", "stream fixed_args", {"fixed_args": fixed_args})
+                                    self.log("DEBUG", "stream fixed_args", {"fixed_args": fixed_args})
 
                                     # 解析参数
                                     function_args = json.loads(fixed_args)
@@ -956,7 +975,8 @@ class LightAgent:
                                                     "title": tool_title,
                                                     "output": chunk,
                                                 }
-                                                self.logger.log("DEBUG", "stream tool_output", {"tool_output": tool_output})
+                                                self.log("DEBUG", "stream tool_output",
+                                                         {"tool_output": tool_output})
                                                 yield tool_output
                                             # 将工具的调用信息推送给开发者
                                             if tool_name == 'finish':
@@ -977,7 +997,7 @@ class LightAgent:
                                         yield tool_output
 
                                     # 记录工具响应
-                                    self.logger.log("INFO", "stream single_tool_response",
+                                    self.log("INFO", "stream single_tool_response",
                                              {"single_tool_response": single_tool_response})
 
                                     # 将单个工具的响应结果保存到列表中
@@ -986,17 +1006,18 @@ class LightAgent:
                                     # 检查是否调用了finish工具
                                     if tool_name == 'finish':
                                         finish_called = True
-                                        self.logger.log("INFO", "finish_tool_called", {"response": combined_response})
+                                        self.log("INFO", "finish_tool_called", {"response": combined_response})
 
                             except json.JSONDecodeError as e:
                                 error_msg = f"JSON解析错误: {str(e)}\n参数: {arguments}"
-                                self.logger.log("ERROR", "json_decode_error", {"tool": tool_name, "title": tool_title, "error": error_msg})
+                                self.log("ERROR", "json_decode_error",
+                                         {"tool": tool_name, "title": tool_title, "error": error_msg})
                                 tool_responses.append(error_msg)
                                 yield {"name": tool_name, "title": tool_title, "error": error_msg}
 
                             except Exception as e:
                                 error_msg = f"工具调用错误: {str(e)}\n{traceback.format_exc()}"
-                                self.logger.log("ERROR", "tool_execution_error", {
+                                self.log("ERROR", "tool_execution_error", {
                                     "tool": tool_name,
                                     "title": tool_title,
                                     "error": error_msg
@@ -1015,13 +1036,13 @@ class LightAgent:
                         ensure_ascii=False)
 
                     # 添加工具调用和响应到消息历史
-                    params["messages"].append(
+                    self.chat_params["messages"].append(
                         {
                             "role": "assistant",
                             "content": f"使用工具： \n {tool_str}\n"
                         }
                     )
-                    params["messages"].append(
+                    self.chat_params["messages"].append(
                         {
                             "role": "user",
                             "content": combined_tool_response,
@@ -1029,14 +1050,13 @@ class LightAgent:
                     )
 
                     # 创建新的响应流
-                    self.logger.log("DEBUG", "stream next_request_params", {"params": params})
-                    response = self.client.chat.completions.create(**params)
+                    self.log("DEBUG", "stream next_request_params", {"params": self.chat_params})
+                    response = self.client.chat.completions.create(**self.chat_params)
                     break
 
         # 重试次数用尽
-        self.logger.log("ERROR", "max_retry_reached", {"message": "Failed to generate a valid response."})
+        self.log("ERROR", "max_retry_reached", {"message": "Failed to generate a valid response."})
         yield "Failed to generate a valid response."
-
 
     def _handle_task_transfer(
             self,
@@ -1055,9 +1075,9 @@ class LightAgent:
         intent = self._detect_intent(query, light_swarm)
         if intent and intent.get("transfer_to"):
             target_agent_name = intent["transfer_to"]
-            self.logger.log("INFO", "detect_intent", {"intent": intent})
+            self.log("INFO", "detect_intent", {"intent": intent})
             if target_agent_name == self.name:
-                self.logger.log("INFO", "self_transfer_detected", {"target_agent": target_agent_name})
+                self.log("INFO", "self_transfer_detected", {"target_agent": target_agent_name})
                 return None  # 如果是自身，直接返回 None
             if stream:
                 return self._handle_task_transfer_stream(light_swarm.agents[target_agent_name], query, light_swarm)
@@ -1079,18 +1099,18 @@ class LightAgent:
         :param light_swarm: LightSwarm 实例。
         :return: 生成器，用于流式输出。
         """
-        self.logger.log("INFO", "transfer_to_agent", {"from": self.name, "to": target_agent.name, "context": context})
+        self.log("INFO", "transfer_to_agent", {"from": self.name, "to": target_agent.name, "context": context})
 
         # 检查目标代理是否有效
         if not hasattr(target_agent, 'run'):
-            self.logger.log("ERROR", "invalid_target_agent", {"target_agent": target_agent})
+            self.log("ERROR", "invalid_target_agent", {"target_agent": target_agent})
             yield "Failed to transfer task: invalid target agent"
             return
 
         try:
             yield from target_agent.run(context, light_swarm=light_swarm, stream=True)
         except Exception as e:
-            self.logger.log("ERROR", "run_failed", {"error": str(e)})
+            self.log("ERROR", "run_failed", {"error": str(e)})
             raise  # 重新抛出异常以便调试
 
     def _handle_task_transfer_non_stream(
@@ -1107,11 +1127,11 @@ class LightAgent:
         :param light_swarm: LightSwarm 实例。
         :return: 字符串，表示非流式输出结果。
         """
-        self.logger.log("INFO", "transfer_to_agent", {"from": self.name, "to": target_agent.name, "context": context})
+        self.log("INFO", "transfer_to_agent", {"from": self.name, "to": target_agent.name, "context": context})
 
         # 检查目标代理是否有效
         if not hasattr(target_agent, 'run'):
-            self.logger.log("ERROR", "invalid_target_agent", {"target_agent": target_agent})
+            self.log("ERROR", "invalid_target_agent", {"target_agent": target_agent})
             return "Failed to transfer task: invalid target agent"
 
         try:
@@ -1120,7 +1140,7 @@ class LightAgent:
                 return "".join(result)  # 将生成器转换为字符串
             return result
         except Exception as e:
-            self.logger.log("ERROR", "run_failed", {"error": str(e)})
+            self.log("ERROR", "run_failed", {"error": str(e)})
             raise  # 重新抛出异常以便调试
 
     def _build_context(self, related_memories):
@@ -1137,7 +1157,7 @@ class LightAgent:
             return ""
 
         prompt = f"\n##用户偏好 \n用户之前提到了\n{memory_context}。"
-        self.logger.log("DEBUG", "related_memories", {"memory_context": memory_context})
+        self.log("DEBUG", "related_memories", {"memory_context": memory_context})
         return prompt
 
     def _build_agent_memory(self, agent_memories):
@@ -1155,7 +1175,7 @@ class LightAgent:
             return ""
 
         prompt = f"\n##以下是解决该问题的相关补充信息：\n{memory_context}。"
-        self.logger.log("DEBUG", "agent_memories", {"memory_context": memory_context})
+        self.log("DEBUG", "agent_memories", {"memory_context": memory_context})
         return prompt
 
     def run_thought(self, query: str) -> tuple:
@@ -1168,7 +1188,7 @@ class LightAgent:
         current_date = now.strftime("%Y-%m-%d")
         current_time = now.strftime("%H:%M:%S")
         system_prompt = f"""你是一个智能助手，请根据用户输入的问题，结合工具使用计划，生成一个思维树，并按照思维树依次调用工具步骤，最终生成一个最终回答。\n 今日的日期: {current_date} 当前时间: {current_time} \n 工具列表: {tools}"""
-        self.logger.log("DEBUG", "run_thought", {"system_prompt": system_prompt})
+        self.log("DEBUG", "run_thought", {"system_prompt": system_prompt})
 
         try:
             # 1. 第一次请求，生成初始的工具使用计划
@@ -1177,7 +1197,7 @@ class LightAgent:
                           stream=False)
             response = self.tot_client.chat.completions.create(**params)
             thought_response = response.choices[0].message.content
-            self.logger.log("DEBUG", "thought_response", {"response": thought_response})
+            self.log("DEBUG", "thought_response", {"response": thought_response})
 
             # 2. 第二次请求，请求大模型反思并生成新的工具使用规划
             reflection_prompt = "请反思你的回答，请严格按照<工具列表>中的工具来规划，不可以创造其他新的工具。请输出新的任务规划，不要输出其他分析和回答。"
@@ -1186,10 +1206,10 @@ class LightAgent:
                 {"role": "assistant", "content": thought_response},
                 {"role": "user", "content": reflection_prompt}
             ], stream=False)
-            self.logger.log("DEBUG", "reflection_params", {"params": reflection_params})
+            self.log("DEBUG", "reflection_params", {"params": reflection_params})
             reflection_response = self.tot_client.chat.completions.create(**reflection_params)
             refined_content = reflection_response.choices[0].message.content
-            self.logger.log("DEBUG", "reflection_response", {"response": refined_content})
+            self.log("DEBUG", "reflection_response", {"response": refined_content})
 
             # 获取工具的使用集合
             tool_reflection_prompt = """请严格按以下要求执行：
@@ -1211,21 +1231,21 @@ class LightAgent:
                 stream=False
             )
 
-            self.logger.log("DEBUG", "tool_reflection_params", {"params": tool_reflection_params})
+            self.log("DEBUG", "tool_reflection_params", {"params": tool_reflection_params})
             tool_reflection_response = self.tot_client.chat.completions.create(**tool_reflection_params)
             tool_reflection_result = tool_reflection_response.choices[0].message.content
-            self.logger.log("DEBUG", "tool_reflection_result", {"result": tool_reflection_result})
+            self.log("DEBUG", "tool_reflection_result", {"result": tool_reflection_result})
 
             # 3.执行自适应工具过滤
             current_tools = []
             if self.filter_tools:
                 current_tools = self.tool_registry.filter_tools(tool_reflection_result)
-                self.logger.log("DEBUG", "current_tools", {"get_tools": current_tools})
+                self.log("DEBUG", "current_tools", {"get_tools": current_tools})
 
             return refined_content, current_tools
 
         except Exception as e:
-            self.logger.log("ERROR", "run_thought_failure", {"error": str(e)})
+            self.log("ERROR", "run_thought_failure", {"error": str(e)})
             raise RuntimeError(f"思维链执行失败: {str(e)}") from e
 
     def _detect_intent(self, query: str, light_swarm=None) -> Optional[Dict]:
@@ -1262,7 +1282,7 @@ class LightAgent:
             messages=[{"role": "system", "content": prompt}]
         )
         intent = response.choices[0].message.content
-        self.logger.log("DEBUG", "detect_intent", {"intent": intent})
+        self.log("DEBUG", "detect_intent", {"intent": intent})
 
         # # 使用正则表达式解析意图
         # match = re.search(r"transfer to (\w+)", intent, re.IGNORECASE)
@@ -1294,11 +1314,11 @@ class LightAgent:
         :param stream: 是否启用流式输出。
         :return: 如果 stream=True，返回生成器；否则返回完整结果字符串。
         """
-        self.logger.log("INFO", "transfer_to_agent", {"from": self.name, "to": target_agent.name, "context": context})
+        self.log("INFO", "transfer_to_agent", {"from": self.name, "to": target_agent.name, "context": context})
 
         # 检查目标代理是否有效
         if not hasattr(target_agent, 'run'):
-            self.logger.log("ERROR", "invalid_target_agent", {"target_agent": target_agent})
+            self.log("ERROR", "invalid_target_agent", {"target_agent": target_agent})
             return "Failed to transfer task: invalid target agent"
         #
         # # 调用目标代理的 run 方法
@@ -1318,7 +1338,7 @@ class LightAgent:
                     return "".join(result)  # 将生成器转换为字符串
                 return result
         except Exception as e:
-            self.logger.log("ERROR", "run_failed", {"error": str(e)})
+            self.log("ERROR", "run_failed", {"error": str(e)})
             raise  # 重新抛出异常以便调试
 
     def create_tool(self, user_input: str, tools_directory: str = "tools"):
@@ -1395,19 +1415,19 @@ get_weather.tool_info = {
                 tool_code = tool_data.get("tool_code")
 
                 if not tool_name or not tool_code:
-                    self.logger.log("ERROR", "invalid_tool_data", {"tool_data": tool_data})
+                    self.log("ERROR", "invalid_tool_data", {"tool_data": tool_data})
                     continue
 
                 # 保存生成的代码到 tools 目录
                 tool_path = os.path.join(tools_directory, f"{tool_name}.py")
                 with open(tool_path, "w", encoding="utf-8") as f:
                     f.write(tool_code)
-                self.logger.log("INFO", "tool_created", {"tool_name": tool_name, "tool_path": tool_path})
+                self.log("INFO", "tool_created", {"tool_name": tool_name, "tool_path": tool_path})
 
                 # 自动加载新创建的工具
                 self.load_tools([tool_name], tools_directory)
         except Exception as e:
-            self.logger.log("ERROR", "tool_creation_failed", {"error": str(e)})
+            self.log("ERROR", "tool_creation_failed", {"error": str(e)})
 
 
 class LightSwarm:
