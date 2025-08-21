@@ -545,9 +545,13 @@ OpenAI Series
  - gpt-4
  - gpt-4o
  - gpt-4o-mini
+ - o4-mini
  - gpt-4.1
  - gpt-4.1-mini
  - gpt-4.1-nano
+ - gpt-5
+ - gpt-5-mini
+ - gpt-5-nano
 
 ChatGLM
  - GLM-4-Plus
@@ -588,6 +592,16 @@ Qwen Series
  - qwen-turbo
  - qwen-long
  - qwq-32b
+ - qwen3-0.6b
+ - qwen3-1.7b
+ - qwen3-4b
+ - qwen3-8b
+ - qwen3-14b
+ - qwen3-32b
+ - qwen3-30b-a3b
+ - qwen3-235b-a22b
+ - Qwen3-30B-A3B-Thinking-2507
+ - Qwen3-30B-A3B-Instruct-2507
 
 ---
 ## Сценарии использования

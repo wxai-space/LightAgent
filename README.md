@@ -639,6 +639,11 @@ OpenAI Series
  - gpt-4.1-nano
 
 ChatGLM
+ - GLM-4.5
+ - GLM-4.5-Air
+ - GLM-4.5-X
+ - GLM-4.5-AirX
+ - GLM-4.5-Flash
  - GLM-4-Plus
  - GLM-4-Air-0111
  - GLM-4-Flash
@@ -650,9 +655,8 @@ ChatGLM
  - GLM-4-9B-Chat
 
 DeepSeek Series
- - DeepSeek-chat (API)
- - DeepSeekv2.5
- - DeepSeekv3
+ - DeepSeek-r1
+ - DeepSeek-v3
 
 stepfun
  - step-1-8k
@@ -685,6 +689,8 @@ Qwen Series
  - qwen3-32b
  - qwen3-30b-a3b
  - qwen3-235b-a22b
+ - Qwen3-30B-A3B-Thinking-2507
+ - Qwen3-30B-A3B-Instruct-2507
 
 ---
 

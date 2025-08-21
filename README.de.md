@@ -566,14 +566,33 @@ Openai-Serie
  - gpt-4
  - gpt-4o
  - gpt-4o-mini
+ - o4-mini
  - gpt-4.1
  - gpt-4.1-mini
  - gpt-4.1-nano
+ - gpt-5
+ - gpt-5-mini
+ - gpt-5-nano
 
-Deepseek-Serie
- - DeepSeek-chat (API)
- - DeepSeekv2.5
- - DeepSeekv3
+ChatGLM
+ - GLM-4.5
+ - GLM-4.5-Air
+ - GLM-4.5-X
+ - GLM-4.5-AirX
+ - GLM-4.5-Flash
+ - GLM-4-Plus
+ - GLM-4-Air-0111
+ - GLM-4-Flash
+ - GLM-4-FlashX
+ - GLM-4-alltools
+ - GLM-4
+ - GLM-3-Turbo
+ - ChatGLM3-6B
+ - GLM-4-9B-Chat
+
+DeepSeek Series
+ - DeepSeek-r1
+ - DeepSeek-v3
 
 StepFun
  - step-1-8k
@@ -599,6 +618,16 @@ Qwen-Serie
  - qwen-turbo
  - qwen-long
  - qwq-32b
+ - qwen3-0.6b
+ - qwen3-1.7b
+ - qwen3-4b
+ - qwen3-8b
+ - qwen3-14b
+ - qwen3-32b
+ - qwen3-30b-a3b
+ - qwen3-235b-a22b
+ - Qwen3-30B-A3B-Thinking-2507
+ - Qwen3-30B-A3B-Instruct-2507
 
 
 
