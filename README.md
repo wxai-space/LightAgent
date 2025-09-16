@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/wxai-space-lightagent-badge.png)](https://mseep.ai/app/wxai-space-lightagent)
+
 
 ![LightAgent Banner](docs/images/lightagent-banner.jpg)
 <div align="center">
