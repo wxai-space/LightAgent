@@ -12,9 +12,12 @@
     <a href="https://pypi.org/project/lightagent/"><img src="https://img.shields.io/pypi/v/lightagent.svg" alt="PyPI"></a>
     <a href="https://pypi.org/project/lightagent/"><img src="https://img.shields.io/pypi/dm/lightagent.svg" alt="Downloads"></a>
     <a href="https://pypi.org/project/lightagent/"><img src="https://img.shields.io/pypi/pyversions/lightagent.svg" alt="Python Version"></a>
-    <a href="https://github.com/psf/black"><img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code Style"></a>
+    <a href="https://arxiv.org/abs/2509.09292"><img src="https://img.shields.io/badge/arXiv-Paper-B31B1B?logo=arxiv&logoColor=white" alt="Code Style"></a> 
   </p>
+
 </div>
+
+
 <div align="center">
   <p>
     <a href="README.md">English</a> | 
@@ -32,6 +35,9 @@
 <div align="center">
   <h1>LightAgent🚀（生产级开源Agentic AI开发框架）</h1>
 </div>
+
+
+
 
 **LightAgent** 是一个极其轻量的带记忆（`mem0`）、工具（`Tools`）、思维树（`ToT`）的主动式 Agentic Framework（自主性框架），并且完全开源。它支持比Openai Swarm更简单的多智能体协同，简单一步即可构建具备自我学习能力的agent，并支持stdio和sse方式接入MCP协议。底层模型支持 OpenAI、智谱 ChatGLM、DeepSeek、阶跃星辰、Qwen通义千问大模型等。同时，LightAgent 支持 OpenAI 流格式 API 服务输出，无缝接入各大主流 Chat 框架。🌟
 
@@ -54,7 +60,8 @@
 
 ---
 ## 新闻
-- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-06-12]** 我们很高兴地宣布 LightAgent v0.4.0 正式发布！本次版本升级带来了架构级改进，在性能、稳定性和可维护性方面均有显著提升。
+- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-09-16]** 我们的论文发布在了arXiv <a href="https://arxiv.org/abs/2509.09292">https://arxiv.org/pdf/2509.09292 </a>，欢迎大家阅读和引用！
+- **[2025-06-12]** 我们很高兴地宣布 LightAgent v0.4.0 正式发布！本次版本升级带来了架构级改进，在性能、稳定性和可维护性方面均有显著提升。
 - **[2025-05-05]** LightAgent v0.3.3版本发布：深度集成Langfuse日志跟踪，优化上下文管理与工具调用稳定性 [查看>>](#8-集成langfuse日志跟踪)
 - **[2025-04-21]** LightAgent v0.3.2 新增自适应Tools机制，支持无限量工具智能筛选，Token消耗降低80%，响应速度提升52%！ [查看>>](#4-思维树tot)
 - **[2025-04-01]** LightAgent v0.3.0 支持浏览器交互 [browser_use](https://github.com/browser-use/browser-use)，并全面支持MCP协议，支持多模型多工具的协同工作，实现更高效的复杂任务处理。<a href="mcp_release.zh-CN.md">查看MCP发布简介>></a>
@@ -805,3 +812,19 @@ LightAgent 采用 [Apache 2.0 许可证](LICENSE)。您可以自由使用、修�
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=wxai-space/LightAgent&type=Date)](https://star-history.com/#wxai-space/LightAgent&Date)
+
+## 论文
+
+```bibtex
+@misc{2509.09292,
+Author = {Weige Cai and Tong Zhu and Jinyi Niu and Ruiqi Hu and Lingyao Li and Tenglong Wang and Xiaowu Dai and Weining Shen and Liwen Zhang},
+Title = {LightAgent: Production-level Open-source Agentic AI Framework},
+Year = {2025},
+Eprint = {arXiv:2509.09292},
+Eprinttype = {arXiv},
+Eprintclass = {cs.AI},
+Url = {https://arxiv.org/abs/2509.09292},
+Doi = {10.48550/arXiv.2509.09292},
+Note = {Submitted on 11 Sep 2025}
+}
+```

@@ -12,7 +12,7 @@
     <a href="https://pypi.org/project/lightagent/"><img src="https://img.shields.io/pypi/v/lightagent.svg" alt="PyPI"></a>
     <a href="https://pypi.org/project/lightagent/"><img src="https://img.shields.io/pypi/dm/lightagent.svg" alt="Downloads"></a>
     <a href="https://pypi.org/project/lightagent/"><img src="https://img.shields.io/pypi/pyversions/lightagent.svg" alt="Python Version"></a>
-    <a href="https://github.com/psf/black"><img src="https://img.shields.io/badge/code%20style-black-000000.svg" alt="Code Style"></a>
+    <a href="https://arxiv.org/abs/2509.09292"><img src="https://img.shields.io/badge/arXiv-Paper-B31B1B?logo=arxiv&logoColor=white" alt="Code Style"></a>
   </p>
 </div>
 <div align="center">
@@ -56,7 +56,8 @@
 
 ---
 ## News
-- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-06-12]** We are pleased to announce the official release of LightAgent v0.4.0! This version upgrade brings architectural improvements, with significant enhancements in performance, stability, and maintainability.
+- <img src="https://img.alicdn.com/imgextra/i3/O1CN01SFL0Gu26nrQBFKXFR_!!6000000007707-2-tps-500-500.png" alt="new" width="30" height="30"/>**[2025-09-16]** Our paper is now available as a preprint on arXiv: https://arxiv.org/pdf/2509.09292. We invite the research community to read and cite our work.
+- **[2025-06-12]** We are pleased to announce the official release of LightAgent v0.4.0! This version upgrade brings architectural improvements, with significant enhancements in performance, stability, and maintainability.
 - **[2025-05-05]** LightAgent v0.3.3 Released: Deep [Langfuse](https://langfuse.com/) Logging Integration, Enhanced Context Management and Tool Invocation Stability [View](#8-integrating-langfuse-log-tracking)
 - **[2025-04-21]** LightAgent v0.3.2 adds an adaptive Tools mechanism, supports unlimited intelligent tool filtering, reduces Token consumption by 80%, and improves response speed by 52%! [View](#4-tree-of-thought-tot)
 - **[2025-04-01]** LightAgent v0.3.0 Support browser interaction [browser_use](https://github.com/browser-use/browser-use) and fully supports the MCP protocol, enabling collaborative work with multiple models and tools to achieve more efficient handling of complex tasks.<a href="mcp_release.md">View MCP release introduction.>></a>
@@ -775,3 +776,22 @@ We look forward to your feedback and work together to make LightAgent even stron
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=wxai-space/LightAgent&type=Date)](https://star-history.com/#wxai-space/LightAgent&Date)
+
+## Paper
+
+```bibtex
+@misc{2509.09292,
+Author = {Weige Cai and Tong Zhu and Jinyi Niu and Ruiqi Hu and Lingyao Li and Tenglong Wang and Xiaowu Dai and Weining Shen and Liwen Zhang},
+Title = {LightAgent: Production-level Open-source Agentic AI Framework},
+Year = {2025},
+Eprint = {arXiv:2509.09292},
+Eprinttype = {arXiv},
+Eprintclass = {cs.AI},
+Url = {https://arxiv.org/abs/2509.09292},
+Doi = {10.48550/arXiv.2509.09292},
+Note = {Submitted on 11 Sep 2025}
+}
+```
+
+## Features
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/wxai-space-lightagent-badge.png)](https://mseep.ai/app/wxai-space-lightagent)
