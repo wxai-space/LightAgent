@@ -3,8 +3,8 @@
 
 """
 作者: [weego/WXAI-Team]
-版本: 0.4.3
-最后更新: 2025-07-10
+版本: 0.4.6
+最后更新: 2025-10-14
 """
 
 import asyncio
@@ -30,7 +30,7 @@ from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client
 from openai.types.chat import ChatCompletionChunk
 
-__version__ = "0.4.3"  # 你可以根据需要设置版本号
+__version__ = "0.4.6"  # 你可以根据需要设置版本号
 
 
 # openai.langfuse_auth_check()
@@ -424,7 +424,7 @@ class MCPClientManager:
 
 
 class LightAgent:
-    __version__ = "0.4.3"  # 将版本号放在类中
+    __version__ = "0.4.6"  # 将版本号放在类中
 
     def __init__(
             self,
@@ -691,10 +691,13 @@ class LightAgent:
             system_prompt += f"\n##以下是问题的补充说明\n{tot_response}"
             self.log("DEBUG", "tree_of_thought", {"response": tot_response, "active_tools": active_tools})
 
+        # 在用户查询后追加 "no_think"
+        # modified_query = query + "/no_think"
         # 准备API参数
         self.chat_params = {
             "model": self.model,
-            "messages": [{"role": "system", "content": system_prompt}] + history + [{"role": "user", "content": query}],
+            "messages": [{"role": "system", "content": system_prompt}] + history + [
+                {"role": "user", "content": query}],
             "stream": stream
         }
 
@@ -870,12 +873,27 @@ class LightAgent:
             tool_calls = []  # 用于存储所有工具调用的信息
             tool_responses = []  # 用于存储所有工具调用的结果
             finish_called = False  # 标记是否调用了finish工具
+            reasoning_content = ""
+            content = ""
 
             for chunk in response:
-                content = chunk.choices[0].delta.content or ""
+
+                if chunk.choices and len(chunk.choices) > 0:
+                    choice = chunk.choices[0]
+
+                if choice and hasattr(choice.delta, "reasoning_content") and choice.delta.reasoning_content is not None:
+                    reasoning_content = choice.delta.reasoning_content or ""
+
+                if reasoning_content:
+                    output += reasoning_content
+
+                if choice and hasattr(choice.delta, "content") and choice.delta.content is not None:
+                    content = choice.delta.content or ""
+
                 if content:
-                    yield chunk  # 流式返回内容
                     output += content
+
+                yield chunk  # 流式返回内容
 
                 try:
                     # 检查是否有工具调用
