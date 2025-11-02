@@ -1461,11 +1461,13 @@ class LightSwarm:
         for agent in agents:
             if agent.name in self.agents:
                 # print(f"Agent '{agent.name}' is already registered.")
-                agent.logger.log("INFO", "register_agent", {"agent_name": agent.name, "status": "already_registered"})
+                if hasattr(agent, 'logger') and agent.debug:
+                    agent.logger.log("INFO", "register_agent", {"agent_name": agent.name, "status": "already_registered"})
             else:
                 self.agents[agent.name] = agent
                 # print(f"Agent '{agent.name}' registered.")
-                agent.logger.log("INFO", "register_agent", {"agent_name": agent.name, "status": "registered"})
+                if hasattr(agent, 'logger') and agent.debug:
+                    agent.logger.log("INFO", "register_agent", {"agent_name": agent.name, "status": "registered"})
 
     def run(self, agent: LightAgent, query: str, stream=False):
         """
