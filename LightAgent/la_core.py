@@ -3,8 +3,8 @@
 
 """
 作者: [weego/WXAI-Team]
-版本: 0.4.6
-最后更新: 2025-10-14
+版本: 0.4.7
+最后更新: 2025-11-05
 """
 
 import asyncio
@@ -30,7 +30,7 @@ from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client
 from openai.types.chat import ChatCompletionChunk
 
-__version__ = "0.4.6"  # 你可以根据需要设置版本号
+__version__ = "0.4.7"  # 你可以根据需要设置版本号
 
 
 # openai.langfuse_auth_check()
@@ -424,7 +424,7 @@ class MCPClientManager:
 
 
 class LightAgent:
-    __version__ = "0.4.6"  # 将版本号放在类中
+    __version__ = "0.4.7"  # 将版本号放在类中
 
     def __init__(
             self,
@@ -1461,11 +1461,11 @@ class LightSwarm:
         for agent in agents:
             if agent.name in self.agents:
                 # print(f"Agent '{agent.name}' is already registered.")
-                agent.logger.log("INFO", "register_agent", {"agent_name": agent.name, "status": "already_registered"})
+                agent.log("INFO", "register_agent", {"agent_name": agent.name, "status": "already_registered"})
             else:
                 self.agents[agent.name] = agent
                 # print(f"Agent '{agent.name}' registered.")
-                agent.logger.log("INFO", "register_agent", {"agent_name": agent.name, "status": "registered"})
+                agent.log("INFO", "register_agent", {"agent_name": agent.name, "status": "registered"})
 
     def run(self, agent: LightAgent, query: str, stream=False):
         """
