@@ -740,7 +740,7 @@ class LightAgent:
                 context += "\n##问题相关补充信息:\n" + "\n".join(
                     [m["memory"] for m in agent_memories["results"]]
                 )
-                self.memory.store(data=query, user_id=self.name)
+            self.memory.store(data=query, user_id=self.name)
 
         return f"{context}\n##用户提问：\n{query}" if context else query
 
